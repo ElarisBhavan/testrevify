@@ -3,307 +3,499 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ReviFlow — sign in</title>
+<title>ReviFlow RCM — Sign in</title>
+<meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="apple-touch-icon" href="assets/logo-180.png">
-<meta name="description" content="Sign in to ReviFlow, the Revify RCM workspace. Employee, provider and administrator access.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="_guard.js"></script>
+<script src="_store.js"></script>
+<script src="_live.js"></script>
+<script src="_session.js"></script>
 <style>
 :root{
-  --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#606E6A;
-  --line:rgba(14,26,23,.09);--line-2:rgba(14,26,23,.16);
-  --accent:#0E9D73;--accent-soft:#E4F5EE;--accent-deep:#0B3D31;
-  --indigo:#5A6CFF;
-  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
-  --ease:cubic-bezier(.22,1,.36,1);
+  --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#5C6A66;--dim:#8A9A97;
+  --line:rgba(14,26,23,.08);--line-2:rgba(14,26,23,.13);
+  --green:#0E9D73;--green-d:#0A5C46;--green-s:#DFF5EC;
+  --blue:#3B6FF5;--blue-s:#E4ECFE;
+  --coral:#CE5F3E;--coral-s:#FBEAE4;
+  --amber:#C08616;--amber-s:#FBF2DC;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --e:cubic-bezier(.22,1,.36,1);
+  --spring:cubic-bezier(.34,1.4,.64,1);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;display:flex;flex-direction:column}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Manrope',system-ui,-apple-system,sans-serif;
+  background:var(--paper);color:var(--ink);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+button,input,select{font:inherit;color:inherit}
 a{color:inherit;text-decoration:none}
-:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:8px}
 
-/* ── backdrop, matching the home hero ── */
-.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.bg .dots{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(14,26,23,.10) 1px,transparent 0);background-size:28px 28px;-webkit-mask-image:radial-gradient(112% 78% at 50% 4%,#000,transparent 70%);mask-image:radial-gradient(112% 78% at 50% 4%,#000,transparent 70%)}
-.bg .bloom{position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:min(1050px,105vw);height:min(720px,76vw);border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(14,157,115,.16),rgba(14,157,115,.05) 45%,transparent 70%)}
-.bg .bloom2{position:absolute;bottom:-32%;right:-12%;width:min(560px,64vw);height:min(560px,64vw);border-radius:50%;filter:blur(64px);background:radial-gradient(circle,rgba(90,108,255,.10),transparent 68%)}
-.bg svg{position:absolute;inset:0;width:100%;height:100%;opacity:.62}
-.bg path{fill:none;stroke:rgba(14,157,115,.34);stroke-width:1;stroke-dasharray:4 12;animation:flow 4.4s linear infinite}
-.bg path:nth-child(2){animation-duration:5.8s;stroke:rgba(14,26,23,.14)}
-.bg path:nth-child(3){animation-duration:7s}
-@keyframes flow{to{stroke-dashoffset:-160}}
+/* ── backdrop ── */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.mesh{position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:58px 58px;
+  mask-image:radial-gradient(ellipse 90% 70% at 30% 40%,#000 30%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 70% at 30% 40%,#000 30%,transparent 100%)}
+.aur{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4}
+.a1{width:640px;height:640px;background:radial-gradient(circle,#9FE3C8,transparent 68%);
+  top:-220px;left:-160px;animation:drift1 26s ease-in-out infinite}
+.a2{width:560px;height:560px;background:radial-gradient(circle,#BFD3FF,transparent 68%);
+  bottom:-200px;left:22%;animation:drift2 32s ease-in-out infinite}
+.a3{width:480px;height:480px;background:radial-gradient(circle,#F6D9C6,transparent 68%);
+  top:32%;right:-140px;animation:drift3 28s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:none}50%{transform:translate(70px,50px) scale(1.1)}}
+@keyframes drift2{0%,100%{transform:none}50%{transform:translate(-60px,-45px) scale(1.08)}}
+@keyframes drift3{0%,100%{transform:none}50%{transform:translate(-50px,60px) scale(1.12)}}
 
-/* ── header ── */
-.phdr{position:relative;z-index:3;display:flex;align-items:center;gap:16px;padding:clamp(15px,2.2vw,24px) clamp(18px,3.6vw,46px)}
-.back{display:inline-flex;align-items:center;gap:9px;padding:9px 17px 9px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.6);font-size:13.5px;font-weight:600;transition:border-color .35s var(--ease),background .35s var(--ease),transform .35s var(--ease)}
-.back svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s var(--ease)}
-.back:hover{border-color:var(--accent);background:#fff;transform:translateX(-2px)}
-.back:hover svg{transform:translateX(-3px)}
-.brand{margin-left:auto;display:flex;align-items:center;gap:9px}
-.brand svg{width:25px;height:25px}
-.brand span{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.035em}
-.brand em{font-style:normal;color:var(--accent);font-weight:400;font-size:.9em;margin-left:4px}
+/* ── layout ── */
+.stage{position:relative;z-index:1;min-height:100vh;display:grid;
+  grid-template-columns:minmax(420px,44%) 1fr;align-items:stretch}
 
-/* ── stage ── */
-.portal{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(14px,2.6vw,36px) clamp(18px,3.6vw,46px) clamp(26px,3.4vw,46px)}
-.pinner{max-width:980px;margin:0 auto;width:100%}
-.ptop{text-align:center;margin-bottom:clamp(26px,3.6vw,46px)}
-.pkick{display:inline-flex;align-items:center;gap:8px;padding:6px 15px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.72);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:17px;opacity:0;transform:translateY(12px);animation:up .8s var(--ease) .1s forwards}
-.pkick i{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blip 2.2s infinite}
-@keyframes blip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}
-.ptop h1{font-family:'Sora',sans-serif;font-size:clamp(27px,4vw,46px);line-height:1.06;font-weight:600;letter-spacing:-.043em;margin-bottom:12px}
-.ptop h1 span{display:inline-block;opacity:0;transform:translateY(22px);animation:up .9s var(--ease) .22s forwards}
-.ptop h1 em{font-style:normal;color:var(--accent)}
-.ptop p{font-size:clamp(13.5px,1.1vw,16px);line-height:1.65;color:var(--muted);max-width:46ch;margin:0 auto;opacity:0;transform:translateY(14px);animation:up .8s var(--ease) .46s forwards}
-@keyframes up{to{opacity:1;transform:none}}
+/* ── left: the form ── */
+.left{display:flex;flex-direction:column;justify-content:center;
+  padding:48px 56px;min-width:0}
+.mark{display:flex;align-items:center;gap:11px;margin-bottom:auto;
+  animation:rise .7s var(--e) both}
+.mark img{width:38px;height:38px;border-radius:11px}
+.mark span{font-family:'Sora',sans-serif;font-size:19px;font-weight:600;letter-spacing:-.04em}
+.mark em{font-style:normal;color:var(--green-d)}
 
-/* ── three doors ── */
-.doors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4vw,30px)}
-.door{display:block;text-align:center;opacity:0;transform:translateY(28px);animation:up .9s var(--ease) forwards}
-.door:nth-child(1){animation-delay:.6s}
-.door:nth-child(2){animation-delay:.71s}
-.door:nth-child(3){animation-delay:.82s}
+.panel{width:100%;max-width:404px;margin:40px 0;
+  animation:rise .8s var(--e) .08s both}
+.kick{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:99px;
+  background:var(--green-s);border:1px solid rgba(14,157,115,.2);
+  font-family:var(--mono);font-size:9.6px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--green-d);margin-bottom:18px}
+.kick i{width:5px;height:5px;border-radius:50%;background:var(--green);
+  animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 
-.frame{
-  position:relative;width:100%;max-width:210px;margin:0 auto;aspect-ratio:4/3;
-  border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--line-2);
-  display:grid;place-items:center;padding:16px;
-  box-shadow:0 12px 30px -22px rgba(11,61,49,.4);
-  transition:transform .5s var(--ease),border-color .4s var(--ease),box-shadow .5s var(--ease)
-}
-.frame::before{content:'';position:absolute;inset:0;background:radial-gradient(72% 62% at 50% 20%,rgba(14,157,115,.09),transparent 68%);opacity:0;transition:opacity .45s var(--ease)}
-.frame::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .55s var(--ease)}
-.door:hover .frame,.door:focus-visible .frame{transform:translateY(-6px);border-color:rgba(14,157,115,.42);box-shadow:0 26px 50px -28px rgba(11,61,49,.45)}
-.door:hover .frame::before{opacity:1}
-.door:hover .frame::after{transform:scaleX(1)}
-.frame svg{position:relative;z-index:1;width:100%;height:100%;overflow:visible}
+.panel h1{font-family:'Sora',sans-serif;font-size:clamp(28px,3.4vw,38px);font-weight:600;
+  letter-spacing:-.05em;line-height:1.08;margin-bottom:10px}
+.panel h1 em{font-style:normal;
+  background:linear-gradient(120deg,var(--green-d),var(--blue));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.panel > p{font-size:14px;color:var(--muted);line-height:1.62;margin-bottom:30px;max-width:37ch}
 
-.ln{fill:none;stroke:rgba(14,26,23,.5);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.ac{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.fs{fill:#EDF1EF}.fa{fill:var(--accent)}.fsoft{fill:var(--accent-soft)}
+.f{display:block;margin-bottom:17px;position:relative}
+.f > span{display:block;font-size:11.4px;font-weight:600;color:var(--muted);margin-bottom:7px}
+.inw{position:relative}
+.inw > svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;stroke:var(--dim);fill:none;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;transition:stroke .26s var(--e)}
+.f input{width:100%;padding:14px 15px 14px 42px;border-radius:13px;
+  border:1px solid var(--line-2);background:rgba(255,255,255,.8);
+  font-size:14.4px;letter-spacing:-.01em;
+  transition:border-color .26s var(--e),box-shadow .26s var(--e),background .26s var(--e)}
+.f input::placeholder{color:#AEBAB7}
+.f input:hover{border-color:rgba(14,26,23,.24)}
+.f input:focus{outline:none;background:#fff;border-color:var(--green);
+  box-shadow:0 0 0 4px rgba(14,157,115,.12)}
+.f input:focus ~ svg,.inw:focus-within > svg{stroke:var(--green-d)}
+.f input.bad{border-color:var(--coral);box-shadow:0 0 0 4px rgba(206,95,62,.1)}
+.peek{position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:34px;height:34px;border:none;background:none;border-radius:9px;cursor:pointer;
+  display:grid;place-items:center;transition:background .22s}
+.peek svg{width:16px;height:16px;stroke:var(--dim);fill:none;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.peek:hover{background:rgba(14,26,23,.05)}
+.peek:hover svg{stroke:var(--ink)}
+.err{display:block;font-size:11.6px;color:var(--coral);margin-top:6px;
+  max-height:0;overflow:hidden;opacity:0;transition:all .3s var(--e)}
+.err.show{max-height:44px;opacity:1}
 
-/* 01 · worklist clearing — rows tick off in sequence */
-.tick{opacity:0;transform:scale(.4);transform-origin:center;transition:opacity .32s var(--ease),transform .42s var(--ease)}
-.door:hover .tick{opacity:1;transform:scale(1)}
-.door:hover .t2{transition-delay:.14s}
-.door:hover .t3{transition-delay:.28s}
-.rowfill{fill:var(--accent-soft);opacity:0;transition:opacity .36s var(--ease)}
-.door:hover .rowfill{opacity:1}
-.door:hover .r2{transition-delay:.14s}
-.door:hover .r3{transition-delay:.28s}
-.caret{transition:transform .5s var(--ease)}
-.door:hover .caret{transform:translateY(46px)}
-.rowtxt{transition:opacity .36s var(--ease)}
-.door:hover .rowtxt{opacity:.35}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.check{display:flex;align-items:center;gap:8px;font-size:12.6px;color:var(--muted);cursor:pointer}
+.check input{position:absolute;opacity:0;pointer-events:none}
+.box{width:17px;height:17px;border-radius:6px;border:1.6px solid var(--line-2);
+  background:#fff;display:grid;place-items:center;transition:all .24s var(--e)}
+.box svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:3;
+  stroke-linecap:round;stroke-linejoin:round;opacity:0;transform:scale(.5);
+  transition:all .24s var(--spring)}
+.check input:checked + .box{background:var(--green-d);border-color:var(--green-d)}
+.check input:checked + .box svg{opacity:1;transform:none}
+.forgot{font-size:12.6px;font-weight:600;color:var(--green-d);cursor:pointer;
+  transition:opacity .2s}
+.forgot:hover{opacity:.7;text-decoration:underline}
 
-/* 02 · chart drawing — trend line draws, marker pops, bar grows */
-.trend{stroke-dasharray:180;stroke-dashoffset:180;transition:stroke-dashoffset 1.1s var(--ease)}
-.door:hover .trend{stroke-dashoffset:0}
-.marker{opacity:0;transform:scale(.3);transform-origin:center;transition:opacity .3s var(--ease) .72s,transform .45s var(--ease) .72s}
-.door:hover .marker{opacity:1;transform:scale(1)}
-.bar{transform:scaleY(.3);transform-origin:bottom;transition:transform .6s var(--ease)}
-.door:hover .bar{transform:scaleY(1)}
-.door:hover .b2{transition-delay:.1s}
-.door:hover .b3{transition-delay:.2s}
-.door:hover .b4{transition-delay:.3s}
+.go{position:relative;width:100%;padding:15px;border-radius:13px;border:none;
+  background:linear-gradient(135deg,var(--green-d),#084A38);color:#F2FBF7;
+  font-size:14.4px;font-weight:600;letter-spacing:-.01em;cursor:pointer;overflow:hidden;
+  box-shadow:0 14px 32px -16px rgba(10,92,70,.9);
+  transition:transform .3s var(--e),box-shadow .3s var(--e)}
+.go:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 20px 40px -18px rgba(10,92,70,.95)}
+.go:active:not(:disabled){transform:translateY(0)}
+.go:disabled{opacity:.6;cursor:wait}
+.go .lbl{display:inline-flex;align-items:center;gap:9px;transition:opacity .24s}
+.go svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round}
+.go .spin{position:absolute;inset:0;display:grid;place-items:center;opacity:0;
+  transition:opacity .24s}
+.go .spin i{width:17px;height:17px;border:2.2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.go.busy .lbl{opacity:0}
+.go.busy .spin{opacity:1}
 
-/* 03 · permissions granted — toggles slide on in sequence */
-.tgtrack{fill:#E2E7E5;transition:fill .4s var(--ease)}
-.door:hover .tgtrack{fill:var(--accent)}
-.door:hover .g2{transition-delay:.13s}
-.door:hover .g3{transition-delay:.26s}
-.tgknob{transition:transform .45s var(--ease)}
-.door:hover .tgknob{transform:translateX(16px)}
-.door:hover .k2{transition-delay:.13s}
-.door:hover .k3{transition-delay:.26s}
-.seal{opacity:0;transform:scale(.5);transform-origin:center;transition:opacity .34s var(--ease) .42s,transform .5s var(--ease) .42s}
-.door:hover .seal{opacity:1;transform:scale(1)}
+.foot{margin-top:auto;padding-top:32px;font-size:11.6px;color:var(--dim);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  animation:rise .8s var(--e) .18s both}
+.foot .dot{width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.5}
+.lock{display:inline-flex;align-items:center;gap:6px}
+.lock svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
 
-/* shared idle pulse */
-.pulse{animation:pulseIn 3.2s ease-in-out infinite}
-@keyframes pulseIn{0%,100%{opacity:.3}50%{opacity:1}}
+/* ── right: image and words ── */
+.right{position:relative;display:flex;flex-direction:column;
+  padding:44px 48px 44px 8px;min-width:0;overflow:hidden}
 
-/* ── label outside the frame ── */
-.meta{padding-top:clamp(14px,1.8vw,20px)}
-.meta h2{font-family:'Sora',sans-serif;font-size:clamp(16.5px,1.6vw,20px);font-weight:600;letter-spacing:-.032em;margin-bottom:7px;transition:color .35s ease}
-.door:hover .meta h2{color:var(--accent)}
-.meta p{font-size:12.8px;line-height:1.6;color:var(--muted);max-width:28ch;margin:0 auto 14px}
-.enter{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--accent-deep);padding:7px 15px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);transition:all .4s var(--ease)}
-.enter svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .4s var(--ease)}
-.door:hover .enter{border-color:var(--accent-deep);background:var(--accent-deep);color:#F2FBF7}
-.door:hover .enter svg{transform:translateX(4px)}
+.frame{position:relative;flex:1;border-radius:26px;overflow:hidden;min-height:0;
+  background:linear-gradient(150deg,#DFF5EC,#E4ECFE 55%,#F6E4DA);
+  box-shadow:0 30px 70px -34px rgba(14,26,23,.4);
+  animation:rise .9s var(--e) .12s both;
+  transition:transform .8s var(--e),box-shadow .8s var(--e)}
+.frame:hover{transform:translateY(-6px) scale(1.006);
+  box-shadow:0 42px 92px -38px rgba(14,26,23,.48)}
+.frame img{width:100%;height:100%;object-fit:cover;display:block;
+  transform:scale(1.04);
+  transition:transform 1.1s var(--e),filter .8s var(--e)}
+.frame:hover img{transform:scale(1.1)}
+.frame::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(14,26,23,.5),rgba(14,26,23,.06) 46%,transparent 70%);
+  opacity:.9;transition:opacity .7s var(--e)}
+.frame:hover::after{opacity:.98}
 
-.pfoot{position:relative;z-index:2;text-align:center;padding:0 clamp(18px,3.6vw,46px) clamp(20px,2.6vw,30px);font-size:12.2px;color:var(--muted);opacity:0;animation:up .8s var(--ease) 1s forwards}
-.pfoot a{color:var(--accent-deep);font-weight:500;border-bottom:1px solid rgba(11,61,49,.28)}
-.pfoot a:hover{color:var(--accent);border-color:var(--accent)}
+/* a soft sheen that crosses the picture on hover */
+.frame::before{content:'';position:absolute;top:0;bottom:0;width:44%;z-index:2;
+  left:-60%;pointer-events:none;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.34),transparent);
+  transition:left 1.1s var(--e)}
+.frame:hover::before{left:120%}
 
-@media (max-width:820px){
-  .doors{grid-template-columns:minmax(0,1fr);max-width:340px;margin:0 auto;gap:26px}
-  .frame{max-width:186px;aspect-ratio:16/10}
-  .portal{justify-content:flex-start}
+/* shown until an image is added */
+.await{position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+  padding:32px;color:var(--green-d)}
+.await svg{width:44px;height:44px;stroke:currentColor;fill:none;stroke-width:1.4;
+  stroke-linecap:round;stroke-linejoin:round;opacity:.6;margin-bottom:14px}
+.await b{display:block;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;
+  letter-spacing:-.028em;margin-bottom:6px}
+.await span{display:block;font-size:12.2px;opacity:.72;line-height:1.6;max-width:34ch}
+.await code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.6);
+  padding:2px 7px;border-radius:5px}
+
+.words{padding:34px 6px 0;animation:rise .9s var(--e) .22s both}
+.quote{position:relative;font-family:'Sora',sans-serif;
+  font-size:clamp(24px,2.7vw,36px);font-weight:700;letter-spacing:-.045em;
+  line-height:1.16;margin-bottom:18px;max-width:19ch}
+.quote .w{display:inline-block;opacity:0;transform:translateY(16px);
+  animation:word .74s var(--e) forwards}
+.quote em{font-style:normal;
+  background:linear-gradient(120deg,var(--green-d),var(--blue) 70%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+@keyframes word{to{opacity:1;transform:none}}
+.body{font-size:14.6px;line-height:1.72;color:var(--muted);max-width:52ch;
+  animation:rise .9s var(--e) 1.5s both}
+.rule{width:52px;height:3px;border-radius:2px;margin-bottom:22px;
+  background:linear-gradient(90deg,var(--green),var(--blue));
+  transform-origin:left;animation:grow .9s var(--e) .3s both}
+@keyframes grow{from{transform:scaleX(0)}}
+
+@keyframes rise{from{opacity:0;transform:translateY(20px)}}
+
+/* ── responsive ── */
+@media (max-width:1080px){
+  .stage{grid-template-columns:1fr}
+  .right{order:-1;padding:24px 24px 0;min-height:40vh}
+  .frame{min-height:220px}
+  .left{padding:34px 28px 44px}
+  .panel{margin:26px auto;max-width:440px}
+  .mark{margin-bottom:0}
+  .words{padding-top:24px}
+  .quote{max-width:none}
+  .foot{padding-top:26px}
 }
 @media (max-width:520px){
-  .brand span{font-size:15px}
-  .frame{max-width:164px}
+  .left{padding:24px 20px 34px}
+  .right{padding:18px 18px 0}
+  .quote{font-size:23px}
+  .body{font-size:13.6px}
 }
 @media (prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
-  .door,.pkick,.ptop h1 span,.ptop p,.pfoot{opacity:1!important;transform:none!important}
+  *,*::before,*::after{animation-duration:.01ms!important;
+    animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .quote .w{opacity:1;transform:none}
 }
-
-/* --rf-logo-styled */
-img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
-  background:transparent;box-shadow:none;padding:0;display:block}
-img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
-.crest img{width:100%;height:100%;object-fit:contain;display:block}
-.crest{background:none!important;box-shadow:none!important;padding:4px}
-.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
-.inv-h .lg,.lg{background:transparent!important;padding:2px}
-
-/* rf-logomark-styled */
-img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
-  background:transparent!important;border:none!important;box-shadow:none!important}
 </style>
 </head>
 <body>
 
 <div class="bg" aria-hidden="true">
-  <div class="dots"></div>
-  <div class="bloom"></div>
-  <div class="bloom2"></div>
-  <svg viewBox="0 0 1440 900" preserveAspectRatio="none">
-    <path d="M-60 250 C 300 250, 420 470, 760 470 C 1100 470, 1200 250, 1500 250"/>
-    <path d="M-60 640 C 320 640, 440 470, 760 470 C 1080 470, 1180 640, 1500 640"/>
-    <path d="M-60 440 C 340 440, 460 500, 760 500 C 1060 500, 1160 440, 1500 440"/>
-  </svg>
+  <div class="mesh"></div>
+  <div class="aur a1"></div><div class="aur a2"></div><div class="aur a3"></div>
 </div>
 
-<header class="phdr">
-  <a href="index.html" class="back">
-    <svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>
-    Back to home
-  </a>
-  <div class="brand">
-    <img class="brandmark" src="assets/logo-64.png" alt="ReviFlow RCM">
-    <span>R&nbsp;e&nbsp;v&nbsp;i&nbsp;F&nbsp;l&nbsp;o&nbsp;w&nbsp;</span>
-  </div>
-</header>
+<div class="stage">
 
-<main class="portal">
-  <div class="pinner">
-
-    <div class="ptop">
-      <span class="pkick"><i></i>Secure workspace</span>
-      <h1><span>Who is signing in <em>today</em>?</span></h1>
-      <p>Choose your role to continue. Each workspace shows only the records that role is cleared to see.</p>
+  <!-- ── sign in ── -->
+  <div class="left">
+    <div class="mark">
+      <img src="assets/logo-64.png" alt="">
+      <span>ReviFlow<em>RCM</em></span>
     </div>
 
-    <div class="doors">
+    <div class="panel">
+      <span class="kick"><i></i>Secure sign in</span>
+      <h1>Welcome <em>back</em></h1>
+      <p>One sign in for everyone. You will land on your own workspace.</p>
 
-      <!-- 01 EMPLOYEE — worklist clearing -->
-      <a class="door" href="Provider/provider-login.html">
-        <div class="frame">
-          <svg viewBox="0 0 200 150" aria-hidden="true">
-            <rect class="fs" x="18" y="16" width="164" height="118" rx="11"/>
-            <path class="ln" d="M18 16h164v118H18zM18 40h164" stroke-width="1.6" opacity=".55"/>
-            <circle class="fa pulse" cx="31" cy="28" r="3.2"/>
-            <rect x="42" y="25.5" width="34" height="5" rx="2.5" fill="rgba(14,26,23,.16)"/>
+      <form id="form" novalidate>
+        <label class="f">
+          <span>Username</span>
+          <span class="inw">
+            <input type="text" id="u" autocomplete="username" placeholder="Your username"
+                   autocapitalize="off" autocorrect="off" spellcheck="false" required>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </span>
+          <span class="err" id="ue"></span>
+        </label>
 
-            <rect class="rowfill" x="30" y="52" width="140" height="20" rx="6"/>
-            <rect class="rowtxt" x="56" y="59" width="66" height="5.5" rx="2.75" fill="rgba(14,26,23,.22)"/>
-            <path class="ac tick" d="M36 62l4 4 7-8" style="transform-origin:41px 62px"/>
-            <circle class="ln" cx="41" cy="62" r="7" stroke-width="1.5" opacity=".3"/>
+        <label class="f">
+          <span>Password</span>
+          <span class="inw">
+            <input type="password" id="p" autocomplete="current-password" placeholder="Your password" required>
+            <svg viewBox="0 0 24 24"><rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>
+            <button type="button" class="peek" id="peek" aria-label="Show password">
+              <svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
+            </button>
+          </span>
+          <span class="err" id="pe"></span>
+        </label>
 
-            <rect class="rowfill r2" x="30" y="80" width="140" height="20" rx="6"/>
-            <rect class="rowtxt" x="56" y="87" width="84" height="5.5" rx="2.75" fill="rgba(14,26,23,.22)"/>
-            <path class="ac tick t2" d="M36 90l4 4 7-8" style="transform-origin:41px 90px"/>
-            <circle class="ln" cx="41" cy="90" r="7" stroke-width="1.5" opacity=".3"/>
-
-            <rect class="rowfill r3" x="30" y="108" width="140" height="20" rx="6"/>
-            <rect class="rowtxt" x="56" y="115" width="52" height="5.5" rx="2.75" fill="rgba(14,26,23,.22)"/>
-            <path class="ac tick t3" d="M36 118l4 4 7-8" style="transform-origin:41px 118px"/>
-            <circle class="ln" cx="41" cy="118" r="7" stroke-width="1.5" opacity=".3"/>
-
-            <g class="caret"><circle class="fa" cx="176" cy="62" r="3.4"/></g>
-          </svg>
+        <div class="row">
+          <label class="check">
+            <input type="checkbox" id="remember">
+            <span class="box"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+            Remember me
+          </label>
+          <span class="forgot" id="forgot">Forgotten password?</span>
         </div>
-        <div class="meta">
-          <h2>Employee</h2>
-          <p>Front desk, coders and billing staff. Worklists, eligibility and claim queues.</p>
-          <span class="enter">Continue<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
-        </div>
-      </a>
 
-      <!-- 02 PROVIDER — performance drawing itself -->
-      <a class="door" href="Provider/provider-login.html">
-        <div class="frame">
-          <svg viewBox="0 0 200 150" aria-hidden="true">
-            <rect class="fs" x="18" y="16" width="164" height="118" rx="11"/>
-            <path class="ln" d="M18 16h164v118H18z" stroke-width="1.6" opacity=".55"/>
-            <rect x="32" y="30" width="40" height="5" rx="2.5" fill="rgba(14,26,23,.18)"/>
-            <path class="ln" d="M32 116h136" stroke-width="1.4" opacity=".35"/>
+        <button type="submit" class="go" id="go">
+          <span class="lbl">Sign in
+            <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
+          <span class="spin"><i></i></span>
+        </button>
+      </form>
+    </div>
 
-            <rect class="bar fsoft" x="38" y="82" width="17" height="34" rx="4"/>
-            <rect class="bar b2 fsoft" x="65" y="72" width="17" height="44" rx="4"/>
-            <rect class="bar b3 fsoft" x="92" y="62" width="17" height="54" rx="4"/>
-            <rect class="bar b4 fa" x="119" y="50" width="17" height="66" rx="4"/>
-
-            <path class="ac trend" d="M46 96 C 66 88, 78 74, 100 66 S 138 46, 156 40" stroke-width="2.4"/>
-            <g class="marker">
-              <circle cx="156" cy="40" r="10" fill="rgba(14,157,115,.16)"/>
-              <circle class="fa" cx="156" cy="40" r="4.6"/>
-            </g>
-          </svg>
-        </div>
-        <div class="meta">
-          <h2>Provider</h2>
-          <p>Clinicians and owners. Encounter status, documentation flags and collections.</p>
-          <span class="enter">Continue<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
-        </div>
-      </a>
-
-      <!-- 03 ADMIN — permissions granted -->
-      <a class="door" href="Admin/admin-login.html">
-        <div class="frame">
-          <svg viewBox="0 0 200 150" aria-hidden="true">
-            <rect class="fs" x="18" y="16" width="164" height="118" rx="11"/>
-            <path class="ln" d="M18 16h164v118H18z" stroke-width="1.6" opacity=".55"/>
-            <rect x="32" y="30" width="46" height="5" rx="2.5" fill="rgba(14,26,23,.18)"/>
-
-            <rect x="34" y="52" width="52" height="5.5" rx="2.75" fill="rgba(14,26,23,.2)"/>
-            <rect class="tgtrack" x="128" y="48" width="34" height="15" rx="7.5"/>
-            <circle class="tgknob" cx="136" cy="55.5" r="5.4" fill="#fff"/>
-
-            <rect x="34" y="79" width="66" height="5.5" rx="2.75" fill="rgba(14,26,23,.2)"/>
-            <rect class="tgtrack g2" x="128" y="75" width="34" height="15" rx="7.5"/>
-            <circle class="tgknob k2" cx="136" cy="82.5" r="5.4" fill="#fff"/>
-
-            <rect x="34" y="106" width="40" height="5.5" rx="2.75" fill="rgba(14,26,23,.2)"/>
-            <rect class="tgtrack g3" x="128" y="102" width="34" height="15" rx="7.5"/>
-            <circle class="tgknob k3" cx="136" cy="109.5" r="5.4" fill="#fff"/>
-
-            <g class="seal" style="transform-origin:100px 82px">
-              <circle cx="100" cy="82" r="21" fill="rgba(14,157,115,.12)"/>
-              <path class="ac" d="M100 68l13 5v10c0 7.6-5.4 12.4-13 14.6-7.6-2.2-13-7-13-14.6V73z" stroke-width="2"/>
-              <path class="ac" d="M95.4 82.4l3.4 3.4 6-6.8" stroke-width="2.2"/>
-            </g>
-          </svg>
-        </div>
-        <div class="meta">
-          <h2>Admin</h2>
-          <p>Practice administrators. Roles, audit history, payer setup and exports.</p>
-          <span class="enter">Continue<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
-        </div>
-      </a>
-
+    <div class="foot">
+      <span class="lock">
+        <svg viewBox="0 0 24 24"><rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>
+        Encrypted connection
+      </span>
+      <span class="dot"></span>
+      <span>Authorised access only</span>
+      <span class="dot"></span>
+      <span id="mode">—</span>
     </div>
   </div>
-</main>
 
-<p class="pfoot">Trouble signing in? <a href="index.html#contact">Contact your administrator</a> · Protected by single sign-on and multi-factor authentication</p>
+  <!-- ── picture and words ── -->
+  <div class="right">
+    <div class="frame" id="frame">
+      <!--
+        Put your picture at  assets/welcome.jpg  and it appears here.
+        Anything roughly 1200×1600 or taller works well; it is cropped to fill.
+      -->
+      <img id="hero" src="assets/welcome.jpg" alt="" onerror="this.style.display='none';document.getElementById('await').style.display='grid';">
+      <div class="await" id="await" style="display:none">
+        <div>
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M3 17l5-4 4 3 3-2 6 5"/></svg>
+          <b>Your picture goes here</b>
+          <span>Save it as <code>assets/welcome.jpg</code> and it will fill this
+            panel, with the hover effect already applied.</span>
+        </div>
+      </div>
+    </div>
 
+    <div class="words">
+      <div class="rule"></div>
+      <p class="quote" id="quote">You are braver than you believe, stronger than you seem, and <em>smarter than you think.</em></p>
+      <p class="body">Healing cannot be rushed. Our dedicated care team is here to
+        support you through every single step of your recovery. Rest easy knowing
+        you are in safe hands.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+
+  /* ── where each role belongs ──
+     One place, so a role added later needs one line here and nowhere else. */
+  var HOME = {
+    admin:        'Admin/admin-dashboard.html',
+    supervisor:   'Provider/provider-dashboard.html',
+    provider:     'Provider/provider-dashboard.html',
+    scheduler:    'Provider/provider-dashboard.html',
+    employee:     'Provider/provider-dashboard.html',
+    billing:      'Provider/claims.html',
+    frontoffice:  'Provider/schedule.html',
+    patient:      'Patient/patient-dashboard.html'
+  };
+  var FALLBACK = 'Provider/provider-dashboard.html';
+
+  function landingFor(account){
+    if(!account) return FALLBACK;
+    var role = String(account.role||'').toLowerCase().replace(/[\s_-]/g,'');
+    if(HOME[role]) return HOME[role];
+    /* a provider record attached to the account is a strong hint */
+    if(account.provider_id || account.provider_ref) return HOME.provider;
+    return FALLBACK;
+  }
+
+  /* ── the words, one at a time ── */
+  (function(){
+    var q=$('quote'); if(!q) return;
+    var html=q.innerHTML, i=0;
+    /* split on spaces but keep the emphasised span intact */
+    q.innerHTML = html.replace(/(<em>[\s\S]*?<\/em>|[^\s<]+)/g, function(m){
+      var d=(0.34 + (i++) * 0.055).toFixed(3);
+      return '<span class="w" style="animation-delay:'+d+'s">'+m+'</span>';
+    });
+  })();
+
+  /* ── show and hide the password ── */
+  $('peek').addEventListener('click',function(){
+    var p=$('p'), open=p.type==='password';
+    p.type = open ? 'text' : 'password';
+    this.setAttribute('aria-label', open ? 'Hide password' : 'Show password');
+    this.innerHTML = open
+      ? '<svg viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6.1A9.5 9.5 0 0112 6c6.4 0 10 6 10 6a17 17 0 01-3.3 3.9M6.6 6.6A17 17 0 002 12s3.6 6.5 10 6.5c1.4 0 2.6-.3 3.7-.7"/><path d="M9.9 9.9a2.6 2.6 0 003.7 3.7"/></svg>'
+      : '<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>';
+    p.focus();
+  });
+
+  function clearError(el, err){
+    el.classList.remove('bad');
+    err.classList.remove('show');
+    err.textContent='';
+  }
+  ['u','p'].forEach(function(id){
+    $(id).addEventListener('input',function(){ clearError($(id), $(id+'e')); });
+  });
+
+  /* ── already signed in ── */
+  (async function(){
+    await RFStore.ready();
+    $('mode').textContent = RFStore.DRIVER==='api'
+      ? 'Shared workspace' : 'This device only';
+
+    var last = localStorage.getItem('rf_last_user');
+    if(last){ $('u').value = last; $('remember').checked = true; $('p').focus(); }
+    else { $('u').focus(); }
+
+    var live = RFStore.getSession();
+    if(live && live.username){
+      /* Offer rather than redirect — somebody may be signing in as themselves
+         on a shared computer, and silently sending them to another person's
+         workspace would be worse than an extra click. */
+      var panel=document.querySelector('.panel');
+      var box=document.createElement('div');
+      box.style.cssText='padding:15px 17px;border-radius:14px;margin-bottom:22px;'+
+        'background:var(--green-s);border:1px solid rgba(14,157,115,.22);'+
+        'display:flex;align-items:center;gap:12px;animation:rise .6s var(--e) both';
+      box.innerHTML='<span style="flex:1;min-width:0;font-size:12.8px;line-height:1.5">'+
+        '<b style="display:block;font-family:\'Sora\',sans-serif;font-size:13.4px">'+
+        'Signed in as '+esc(live.name||live.username)+'</b>'+
+        '<span style="color:var(--muted)">Continue, or sign in as somebody else below.</span></span>'+
+        '<button type="button" id="continue" style="flex:none;padding:9px 15px;border-radius:10px;'+
+        'border:none;background:var(--green-d);color:#F2FBF7;font-size:12.4px;'+
+        'font-weight:600;cursor:pointer">Continue</button>';
+      panel.insertBefore(box, panel.querySelector('form'));
+      $('continue').addEventListener('click',function(){
+        window.location.href = landingFor(live);
+      });
+    }
+  })();
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  /* ── sign in ── */
+  $('form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var u=$('u'), p=$('p'), ue=$('ue'), pe=$('pe'), btn=$('go');
+    clearError(u,ue); clearError(p,pe);
+
+    if(!u.value.trim()){
+      u.classList.add('bad'); ue.textContent='Enter your username';
+      ue.classList.add('show'); u.focus(); return;
+    }
+    if(!p.value){
+      p.classList.add('bad'); pe.textContent='Enter your password';
+      pe.classList.add('show'); p.focus(); return;
+    }
+
+    btn.classList.add('busy'); btn.disabled=true;
+
+    try{
+      /* A stale session must not pick up the redirect meant for this sign in. */
+      var live=RFStore.getSession();
+      if(live && live.username!==u.value.trim()) RFStore.clearSession();
+
+      var res=await RFStore.login(u.value.trim(), p.value);
+
+      /* A first sign in or a two-step code both finish on the shared
+         verification screen, which returns here when it is done. */
+      if(res.mustChange || res.mfaRequired){
+        sessionStorage.setItem('rf_pending', JSON.stringify({
+          id:res.id, name:res.name,
+          mode: res.mustChange ? 'change' : 'mfa',
+          from: 'reviflow'
+        }));
+        window.location.href='Admin/admin-login.html?switch=1';
+        return;
+      }
+
+      if(res.ok && res.account){
+        if($('remember').checked) localStorage.setItem('rf_last_user', u.value.trim());
+        else localStorage.removeItem('rf_last_user');
+        window.location.href = landingFor(res.account);
+        return;
+      }
+
+      btn.classList.remove('busy'); btn.disabled=false;
+      var msg=res.message||'Those details were not recognised.';
+      if(res.error==='password'){
+        p.classList.add('bad'); pe.textContent=msg; pe.classList.add('show');
+        p.select(); p.focus();
+      }else{
+        u.classList.add('bad'); ue.textContent=msg; ue.classList.add('show'); u.focus();
+      }
+    }catch(err){
+      btn.classList.remove('busy'); btn.disabled=false;
+      $('ue').textContent='Could not reach the sign-in service. Try again in a moment.';
+      $('ue').classList.add('show');
+      console.error('sign in failed', err);
+    }
+  });
+
+  $('forgot').addEventListener('click',function(){
+    var who=$('u').value.trim();
+    window.location.href='Admin/reset-password.html'+(who?'?u='+encodeURIComponent(who):'');
+  });
+
+})();
+</script>
 </body>
 </html>
