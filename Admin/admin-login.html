@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="../_guard.js"></script>
 <script src="../_store.js"></script>
+<script src="../_live.js"></script>
 <script src="../_session.js"></script>
 <style>
 :root{
@@ -255,6 +256,7 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
       <p class="err" id="me3"></p>
       <button class="go" id="enrolBtn"><span class="lbl">Confirm and finish</span>
         <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span class="spin"></span></button>
+      <button class="ghost" id="skipMfa">Skip for now — set it up later</button>
     </div>
 
 
@@ -337,7 +339,7 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     catch(e){ $(qrEl).innerHTML='<p style="font-size:11.4px;color:var(--muted);padding:20px">Enter the key below into your app.</p>'; }
   }
   function land(acct){
-    window.location.href = acct.role==='admin' ? 'admin-dashboard.html' : '../Provider/provider-dashboard.html';
+    window.location.href = landingFor(acct);
   }
 
   /* ── step 1: credentials ── */
@@ -353,24 +355,14 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     busy(btn,false);
 
     if(res.mustChange){
-      /* The PostgreSQL backend returns a signed first-password challenge.
-         Keep the challenge, not the database account id, because the
-         /api/auth?action=first-password endpoint verifies the signature. */
-      pending=res.challenge;
+      pending=res.id;
       $('cpSub').textContent='Welcome, '+(res.name||res.username)+'. This account is using a temporary password — set your own before continuing.';
       step(5);return;
     }
     if(res.mfaRequired){
-      /* The PostgreSQL backend returns a signed MFA challenge. */
-      pending=res.challenge;
+      pending=res.id;
       $('mfaSub').textContent='Signed in as '+(res.name||u.value)+'. Enter the six-digit code from your authenticator app.';
       step(2);return;
-    }
-    if(res.mfaEnrol){
-      /* First-time MFA enrollment also uses a signed challenge. */
-      pending=res.challenge;
-      showQr(res.secret,res.otpauth,'qr','secretText');
-      step(3);return;
     }
     if(res.ok&&res.account){land(res.account);return;}
 
@@ -386,33 +378,11 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     if(a.length<10){showErr($('npe'),'Use at least 10 characters.');$('np1').focus();return;}
     if(a!==b){showErr($('npe'),'Those passwords do not match.');$('np2').focus();return;}
     busy(this,true);
-    /* Do not use RFStore.changePassword() here: its current API-driver
-       implementation is still the old local IndexedDB path. The PostgreSQL
-       backend expects the signed challenge at /api/auth?action=first-password. */
-    var res={};
-    try{
-      var r=await fetch('/api/auth?action=first-password',{
-        method:'POST',
-        credentials:'same-origin',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({challenge:pending,password:a})
-      });
-      try{res=await r.json();}catch(e){res={};}
-    }catch(e){
-      res={error:'network',message:'Could not reach the authentication server. Please try again.'};
-    }
+    var res=await RFStore.changePassword(pending,a);
     busy(this,false);
-    if(!res.ok && !res.mfaEnrol){
-      showErr($('npe'),res.message||'Could not update the password.');
-      return;
-    }
-    if(res.mfaEnrol){
-      pending=res.challenge;
-      showQr(res.secret,res.otpauth,'qr','secretText');
-      step(3);
-      return;
-    }
-    showErr($('npe'),'Password updated, but MFA enrollment was not returned by the server. Please restart sign-in.');
+    if(res.error){showErr($('npe'),res.message||'Could not update the password.');return;}
+    showQr(res.secret,res.otpauth,'qr','secretText');
+    step(3);
   });
 
   /* ── 6-digit inputs ── */
@@ -459,6 +429,10 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     if(res.ok&&res.account){land(res.account);return;}
     showErr($('me3'),res.message||'That code is not valid.');c2.clear();
   });
+  $('skipMfa').addEventListener('click',async function(){
+    var res=await RFStore.skipMfa(pending);
+    if(res.ok&&res.account)land(res.account);
+  });
   $('mfaBack').addEventListener('click',function(){c1.clear();step(1);});
 
   /* ── recovery ── */
@@ -483,12 +457,34 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
   /* Someone is already signed in. Offer to continue, or to sign in as someone
      else — rather than silently redirecting, which looks like the wrong
      credentials were accepted. */
+
+  /* ── where each role belongs ──
+     The same map the unified sign-in page uses. Verification finishes here, so
+     without it a biller or a patient would land on a provider dashboard. */
+  var HOME={
+    admin:'admin-dashboard.html',
+    supervisor:'../Provider/provider-dashboard.html',
+    provider:'../Provider/provider-dashboard.html',
+    scheduler:'../Provider/provider-dashboard.html',
+    employee:'../Provider/provider-dashboard.html',
+    billing:'../Provider/claims.html',
+    frontoffice:'../Provider/schedule.html',
+    patient:'../Patient/patient-dashboard.html'
+  };
+  function landingFor(a){
+    if(!a)return '../Provider/provider-dashboard.html';
+    var r=String(a.role||'').toLowerCase().replace(/[\s_-]/g,'');
+    if(HOME[r])return HOME[r];
+    if(a.provider_id||a.provider_ref)return HOME.provider;
+    return '../Provider/provider-dashboard.html';
+  }
+
   function showSignedIn(sess){
     var host=document.querySelector('.card')||document.body;
     var who=sess.name||sess.username;
     var role=({admin:'Administrator',supervisor:'Practice manager',provider:'Provider',
                scheduler:'Scheduler',employee:'Employee'})[sess.role]||sess.role;
-    var home=sess.role==='admin'?'admin-dashboard.html':'../Provider/provider-dashboard.html';
+    var home=landingFor(sess);
 
     var box=document.createElement('div');
     box.className='rf-already';
@@ -518,8 +514,8 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     if(raw){
       sessionStorage.removeItem('rf_pending');
       var h={};try{h=JSON.parse(raw);}catch(e){}
-      if(h.challenge || h.id){
-        pending=h.challenge || h.id;
+      if(h.id){
+        pending=h.id;
         if(h.mode==='change'){
           $('cpSub').textContent='Welcome, '+(h.name||'')+'. This account is using a temporary password \u2014 set your own before continuing.';
           step(5);
