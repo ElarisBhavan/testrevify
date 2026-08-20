@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings — ReviFlow</title>
+<meta name="description" content="Provider settings and preferences in ReviFlow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF8F3;--paper-2:#F2EFE7;--ink:#0D1A16;--muted:#5D6B67;--dim:#93A19D;
+  --line:rgba(13,26,22,.08);--line-2:rgba(13,26,22,.14);
+  --green:#0E9D73;--green-d:#0A5C46;--green-s:#E2F4EC;
+  --blue:#3B6FF5;--blue-s:#E8EFFE;
+  --amber:#C98A18;--amber-s:#FCF3DA;
+  --coral:#D0603F;--coral-s:#FBEAE4;
+  --teal:#1F93AE;--teal-s:#E3F2F6;
+  --violet:#8B5CF6;--violet-s:#F1EBFE;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --e:cubic-bezier(.22,1,.36,1);--card:rgba(255,255,255,.74);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+input,select,textarea{font:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px;border-radius:9px}
+
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aur{position:absolute;border-radius:50%;filter:blur(92px);mix-blend-mode:multiply;opacity:.46}
+.a1{width:54vw;height:54vw;min-width:480px;min-height:480px;top:-26%;left:-12%;background:radial-gradient(circle,rgba(14,157,115,.4),transparent 66%);animation:f1 30s ease-in-out infinite}
+.a2{width:42vw;height:42vw;min-width:380px;min-height:380px;top:-18%;right:-9%;background:radial-gradient(circle,rgba(59,111,245,.3),transparent 66%);animation:f2 36s ease-in-out infinite}
+.a3{width:36vw;height:36vw;min-width:340px;min-height:340px;bottom:-24%;left:30%;background:radial-gradient(circle,rgba(139,92,246,.2),transparent 66%);animation:f3 42s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,6vh) scale(1.1)}}
+@keyframes f2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-7vw,5vh) scale(1.12)}}
+@keyframes f3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(7vw,-6vh) scale(1.08)}}
+.mesh{position:absolute;inset:-2px;background-image:linear-gradient(rgba(13,26,22,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(13,26,22,.04) 1px,transparent 1px);background-size:46px 46px;animation:meshD 36s linear infinite;-webkit-mask-image:radial-gradient(120% 70% at 50% 0%,#000,transparent 74%);mask-image:radial-gradient(120% 70% at 50% 0%,#000,transparent 74%)}
+@keyframes meshD{to{background-position:46px 46px}}
+
+.hdr{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);background:rgba(250,248,243,.8);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%)}
+.hin{max-width:1320px;margin:0 auto;padding:11px clamp(14px,2.6vw,32px);display:flex;align-items:center;gap:11px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mk{width:29px;height:29px;border-radius:9px;background:linear-gradient(140deg,var(--green),var(--blue));display:grid;place-items:center;box-shadow:0 6px 16px -8px rgba(14,157,115,.8)}
+.brand .mk svg{width:16px;height:16px}
+.brand span{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.036em}
+.brand em{font-style:normal;color:var(--green);font-weight:400;font-size:.9em;margin-left:3px}
+.crumb{margin-left:12px;padding-left:12px;border-left:1px solid var(--line-2);font-size:12.4px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.hact{margin-left:auto;display:flex;gap:8px}
+.hbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-size:12.4px;font-weight:600;transition:all .3s var(--e)}
+.hbtn svg{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--e)}
+.hbtn:hover{border-color:var(--green);background:#fff}
+.hbtn.back:hover{transform:translateX(-2px)}.hbtn.back:hover svg{transform:translateX(-3px)}
+.hbtn.out:hover{border-color:var(--coral);background:var(--coral-s);color:#9B3F24}
+.hbtn.out:hover svg{stroke:var(--coral);transform:translateX(3px)}
+
+.wrap{position:relative;z-index:2;max-width:1320px;margin:0 auto;padding:clamp(18px,2.6vw,30px) clamp(14px,2.6vw,32px) clamp(48px,5vw,76px)}
+.ptop{display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:clamp(16px,2.2vw,24px);opacity:0;transform:translateY(16px);animation:up .8s var(--e) .06s forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.ptop>div:first-child{flex:1;min-width:260px}
+.ptop h1{font-family:'Sora',sans-serif;font-size:clamp(23px,3vw,34px);line-height:1.06;font-weight:600;letter-spacing:-.042em}
+.ptop h1 em{font-style:normal;color:var(--green)}
+.ptop p{font-size:13.4px;line-height:1.6;color:var(--muted);margin-top:7px;max-width:54ch}
+.ptop .cta{margin-left:auto;flex:none;padding-top:4px;display:flex;gap:9px}
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;padding:11px 19px;border-radius:11px;font-size:13px;font-weight:600;transition:all .34s var(--e)}
+.btn svg{width:15px;height:15px;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.btn.pri{background:linear-gradient(120deg,var(--green-d),var(--green));color:#F3FBF8;box-shadow:0 10px 24px -14px rgba(10,92,70,.95)}
+.btn.pri svg{stroke:#F3FBF8}
+.btn.pri::after{content:'';position:absolute;top:0;left:-120%;width:52%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent);transition:left .8s var(--e)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 16px 32px -14px rgba(14,157,115,.85)}
+.btn.pri:hover::after{left:150%}
+.btn.sec{border:1px solid var(--line-2);background:rgba(255,255,255,.72)}
+.btn.sec svg{stroke:var(--green)}
+.btn.sec:hover{border-color:var(--green);background:#fff;transform:translateY(-2px)}
+.btn.dang{border:1px solid rgba(208,96,63,.35);background:var(--coral-s);color:#9B3F24}
+.btn.dang svg{stroke:var(--coral)}
+.btn.dang:hover{background:#FCE0D8;transform:translateY(-2px)}
+
+/* ── shell ── */
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:clamp(12px,1.5vw,18px);align-items:start}
+.side{position:sticky;top:74px;display:grid;gap:3px;padding:9px;border-radius:16px;
+  background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.75);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 16px 36px -32px rgba(13,26,22,.5);
+  opacity:0;transform:translateY(18px);animation:up .75s var(--e) .1s forwards}
+.snav{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;font-size:12.8px;font-weight:600;color:var(--muted);transition:all .3s var(--e)}
+.snav svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.snav:hover{background:rgba(255,255,255,.8);color:var(--ink)}
+.snav.on{background:var(--green-d);color:#F3FBF8;box-shadow:0 8px 20px -12px rgba(10,92,70,.9)}
+.snav .b{margin-left:auto;padding:2px 7px;border-radius:6px;background:var(--coral-s);color:var(--coral);font-family:var(--mono);font-size:9px;font-weight:700}
+.snav.on .b{background:rgba(255,255,255,.24);color:#F3FBF8}
+
+.pane{display:none}
+.pane.on{display:grid;gap:clamp(12px,1.5vw,16px)}
+.card{position:relative;background:var(--card);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+  border:1px solid rgba(255,255,255,.75);border-radius:18px;overflow:hidden;
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 40px -34px rgba(13,26,22,.5);
+  opacity:0;transform:translateY(18px);animation:up .7s var(--e) forwards}
+.card::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(14,157,115,.5),transparent);opacity:0;transition:opacity .45s var(--e)}
+.card:hover::before{opacity:1}
+.chead{display:flex;align-items:center;gap:11px;padding:15px 18px;border-bottom:1px solid var(--line)}
+.chead .ci{width:30px;height:30px;flex:none;border-radius:9px;background:var(--green-s);display:grid;place-items:center}
+.chead .ci svg{width:15px;height:15px;stroke:var(--green-d);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chead h2{font-family:'Sora',sans-serif;font-size:14.2px;font-weight:600;letter-spacing:-.03em}
+.chead p{font-size:11.6px;color:var(--muted);margin-top:2px}
+.chead .sub{margin-left:auto;font-family:var(--mono);font-size:9.6px;color:var(--dim);letter-spacing:.08em}
+.cbody{padding:18px}
+
+/* ── profile ── */
+.prof{display:flex;gap:clamp(16px,2.2vw,26px);flex-wrap:wrap;align-items:flex-start}
+.avwrap{position:relative;flex:none}
+.av{position:relative;width:104px;height:104px;border-radius:26px;overflow:hidden;
+  background:linear-gradient(140deg,var(--green),var(--blue));display:grid;place-items:center;
+  font-family:'Sora',sans-serif;font-size:32px;font-weight:700;color:#fff;letter-spacing:-.04em;
+  box-shadow:0 18px 36px -20px rgba(10,92,70,.8);transition:transform .45s var(--e)}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.avwrap:hover .av{transform:scale(1.03) rotate(-2deg)}
+.av .ring{position:absolute;inset:-4px;border-radius:30px;border:2px solid var(--green);opacity:0;transition:opacity .4s var(--e)}
+.avwrap:hover .av .ring{opacity:.5}
+.avbtn{position:absolute;right:-5px;bottom:-5px;width:34px;height:34px;border-radius:12px;background:#fff;
+  border:1px solid var(--line-2);display:grid;place-items:center;box-shadow:0 8px 18px -10px rgba(13,26,22,.6);transition:all .32s var(--e)}
+.avbtn svg{width:15px;height:15px;stroke:var(--green-d);fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.avbtn:hover{background:var(--green-s);transform:scale(1.09) rotate(6deg)}
+.avhint{margin-top:11px;text-align:center;font-family:var(--mono);font-size:9.4px;color:var(--dim);line-height:1.5}
+.profmain{flex:1;min-width:260px}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.f{display:block}.f.full{grid-column:span 2}
+.f>span{display:flex;align-items:center;gap:6px;font-size:11.2px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.f>span u{color:var(--coral);text-decoration:none}
+.f>span .vf{margin-left:auto;display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:6px;background:var(--green-s);color:var(--green-d);font-family:var(--mono);font-size:8.6px;font-weight:700}
+.f input,.f select,.f textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line-2);
+  background:rgba(255,255,255,.72);font-size:13.2px;color:var(--ink);transition:all .28s var(--e)}
+.f textarea{min-height:76px;resize:vertical}
+.f input:hover,.f select:hover,.f textarea:hover{border-color:#AFBAB6}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(14,157,115,.13)}
+.f input:disabled{background:var(--paper-2);color:var(--muted);cursor:not-allowed}
+.f select{appearance:none;cursor:pointer;padding-right:32px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235D6B67' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+.hlp{font-size:10.6px;color:var(--dim);margin-top:5px}
+
+/* ── toggle rows ── */
+.rows{display:grid;gap:2px}
+.row{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);transition:background .3s var(--e)}
+.row:last-child{border-bottom:none}
+.row:hover{background:rgba(255,255,255,.75)}
+.rico{width:32px;height:32px;flex:none;border-radius:10px;display:grid;place-items:center}
+.rico svg{width:15px;height:15px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rinfo{min-width:0;flex:1}
+.rinfo b{display:block;font-size:12.8px;font-weight:600;letter-spacing:-.018em;line-height:1.35}
+.rinfo p{font-size:11.4px;line-height:1.5;color:var(--muted);margin-top:3px}
+.rinfo small{display:block;font-family:var(--mono);font-size:9.4px;color:var(--dim);margin-top:4px}
+.tg{position:relative;width:44px;height:25px;flex:none;border-radius:99px;background:#DDE3E1;transition:background .38s var(--e)}
+.tg::after{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 6px rgba(13,26,22,.28);transition:transform .38s var(--e)}
+.tg.on{background:var(--green)}
+.tg.on::after{transform:translateX(19px)}
+.tg:hover{filter:brightness(.97)}
+.pill{padding:5px 11px;border-radius:8px;font-size:10.6px;font-weight:700;white-space:nowrap;flex:none}
+.pill.ok{background:var(--green-s);color:var(--green-d)}
+.pill.warn{background:var(--amber-s);color:#7A5507}
+.pill.info{background:var(--blue-s);color:#25489E}
+.pill.off{background:var(--paper-2);color:var(--dim)}
+.rbtn{padding:8px 14px;border-radius:9px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);
+  font-size:11.8px;font-weight:600;white-space:nowrap;flex:none;transition:all .3s var(--e)}
+.rbtn:hover{border-color:var(--green);background:var(--green-s);transform:translateY(-2px)}
+.rbtn.dang{border-color:rgba(208,96,63,.34);color:#9B3F24}
+.rbtn.dang:hover{background:var(--coral-s);border-color:var(--coral)}
+
+/* ── segmented ── */
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{padding:10px 15px;border-radius:10px;border:1px solid var(--line-2);background:rgba(255,255,255,.65);
+  font-size:12.2px;font-weight:600;color:var(--muted);transition:all .3s var(--e)}
+.seg button:hover{background:#fff}
+.seg button.on{background:var(--green-d);border-color:var(--green-d);color:#F3FBF8}
+
+/* ── device/session list ── */
+.dev{display:flex;align-items:center;gap:13px;padding:13px 18px;border-bottom:1px solid var(--line)}
+.dev:last-child{border-bottom:none}
+.devi{width:34px;height:34px;flex:none;border-radius:10px;background:var(--paper-2);display:grid;place-items:center}
+.devi svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.dev.cur .devi{background:var(--green-s)}.dev.cur .devi svg{stroke:var(--green-d)}
+.devinfo{min-width:0;flex:1}
+.devinfo b{display:block;font-size:12.6px;font-weight:600;line-height:1.35}
+.devinfo small{display:block;font-family:var(--mono);font-size:9.6px;color:var(--dim);margin-top:3px}
+
+/* ── theme swatches ── */
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{position:relative;width:66px;height:52px;border-radius:12px;border:2px solid var(--line-2);overflow:hidden;transition:all .34s var(--e)}
+.sw:hover{transform:translateY(-3px)}
+.sw.on{border-color:var(--green);box-shadow:0 0 0 3px rgba(14,157,115,.16)}
+.sw i{position:absolute;inset:0}
+.sw span{position:absolute;left:6px;bottom:5px;font-family:var(--mono);font-size:8.4px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.sw .tick{position:absolute;right:5px;top:5px;width:16px;height:16px;border-radius:50%;background:#fff;display:grid;place-items:center;opacity:0;transform:scale(.5);transition:all .3s var(--e)}
+.sw.on .tick{opacity:1;transform:none}
+.sw .tick svg{width:9px;height:9px;stroke:var(--green-d);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+.danger{border-color:rgba(208,96,63,.28)!important}
+.danger .chead{background:rgba(208,96,63,.05)}
+.danger .chead .ci{background:var(--coral-s)}
+.danger .chead .ci svg{stroke:var(--coral)}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:95;display:flex;align-items:center;gap:12px;
+  padding:14px 19px;border-radius:13px;background:var(--green-d);color:#F3FBF8;
+  box-shadow:0 22px 44px -20px rgba(10,92,70,.9);opacity:0;pointer-events:none;transition:all .45s var(--e)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast svg{width:17px;height:17px;stroke:#7BE8C0;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.toast b{display:block;font-size:13px;font-weight:600}
+.toast small{display:block;font-size:11px;color:rgba(243,251,248,.72);margin-top:2px}
+
+@media (max-width:940px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .side{position:static;grid-auto-flow:column;grid-auto-columns:max-content;overflow-x:auto;gap:5px}
+  .snav{white-space:nowrap}
+  .snav .b{display:none}
+  .crumb{display:none}
+}
+@media (max-width:640px){
+  .fgrid{grid-template-columns:minmax(0,1fr)}.f.full{grid-column:span 1}
+  .ptop .cta{width:100%;margin-left:0}.ptop .cta .btn{flex:1;justify-content:center}
+  .row{flex-wrap:wrap}.rinfo{flex:1 1 100%;order:3}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.card,.side,.ptop{opacity:1;transform:none}}
+
+#pwScrim.on{opacity:1!important;visibility:visible!important}
+#pwModal.on{opacity:1!important;visibility:visible!important;transform:translate(-50%,-50%) scale(1)!important}
+.cptchip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;background:var(--green-s);color:var(--green-d);font-family:var(--mono);font-size:10.4px;font-weight:600}
+</style>
+<link rel="stylesheet" href="_prefs.css">
+<script src="_prefs.js"></script>
+<script src="../_notify.js"></script>
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_datepicker.js"></script>
+<script src="../_session.js"></script>
+<link rel="stylesheet" href="../_session.css">
+<script src="../_store.js"></script>
+<link rel="stylesheet" href="../_datepicker.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="mesh"></div><div class="aur a1"></div><div class="aur a2"></div><div class="aur a3"></div></div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <span class="mk"><svg viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="11.8" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M11 17.4h2.6l1.9-4.2 2.7 8 2-5.1 1.3 2.4H23" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span>ReviFlow<em>RCM</em></span>
+    </div>
+    <span class="crumb">Provider workspace / <b>Settings</b></span>
+    <div class="hact">
+      <span class="rf-who" id="rfWho"></span>
+      <a href="provider-dashboard.html" class="hbtn back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <a href="provider-login.html" class="hbtn out">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ptop">
+    <div>
+      <h1>Settings and <em>preferences</em></h1>
+      <p>Your profile, how the workspace behaves, what you get notified about, and who can see your data.</p>
+    </div>
+    <div class="cta">
+      <button class="btn sec" id="reset"><svg viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M4 10a8 8 0 113 8"/></svg>Discard</button>
+      <button class="btn pri" id="save"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save changes</button>
+    </div>
+  </div>
+
+  <div class="shell">
+    <nav class="side" id="side">
+      <button class="snav on" data-p="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</button>
+      <button class="snav" data-p="practice"><svg viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M12 11v5M9.5 13.5h5"/></svg>Practice &amp; credentials</button>
+      <button class="snav" data-p="schedule"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Scheduling</button>
+      <button class="snav" data-p="notif"><svg viewBox="0 0 24 24"><path d="M18 15V10a6 6 0 10-12 0v5l-2 3h16z"/><path d="M10 21h4"/></svg>Notifications<span class="b">3</span></button>
+      <button class="snav" data-p="clinical"><svg viewBox="0 0 24 24"><path d="M7 4h8l4 4v12a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M9 13h6M9 17h4"/></svg>Clinical &amp; billing</button>
+      <button class="snav" data-p="security"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Security</button>
+      <button class="snav" data-p="privacy"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg>Privacy &amp; data</button>
+      <button class="snav" data-p="appear"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18z" fill="currentColor" stroke="none" opacity=".3"/></svg>Appearance</button>
+    </nav>
+
+    <div class="panes">
+
+      <!-- PROFILE -->
+      <div class="pane on" data-p="profile">
+        <section class="card" style="animation-delay:.14s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+            <div><h2>Personal details</h2><p>How you appear to your team and on patient-facing documents.</p></div>
+            <span class="sub" id="acctSub">—</span>
+          </div>
+          <div class="cbody">
+            <div class="prof">
+              <div>
+                <div class="avwrap">
+                  <div class="av" id="av"><span class="ring"></span><span id="avInit">··</span><img id="avImg" alt="" hidden></div>
+                  <button class="avbtn" id="avBtn" aria-label="Change photo"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11a1 1 0 01-1 1H5a1 1 0 01-1-1z"/><circle cx="12" cy="13" r="3.4"/></svg></button>
+                  <input type="file" id="avFile" accept="image/*" hidden>
+                </div>
+                <p class="avhint">JPG or PNG<br>Max 2 MB</p>
+              </div>
+              <div class="profmain">
+                <div class="fgrid">
+                  <label class="f"><span>First name <u>*</u></span><input type="text" id="pFirst" required></label>
+                  <label class="f"><span>Last name <u>*</u></span><input type="text" id="pLast" required></label>
+                  <label class="f"><span>Credentials</span><input type="text" id="pCred" value="MD, FAAFP"></label>
+                  <label class="f"><span>Display name</span><input type="text" id="pDisplay" readonly style="background:var(--paper-2);color:var(--muted)"><p class="hlp">Set by your administrator. Changing your first or last name files a request.</p></label>
+                  <label class="f"><span>Work email <span class="vf">✓ VERIFIED</span></span><input type="email" id="pEmail"></label>
+                  <label class="f"><span>Mobile <span class="vf">✓ VERIFIED</span></span><input type="tel" id="pPhone"></label>
+                  <div class="f full" id="nameNote" style="display:none">
+                    <div class="hint" style="margin:0;padding:12px 14px;border-radius:11px;background:var(--amber-s);border:1px solid rgba(201,138,24,.28);font-size:11.6px;line-height:1.6;color:#7A5507;display:flex;gap:10px">
+                      <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--amber);fill:none;stroke-width:2;flex:none;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                      <span id="nameNoteText"></span>
+                    </div>
+                  </div>
+                  <label class="f full"><span>Bio for patient portal</span><textarea>Board-certified family physician with 14 years in primary care. Special interest in diabetes management and preventive medicine.</textarea></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- PRACTICE -->
+      <div class="pane" data-p="practice">
+        <section class="card" style="animation-delay:.05s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M12 11v5M9.5 13.5h5"/></svg></span>
+            <div><h2>Credentials and identifiers</h2><p>Used on every claim submitted under your name.</p></div>
+          </div>
+          <div class="cbody">
+            <div class="fgrid">
+              <label class="f"><span>Individual NPI <span class="vf">✓ VALIDATED</span></span><input type="text" id="cNpi" readonly></label>
+              <label class="f"><span>Group NPI</span><input type="text" id="cGroup" readonly></label>
+              <label class="f"><span>Tax ID / EIN</span><input type="text" id="cTax" readonly></label>
+              <label class="f"><span>Taxonomy code</span><input type="text" id="cTaxo" readonly></label>
+              <label class="f"><span>State licence</span><input type="text" id="cLic" readonly></label>
+              <label class="f"><span>Licence expiry</span><input type="date" id="cExp" min="1900-01-01" max="2100-12-31"></label>
+              <label class="f"><span>DEA number</span><input type="text" id="cDea" readonly></label>
+              <label class="f"><span>CAQH ID</span><input type="text" id="cCaqh" readonly></label>
+            </div>
+            <p class="hlp">Identifiers marked as validated are locked. Contact your practice administrator to change them.</p>
+          </div>
+        </section>
+
+        <section class="card" style="animation-delay:.09s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-10a7 7 0 1114 0c0 4.8-7 10-7 10z"/><circle cx="12" cy="11" r="2.6"/></svg></span>
+            <div><h2>Locations</h2><p>Where you practise and which is your default.</p></div>
+          </div>
+          <div class="rows" id="locRows"></div>
+        </section>
+      </div>
+
+      <!-- SCHEDULING -->
+      <div class="pane" data-p="schedule">
+        <section class="card" style="animation-delay:.05s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+            <div><h2>Appointment defaults</h2><p>Applied to every new slot unless overridden.</p></div>
+          </div>
+          <div class="cbody">
+            <div class="fgrid">
+              <label class="f"><span>Default slot length</span><select id="sSlot"><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="40">40 minutes</option><option value="60">60 minutes</option></select></label>
+              <label class="f"><span>New patient slot length</span><select id="sNewSlot"><option value="30">30 minutes</option><option value="40">40 minutes</option><option value="60">60 minutes</option></select></label>
+              <label class="f"><span>Buffer between visits</span><select><option>None</option><option selected>5 minutes</option><option>10 minutes</option></select></label>
+              <label class="f"><span>Daily patient cap</span><input type="number" value="24"></label>
+              <label class="f"><span>Booking window opens</span><select><option>90 days ahead</option><option selected>60 days ahead</option><option>30 days ahead</option></select></label>
+              <label class="f"><span>Same-day cutoff</span><select><option>2 hours before</option><option selected>4 hours before</option><option>No same-day booking</option></select></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="animation-delay:.09s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <div><h2>Booking rules</h2><p>What patients and staff can do with your calendar.</p></div>
+          </div>
+          <div class="rows" data-tg>
+            <div class="row"><span class="rico" style="background:var(--green-s)"><svg viewBox="0 0 24 24" stroke="#0A5C46"><path d="M12 5v14M5 12h14"/></svg></span>
+              <span class="rinfo"><b>Allow online self-booking</b><p>Patients can book open slots without calling the front desk.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--blue-s)"><svg viewBox="0 0 24 24" stroke="#3B6FF5"><path d="M4 6h16M4 12h10M4 18h7"/></svg></span>
+              <span class="rinfo"><b>Auto-fill from waitlist</b><p>Cancellations are offered to the next eligible patient automatically.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--violet-s)"><svg viewBox="0 0 24 24" stroke="#8B5CF6"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="M16 10l6-3v10l-6-3"/></svg></span>
+              <span class="rinfo"><b>Accept new telehealth patients</b><p>First-time patients may book a virtual visit. Turning this off removes Telehealth from the appointment form.</p></span>
+              <button class="tg" id="sTele" role="switch" aria-checked="false"></button></div>
+            <div class="row"><span class="rico" style="background:var(--amber-s)"><svg viewBox="0 0 24 24" stroke="#C98A18"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+              <span class="rinfo"><b>Require eligibility before booking</b><p>Block the slot if coverage cannot be verified.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><path d="M12 21s-7-5.2-7-10a7 7 0 1114 0c0 4.8-7 10-7 10z"/></svg></span>
+              <span class="rinfo"><b>Double-booking allowed</b><p>Let schedulers overlap two patients in one slot.</p></span>
+              <button class="tg" role="switch" aria-checked="false"></button></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="pane" data-p="notif">
+        <section class="card" style="animation-delay:.05s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M18 15V10a6 6 0 10-12 0v5l-2 3h16z"/><path d="M10 21h4"/></svg></span>
+            <div><h2>What reaches you</h2><p>Pick a channel per event. Urgent items always page.</p></div>
+          </div>
+          <div class="rows" data-tg>
+            <div class="row"><span class="rico" style="background:var(--coral-s)"><svg viewBox="0 0 24 24" stroke="#D0603F"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></span>
+              <span class="rinfo"><b>Claim denied</b><p>A claim under your NPI was denied.</p><small>EMAIL + IN-APP</small></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--amber-s)"><svg viewBox="0 0 24 24" stroke="#C98A18"><path d="M7 4h10l3 3v13a1 1 0 01-1 1H5a1 1 0 01-1-1V7z"/><path d="M9 12h6M12 9v6"/></svg></span>
+              <span class="rinfo"><b>Task assigned to me</b><p>Someone routes work to your queue.</p><small>IN-APP + MOBILE PUSH</small></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--blue-s)"><svg viewBox="0 0 24 24" stroke="#3B6FF5"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg></span>
+              <span class="rinfo"><b>Schedule changed</b><p>An appointment on your calendar moves or cancels.</p><small>IN-APP</small></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--teal-s)"><svg viewBox="0 0 24 24" stroke="#1F93AE"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10h18"/></svg></span>
+              <span class="rinfo"><b>Eligibility failed for tomorrow</b><p>Coverage could not be verified before a booked visit.</p><small>EMAIL, 6PM DIGEST</small></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--green-s)"><svg viewBox="0 0 24 24" stroke="#0A5C46"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></span>
+              <span class="rinfo"><b>Weekly performance summary</b><p>Collections, denials and A/R for your panel.</p><small>EMAIL, MONDAY 7AM</small></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 3-3 3M12 17h.01"/></svg></span>
+              <span class="rinfo"><b>Product updates from Revify</b><p>New features and release notes.</p><small>EMAIL, MONTHLY</small></span>
+              <button class="tg" role="switch" aria-checked="false"></button></div>
+          </div>
+        </section>
+
+        <section class="card" style="animation-delay:.09s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18"/><path d="M12 7v5l4 2"/></svg></span>
+            <div><h2>Quiet hours</h2><p>Nothing but critical alerts during these windows.</p></div>
+          </div>
+          <div class="cbody">
+            <div class="fgrid">
+              <label class="f"><span>Quiet from</span><input type="time" value="19:00"></label>
+              <label class="f"><span>Quiet until</span><input type="time" value="07:00"></label>
+              <label class="f full"><span>Weekends</span>
+                <div class="seg" data-seg><button class="on">Fully quiet</button><button>Critical only</button><button>Normal</button></div></label>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- CLINICAL -->
+      <div class="pane" data-p="clinical">
+        <section class="card" style="animation-delay:.05s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M7 4h8l4 4v12a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M9 13h6M9 17h4"/></svg></span>
+            <div><h2>Charting and coding</h2><p>How documentation and codes behave by default.</p></div>
+          </div>
+          <div class="cbody">
+            <div class="fgrid">
+              <label class="f"><span>Default note template</span><select><option>SOAP — primary care</option><option>Problem-focused</option><option>Annual wellness visit</option><option>Telehealth short form</option></select></label>
+              <label class="f"><span>Default place of service</span><select><option>11 — Office</option><option>02 — Telehealth</option><option>19 — Off campus outpatient</option></select></label>
+              <label class="f full"><span>Favourite CPT set <span style="margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--dim)">USED BY ELIGIBILITY</span></span>
+                <input type="text" id="cCpt" placeholder="90791, 90837, 90853">
+                <p style="font-size:10.4px;color:var(--dim);margin-top:5px">Comma separated. The first code is pre-selected on the eligibility form.</p>
+                <div id="cptChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px"></div></label>
+              <label class="f"><span>Note lock after</span><select><option>24 hours</option><option selected>72 hours</option><option>7 days</option><option>Never auto-lock</option></select></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="animation-delay:.09s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg></span>
+            <div><h2>Billing behaviour</h2><p>What happens between your signature and the payer.</p></div>
+          </div>
+          <div class="rows" data-tg>
+            <div class="row"><span class="rico" style="background:var(--green-s)"><svg viewBox="0 0 24 24" stroke="#0A5C46"><path d="M5 13l4 4L19 7"/></svg></span>
+              <span class="rinfo"><b>Auto-release clean claims</b><p>Claims passing all edits submit without waiting for review.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--amber-s)"><svg viewBox="0 0 24 24" stroke="#C98A18"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/></svg></span>
+              <span class="rinfo"><b>Ask before downcoding</b><p>Coders must confirm with you before lowering a level of service.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--blue-s)"><svg viewBox="0 0 24 24" stroke="#3B6FF5"><path d="M4 6h16M4 12h10M4 18h7"/></svg></span>
+              <span class="rinfo"><b>Draft my appeals automatically</b><p>Denials arrive with an appeal letter already prepared.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></span>
+              <span class="rinfo"><b>Show me patient balances at check-in</b><p>Prior balance appears on the schedule row.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- SECURITY -->
+      <div class="pane" data-p="security">
+        <section class="card" style="animation-delay:.05s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+            <div><h2>Sign-in and access</h2><p>Protecting an account that can reach PHI.</p></div>
+          </div>
+          <div class="rows" data-tg>
+            <div class="row"><span class="rico" style="background:var(--green-s)"><svg viewBox="0 0 24 24" stroke="#0A5C46"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+              <span class="rinfo"><b>Password</b><p id="pwAge">Change it whenever you need to. Rotation is required every 90 days.</p></span>
+              <button class="rbtn" id="pwBtn">Change</button></div>
+            <div class="row"><span class="rico" style="background:var(--green-s)"><svg viewBox="0 0 24 24" stroke="#0A5C46"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M11 18h2"/></svg></span>
+              <span class="rinfo"><b>Multi-factor authentication</b><p>Authenticator app on iPhone · enrolled Mar 2026</p></span>
+              <span class="pill ok">Required</span></div>
+            <div class="row"><span class="rico" style="background:var(--blue-s)"><svg viewBox="0 0 24 24" stroke="#3B6FF5"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/></svg></span>
+              <span class="rinfo"><b>Single sign-on</b><p id="ssoNote">Sign in through your organisation identity provider.</p></span>
+              <button class="tg" id="sSso" role="switch" aria-checked="false"></button></div>
+            <div class="row"><span class="rico" style="background:var(--amber-s)"><svg viewBox="0 0 24 24" stroke="#C98A18"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+              <span class="rinfo"><b>Auto sign-out after inactivity</b><p>Shorter timeouts are safer on shared workstations.</p></span>
+              <div class="seg" id="idleSeg" data-seg><button data-m="5">5 min</button><button data-m="15" class="on">15 min</button><button data-m="30">30 min</button><button data-m="0">Never</button></div></div>
+          </div>
+        </section>
+
+        <section class="card" style="animation-delay:.09s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 21h8"/></svg></span>
+            <div><h2>Active sessions</h2><p>Sign out anything you do not recognise.</p></div>
+            <span class="sub" id="devCount">—</span>
+          </div>
+          <div class="rows" id="devRows"></div>
+        </section>
+      </div>
+
+      <!-- PRIVACY -->
+      <div class="pane" data-p="privacy">
+        <section class="card" style="animation-delay:.05s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg></span>
+            <div><h2>Visibility</h2><p>Who can see your calendar and performance data.</p></div>
+          </div>
+          <div class="rows" data-tg>
+            <div class="row"><span class="rico" style="background:var(--blue-s)"><svg viewBox="0 0 24 24" stroke="#3B6FF5"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg></span>
+              <span class="rinfo"><b>Share my calendar with the care team</b><p>Other providers see your availability, not visit details.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--green-s)"><svg viewBox="0 0 24 24" stroke="#0A5C46"><path d="M4 20V10M10 20V4M16 20v-8"/></svg></span>
+              <span class="rinfo"><b>Include me in practice benchmarking</b><p>Your metrics appear in anonymised provider comparisons.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span>
+              <span class="rinfo"><b>Show my photo in the patient portal</b><p>Patients see your picture when booking.</p></span>
+              <button class="tg on" role="switch" aria-checked="true"></button></div>
+          </div>
+        </section>
+
+        <section class="card" style="animation-delay:.09s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 3v13M7 12l5 5 5-5"/><path d="M4 20h16"/></svg></span>
+            <div><h2>Your data</h2><p>Export or review everything held against your account.</p></div>
+          </div>
+          <div class="rows">
+            <div class="row"><span class="rico" style="background:var(--green-s)"><svg viewBox="0 0 24 24" stroke="#0A5C46"><path d="M12 3v13M7 12l5 5 5-5"/></svg></span>
+              <span class="rinfo"><b>Export my activity</b><p>Schedule, tasks, notes metadata and sign-in history as CSV.</p></span>
+              <button class="rbtn" id="exportBtn">Export</button></div>
+            <div class="row"><span class="rico" style="background:var(--blue-s)"><svg viewBox="0 0 24 24" stroke="#3B6FF5"><path d="M7 4h8l4 4v12a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M9 13h6"/></svg></span>
+              <span class="rinfo"><b>Access log</b><p>Every record you opened, with timestamp and reason.</p><small>RETAINED 7 YEARS</small></span>
+              <button class="rbtn">View log</button></div>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/></svg></span>
+              <span class="rinfo"><b>Business Associate Agreement</b><p>Signed 14 Jan 2026 · Northside Medical Group</p></span>
+              <button class="rbtn">Download</button></div>
+          </div>
+        </section>
+
+        <section class="card danger" style="animation-delay:.13s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+            <div><h2>Account actions</h2><p>These need administrator approval and cannot be undone by you.</p></div>
+          </div>
+          <div class="rows">
+            <div class="row"><span class="rico" style="background:var(--amber-s)"><svg viewBox="0 0 24 24" stroke="#C98A18"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+              <span class="rinfo"><b>Pause my account</b><p>Stops new bookings and task routing while you are away long-term.</p></span>
+              <button class="rbtn dang">Request pause</button></div>
+            <div class="row"><span class="rico" style="background:var(--coral-s)"><svg viewBox="0 0 24 24" stroke="#D0603F"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+              <span class="rinfo"><b>Deactivate account</b><p>Removes access. Records and audit history are retained per policy.</p></span>
+              <button class="rbtn dang">Request deactivation</button></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- APPEARANCE -->
+      <div class="pane" data-p="appear">
+        <section class="card" style="animation-delay:.05s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18z" fill="currentColor" stroke="none" opacity=".3"/></svg></span>
+            <div><h2>Theme and density</h2><p>How the workspace looks on your screen.</p></div>
+          </div>
+          <div class="cbody">
+            <div class="fgrid">
+              <div class="f full"><span>Accent colour</span>
+                <div class="swatches" id="sw">
+                  <button class="sw on" data-c="#0E9D73"><i style="background:linear-gradient(140deg,#0E9D73,#3ECFA0)"></i><span>MINT</span><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span></button>
+                  <button class="sw" data-c="#3B6FF5"><i style="background:linear-gradient(140deg,#3B6FF5,#8B9FFA)"></i><span>BLUE</span><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span></button>
+                  <button class="sw" data-c="#8B5CF6"><i style="background:linear-gradient(140deg,#8B5CF6,#B692FA)"></i><span>VIOLET</span><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span></button>
+                  <button class="sw" data-c="#1F93AE"><i style="background:linear-gradient(140deg,#1F93AE,#5FC0D6)"></i><span>TEAL</span><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span></button>
+                  <button class="sw" data-c="#C98A18"><i style="background:linear-gradient(140deg,#C98A18,#E5B658)"></i><span>AMBER</span><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span></button>
+                  <label class="sw" id="swCustom" style="cursor:pointer">
+                    <i style="background:conic-gradient(#f43f5e,#f59e0b,#facc15,#4ade80,#22d3ee,#3b82f6,#8b5cf6,#ec4899,#f43f5e)"></i>
+                    <span>CUSTOM</span><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+                    <input type="color" id="swPick" value="#0E9D73"
+                      style="position:absolute;inset:0;opacity:0;cursor:pointer;border:none;padding:0">
+                  </label>
+                </div>
+              </div>
+              <div class="f"><span>Row density</span>
+                <div class="seg" data-seg><button>Compact</button><button class="on">Comfortable</button><button>Spacious</button></div></div>
+              <div class="f"><span>Landing page</span>
+                <label class="f" style="margin:0"><select><option>Workspace tiles</option><option>Dashboard</option><option>Today's schedule</option><option>My tasks</option></select></label></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="animation-delay:.09s">
+          <div class="chead">
+            <span class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></span>
+            <div><h2>Accessibility and locale</h2><p>Comfort, language and formats.</p></div>
+          </div>
+          <div class="rows" data-tg>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><path d="M4 7h16M4 12h10M4 17h7"/></svg></span>
+              <span class="rinfo"><b>Larger text</b><p>Increases base font size across the workspace.</p></span>
+              <button class="tg" role="switch" aria-checked="false"></button></div>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/></svg></span>
+              <span class="rinfo"><b>Reduce motion</b><p>Turns off background animation and transitions.</p></span>
+              <button class="tg" role="switch" aria-checked="false"></button></div>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18a15 15 0 010-18"/></svg></span>
+              <span class="rinfo"><b>Language and region</b><p>Interface language, date and currency format.</p></span>
+              <div class="seg" data-seg><button class="on">EN-US</button><button>EN-GB</button><button>ES</button></div></div>
+            <div class="row"><span class="rico" style="background:var(--paper-2)"><svg viewBox="0 0 24 24" stroke="#5D6B67"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+              <span class="rinfo"><b>Time zone</b><p>Used for every timestamp you see.</p></span>
+              <span class="pill info">America/Chicago</span></div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<div class="scrim" id="pwScrim" style="position:fixed;inset:0;z-index:90;background:rgba(13,26,22,.34);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:all .32s var(--e)"></div>
+<div class="modal" id="pwModal" style="position:fixed;z-index:91;left:50%;top:50%;width:min(430px,calc(100vw - 26px));transform:translate(-50%,-46%) scale(.96);opacity:0;visibility:hidden;background:rgba(255,255,255,.58);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.62);border-radius:20px;box-shadow:0 40px 90px -30px rgba(13,26,22,.55);transition:all .38s var(--e)">
+  <div class="mhead"><span class="mi"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+    <div><h3>Change password</h3><p>Applies the next time you sign in.</p></div>
+    <button class="mclose" id="pwX" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="mbody">
+    <label class="f full" style="margin-bottom:12px"><span>Current password</span><input type="password" id="pw0" autocomplete="current-password"></label>
+    <label class="f full" style="margin-bottom:12px"><span>New password</span><input type="password" id="pw1" autocomplete="new-password" placeholder="At least 10 characters"></label>
+    <label class="f full"><span>Confirm new password</span><input type="password" id="pw2" autocomplete="new-password"></label>
+    <p id="pwErr" style="display:none;font-size:11.6px;color:var(--coral);margin-top:9px;line-height:1.5"></p>
+  </div>
+  <div class="mfoot"><button class="btn sec" id="pwCancel">Cancel</button><span class="sp" style="flex:1"></span>
+    <button class="btn pri" id="pwSave"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Update password</button></div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="toastTitle">Saved</b><small id="toastSub">Preferences updated</small></span></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var dirty=false,toastT;
+
+  function toast(t,s){
+    $('toastTitle').textContent=t;$('toastSub').textContent=s;
+    $('toast').classList.add('on');clearTimeout(toastT);
+    toastT=setTimeout(function(){$('toast').classList.remove('on');},3200);
+  }
+  function mark(){dirty=true;}
+
+
+  /* ── identity from the session ── */
+  (async function(){
+    var s=RFSession.get(); if(!s)return;
+    await RFStore.ready();
+    var acct=await RFStore.find(s.username);
+    var n=RFStore.splitName(s.name||'');
+    $('pFirst').value=(acct&&acct.first_name)||s.first||n.first||'';
+    $('pLast').value=(acct&&acct.last_name)||s.last||n.last||'';
+    $('pDisplay').value=s.name||'';
+    if(acct){ if(acct.email)$('pEmail').value=acct.email; if(acct.phone)$('pPhone').value=acct.phone; }
+    if(acct&&acct.pending_name){
+      var w=document.createElement('div');
+      w.className='hint warn';w.style.marginTop='14px';
+      w.innerHTML='<svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/>'+
+        '<path d="M12 11v5M12 8h.01"/></svg><span>A name change to <b>'+
+        acct.pending_name.first+' '+acct.pending_name.last+'</b> is waiting for administrator approval. '+
+        'Your display name stays as it is until then.</span>';
+      $('pFirst').closest('.cbody').appendChild(w);
+    }
+  })();
+
+  /* first and last name are mandatory */
+  ['pFirst','pLast'].forEach(function(id){
+    $(id).addEventListener('input',function(){this.style.borderColor='';});
+  });
+
+  /* nav */
+  $('side').addEventListener('click',function(e){
+    var b=e.target.closest('.snav');if(!b)return;
+    $('side').querySelectorAll('.snav').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    document.querySelectorAll('.pane').forEach(function(p){
+      var on=(p.dataset.p===b.dataset.p);
+      p.classList.toggle('on',on);
+      if(on)p.querySelectorAll('.card').forEach(function(c,i){
+        c.style.animation='none';c.offsetHeight;
+        c.style.animation='up .7s var(--e) '+(i*0.05)+'s forwards';
+      });
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  /* toggles */
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('.tg');if(!t)return;
+    var on=t.classList.toggle('on');
+    t.setAttribute('aria-checked',String(on));mark();
+  });
+
+  /* segmented controls */
+  document.querySelectorAll('[data-seg]').forEach(function(seg){
+    seg.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b)return;
+      seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');mark();
+    });
+  });
+
+  /* accent swatches — live preview */
+  var sw=$('sw');
+  if(sw){
+    sw.addEventListener('click',function(e){
+      var b=e.target.closest('.sw');if(!b)return;
+      sw.querySelectorAll('.sw').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      var c=b.dataset.c;
+      RFPrefs.save({accent:c});
+      mark();
+    });
+  }
+  function hex(c){return [parseInt(c.substr(1,2),16),parseInt(c.substr(3,2),16),parseInt(c.substr(5,2),16)];}
+  function shade(c,p){var r=hex(c);return 'rgb('+r.map(function(v){return Math.max(0,Math.min(255,Math.round(v+p)));}).join(',')+')';}
+  function tint(c,a){var r=hex(c);return 'rgb('+r.map(function(v){return Math.round(v+(255-v)*a);}).join(',')+')';}
+
+  /* avatar upload */
+  $('avBtn').addEventListener('click',function(){$('avFile').click();});
+  $('avFile').addEventListener('change',function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    if(f.size>2*1024*1024){toast('Image too large','Maximum size is 2 MB');return;}
+    var rd=new FileReader();
+    rd.onload=function(ev){
+      var img=$('avImg');img.src=ev.target.result;img.hidden=false;
+      $('avInit').style.display='none';mark();
+      toast('Photo updated','Save changes to apply it everywhere');
+    };
+    rd.readAsDataURL(f);
+  });
+
+  /* inputs */
+  document.querySelectorAll('input,select,textarea').forEach(function(el){
+    el.addEventListener('input',mark);el.addEventListener('change',mark);
+  });
+
+  $('save').addEventListener('click',async function(){
+    var f=$('pFirst'),l=$('pLast');
+    if(!f.value.trim()||!l.value.trim()){
+      (f.value.trim()?l:f).style.borderColor='var(--coral)';
+      (f.value.trim()?l:f).focus();
+      toast('Name required','First and last name cannot be empty');
+      document.querySelector('.snav[data-p="profile"]').click();
+      return;
+    }
+    var s=RFSession.get();
+    if(s){
+      var r=await RFStore.requestNameChange(s.id,f.value.trim(),l.value.trim());
+      if(r.changed){
+        toast('Name change requested','Your administrator will review it');
+      }
+      await RFStore.update(s.id,{email:$('pEmail').value.trim()||null,phone:$('pPhone').value.trim()||null});
+    }
+    if(!dirty){toast('Saved','Profile updated');return;}
+    var acc=document.querySelector('.sw.on'),
+        dens=(document.querySelectorAll('[data-seg]')[document.querySelectorAll('[data-seg]').length-2]||{}).querySelector,
+        big=document.querySelector('.pane[data-p="appear"] .row:nth-child(1) .tg'),
+        rm=document.querySelector('.pane[data-p="appear"] .row:nth-child(2) .tg'),
+        dsel=document.querySelector('.pane[data-p="appear"] .f [data-seg]');
+    RFPrefs.save({
+      accent: acc?acc.dataset.c:undefined,
+      largeText: big?big.classList.contains('on'):false,
+      reduceMotion: rm?rm.classList.contains('on'):false,
+      density: dsel&&dsel.querySelector('button.on')?dsel.querySelector('button.on').textContent.trim().toLowerCase():'comfortable'
+    });
+    dirty=false;toast('Settings saved','Applied across every page of your workspace');
+  });
+  $('reset').addEventListener('click',function(){
+    if(!dirty){toast('Nothing to discard','No changes were made');return;}
+    location.reload();
+  });
+  var ex=$('exportBtn');
+  if(ex)ex.addEventListener('click',function(){toast('Export queued','You will get an email when the file is ready');});
+
+  (function(){
+    var p=RFPrefs.get();
+    if(p.accent){
+      document.querySelectorAll('.sw').forEach(function(x){x.classList.toggle('on',x.dataset.c===p.accent);});
+    }
+    var big=document.querySelector('.pane[data-p="appear"] .row:nth-child(1) .tg'),
+        rm=document.querySelector('.pane[data-p="appear"] .row:nth-child(2) .tg');
+    if(big&&p.largeText){big.classList.add('on');big.setAttribute('aria-checked','true');}
+    if(rm&&p.reduceMotion){rm.classList.add('on');rm.setAttribute('aria-checked','true');}
+  })();
+
+  document.querySelectorAll('.rbtn').forEach(function(b){
+    if(b.id==='exportBtn')return;
+    b.addEventListener('click',function(){
+      var label=b.textContent.trim();
+      toast(label+' requested',b.closest('.row,.dev').querySelector('b').textContent);
+    });
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var ME=null, PROV=null, ORG=null, CFG={};
+
+  function toast(t,sub){
+    $('toastTitle').textContent=t;$('toastSub').textContent=sub||'';
+    $('toast').classList.add('on');clearTimeout(toast._t);
+    toast._t=setTimeout(function(){$('toast').classList.remove('on');},3400);
+  }
+  function display(){
+    var f=$('pFirst').value.trim(),l=$('pLast').value.trim(),c=$('pCred').value.trim();
+    var pre=(ME&&ME.name_prefix)?ME.name_prefix+' ':'';
+    $('pDisplay').value=(pre+[f,l].filter(Boolean).join(' ')+(c?', '+c:'')).trim();
+  }
+  function chips(){
+    var list=$('cCpt').value.split(',').map(function(x){return x.trim();}).filter(Boolean);
+    $('cptChips').innerHTML=list.map(function(c){return '<span class="cptchip">'+c+'</span>';}).join('');
+    return list;
+  }
+
+  (async function boot(){
+    await RFStore.ready();
+    var sess=RFSession.require();
+    if(!sess)return;
+    ME=await RFStore.get(sess.id);
+    CFG=await RFStore.settings();
+
+    var provs=await RFStore.providers(), orgs=await RFStore.orgs();
+    PROV=provs.filter(function(p){return p.id===sess.provider_ref;})[0]
+        ||provs.filter(function(p){return (p.full_name||'')===sess.name;})[0]
+        ||provs.filter(function(p){return p.code&&p.code===sess.pid;})[0]||null;
+    ORG=orgs.filter(function(o){return o.id===((PROV&&PROV.org_id)||sess.org_id);})[0]||null;
+
+    /* ── 1 · personal details ── */
+    $('pFirst').value=(PROV&&PROV.first_name)||ME.first_name||'';
+    $('pLast').value=(PROV&&PROV.last_name)||ME.last_name||'';
+    $('pCred').value=(PROV&&PROV.title)||ME.title||'';     /* job title from the provider record */
+    $('pEmail').value=(PROV&&PROV.email)||ME.email||'';
+    $('pPhone').value=(PROV&&PROV.phone)||ME.phone||'';
+    display();
+    $('avInit').textContent=ME.initials||RFStore.initialsOf(ME.full_name);
+    $('acctSub').textContent=(ME.role||'').toUpperCase()+' · '+ME.username;
+    var hdr=document.querySelector('.who b'),hsub=document.querySelector('.who small');
+    if(hdr)hdr.textContent=sess.name||ME.full_name;
+    if(hsub)hsub.textContent=(ME.role||'').toUpperCase();
+
+    if(ME.name_remarks&&ME.name_remarks.length){
+      var r=ME.name_remarks[0];
+      $('nameNoteText').innerHTML='Name changed from <b>'+r.from+'</b> to <b>'+r.to+'</b> on '+
+        new Date(r.at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})+
+        '. Your administrator sees this as a remark.';
+      $('nameNote').style.display='';
+    }
+
+    /* ── 2 · practice and credentials, straight from the admin records ── */
+    var set=function(id,v){var el=$(id);if(el)el.value=v||'';};
+    set('cNpi',   PROV&&PROV.npi);
+    set('cGroup', ORG&&ORG.npi);
+    set('cTax',   (PROV&&PROV.tax_id)||(ORG&&ORG.tax_id));
+    set('cTaxo',  (PROV&&PROV.taxonomy)||(ORG&&ORG.taxonomy));
+    set('cLic',   PROV&&PROV.license?((PROV.state?PROV.state+' · ':'')+PROV.license):'');
+    set('cDea',   PROV&&PROV.dea);
+    set('cCaqh',  PROV&&PROV.caqh);
+    if(CFG.licenseExpiry)$('cExp').value=CFG.licenseExpiry;
+
+    var locs=(ORG&&ORG.addresses)||[];
+    $('locRows').innerHTML=locs.length?locs.map(function(a,i){
+      return '<div class="row"><span class="rico" style="background:'+(i?'var(--blue-s)':'var(--green-s)')+'">'+
+        '<svg viewBox="0 0 24 24" stroke="'+(i?'#3B6FF5':'#0A5C46')+'"><path d="M4 21V8l8-5 8 5v13"/></svg></span>'+
+        '<span class="rinfo"><b>'+(ORG.name||'')+(a.type?' — '+a.type:'')+'</b>'+
+        '<p>'+[a.street,a.city,a.state,a.zip].filter(Boolean).join(', ')+'</p>'+
+        '<small>'+(i===0?'PRIMARY':'ADDITIONAL')+'</small></span>'+
+        (i===0?'<span class="pill ok">Default</span>':'')+'</div>';
+    }).join(''):'<div class="row"><span class="rinfo"><b>No locations on file</b>'+
+      '<p>An administrator adds addresses under Admin → Organizations.</p></span></div>';
+
+    /* ── 3 · scheduling ── */
+    if($('sSlot'))   $('sSlot').value=String(CFG.slotLength||20);
+    if($('sNewSlot'))$('sNewSlot').value=String(CFG.newSlotLength||40);
+    if($('sTele'))   $('sTele').classList.toggle('on',!!CFG.telehealth);
+
+    /* ── 4 · clinical ── */
+    $('cCpt').value=CFG.cptSet||(PROV&&PROV.favourite_cpt)||'99213, 99214, 99396';
+    chips();
+
+    /* ── 5 · security ── */
+    if($('sSso'))$('sSso').classList.toggle('on',!!CFG.sso);
+    var idle=CFG.idleMinutes==null?15:CFG.idleMinutes;
+    $('idleSeg').querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('on',+b.dataset.m===+idle);
+    });
+    await RFStore.touchDevice();
+    await paintDevices();
+
+    /* ── 6 · appearance ── */
+    var pr=RFPrefs.get();
+    if(pr.accent){
+      var known=false;
+      document.querySelectorAll('.sw[data-c]').forEach(function(x){
+        var hit=x.dataset.c.toLowerCase()===pr.accent.toLowerCase();
+        x.classList.toggle('on',hit); if(hit)known=true;
+      });
+      if(!known){$('swCustom').classList.add('on');$('swPick').value=pr.accent;}
+    }
+    var big=document.querySelector('.pane[data-p="appear"] .row:nth-child(1) .tg'),
+        rm=document.querySelector('.pane[data-p="appear"] .row:nth-child(2) .tg');
+    if(big&&pr.largeText){big.classList.add('on');big.setAttribute('aria-checked','true');}
+    if(rm&&pr.reduceMotion){rm.classList.add('on');rm.setAttribute('aria-checked','true');}
+
+    RFPrefs.idle(idle);
+  })();
+
+  async function paintDevices(){
+    var list=await RFStore.devices();
+    $('devCount').textContent=list.length+' DEVICE'+(list.length===1?'':'S');
+    $('devRows').innerHTML=list.map(function(d){
+      var icon=/iPhone|Android phone/.test(d.device)
+        ? '<rect x="6" y="3" width="12" height="18" rx="3"/><path d="M11 18h2"/>'
+        : /iPad|tablet/.test(d.device)
+        ? '<rect x="4" y="3" width="16" height="18" rx="2.5"/>'
+        : '<rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 21h8"/>';
+      return '<div class="dev'+(d.current?' cur':'')+'">'+
+        '<span class="devi"><svg viewBox="0 0 24 24">'+icon+'</svg></span>'+
+        '<span class="devinfo"><b>'+d.label+'</b>'+
+          '<small>'+(d.current?'CURRENT SESSION':'LAST ACTIVE '+
+            new Date(d.last_seen).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}).toUpperCase())+
+          '</small></span>'+
+        (d.current?'<span class="pill ok">This device</span>'
+                  :'<button class="rbtn" data-dev="'+d.id+'">Sign out</button>')+
+      '</div>';
+    }).join('');
+  }
+
+  /* nav */
+  $('side').addEventListener('click',function(e){
+    var b=e.target.closest('.snav');if(!b)return;
+    $('side').querySelectorAll('.snav').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    document.querySelectorAll('.pane').forEach(function(p){
+      var on=(p.dataset.p===b.dataset.p);
+      p.classList.toggle('on',on);
+      if(on)p.querySelectorAll('.card').forEach(function(c,i){
+        c.style.animation='none';c.offsetHeight;
+        c.style.animation='up .7s var(--e) '+(i*0.05)+'s forwards';
+      });
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  document.addEventListener('click',async function(e){
+    var t=e.target.closest('.tg');
+    if(t){t.classList.toggle('on');t.setAttribute('aria-checked',String(t.classList.contains('on')));}
+    var dv=e.target.closest('[data-dev]');
+    if(dv){ await RFStore.signOutDevice(dv.dataset.dev); await paintDevices(); toast('Device signed out'); }
+  });
+  document.querySelectorAll('[data-seg]').forEach(function(seg){
+    seg.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b)return;
+      seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+    });
+  });
+
+  /* live accent preview */
+  var sw=$('sw');
+  sw.addEventListener('click',function(e){
+    var b=e.target.closest('.sw[data-c]');if(!b)return;
+    sw.querySelectorAll('.sw').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');RFPrefs.save({accent:b.dataset.c});
+  });
+  $('swPick').addEventListener('input',function(){
+    sw.querySelectorAll('.sw').forEach(function(x){x.classList.remove('on');});
+    $('swCustom').classList.add('on');
+    RFPrefs.save({accent:this.value});
+  });
+
+  ['sFirst','sLast','sCred'].forEach(function(id){$(id).addEventListener('input',display);});
+  $('cCpt').addEventListener('input',chips);
+
+  /* ── password change ── */
+  function pwOpen(){$('pwScrim').classList.add('on');$('pwModal').classList.add('on');}
+  function pwClose(){$('pwScrim').classList.remove('on');$('pwModal').classList.remove('on');
+    ['pw0','pw1','pw2'].forEach(function(i){$(i).value='';});$('pwErr').style.display='none';}
+  $('pwBtn').addEventListener('click',pwOpen);
+  $('pwX').addEventListener('click',pwClose);
+  $('pwCancel').addEventListener('click',pwClose);
+  $('pwScrim').addEventListener('click',pwClose);
+  $('pwSave').addEventListener('click',async function(){
+    var e0=$('pwErr');e0.style.display='none';
+    if($('pw1').value!==$('pw2').value){e0.textContent='Those passwords do not match.';e0.style.display='';return;}
+    var r=await RFStore.changeOwnPassword($('pw0').value,$('pw1').value);
+    if(r.ok){pwClose();toast('Password updated','Use it the next time you sign in');}
+    else{e0.textContent=r.message||'Could not update the password.';e0.style.display='';}
+  });
+
+  /* ── save everything ── */
+  $('save').addEventListener('click',async function(){
+    var f=$('pFirst'),l=$('pLast');
+    f.style.borderColor='';l.style.borderColor='';
+    if(!f.value.trim()||!l.value.trim()){
+      (!f.value.trim()?f:l).style.borderColor='var(--coral)';
+      (!f.value.trim()?f:l).focus();
+      toast('First and last name are required','Both appear on claims and patient documents');
+      return;
+    }
+
+    if(ME){
+      await RFStore.requestNameChange(ME.id,f.value.trim(),l.value.trim());
+      await RFStore.update(ME.id,{email:$('pEmail').value.trim()||null,
+                                  phone:$('pPhone').value.trim()||null,
+                                  title:$('pCred').value.trim()||null});
+    }
+    /* a provider editing their own record shows up as a remark for the admin */
+    if(PROV){
+      var ch={};
+      if($('pEmail').value.trim()!==(PROV.email||''))ch.email={from:PROV.email||'',to:$('pEmail').value.trim()};
+      if($('pPhone').value.trim()!==(PROV.phone||''))ch.phone={from:PROV.phone||'',to:$('pPhone').value.trim()};
+      if(Object.keys(ch).length)await RFStore.providerRemark(PROV.id,ch,ME.username);
+    }
+
+    var idleBtn=$('idleSeg').querySelector('button.on');
+    var idle=idleBtn?+idleBtn.dataset.m:15;
+    var big=document.querySelector('.pane[data-p="appear"] .row:nth-child(1) .tg'),
+        rmv=document.querySelector('.pane[data-p="appear"] .row:nth-child(2) .tg'),
+        dsel=document.querySelector('.pane[data-p="appear"] .f [data-seg]');
+
+    await RFStore.saveSettings({
+      slotLength:+$('sSlot').value,
+      newSlotLength:+$('sNewSlot').value,
+      telehealth:$('sTele').classList.contains('on'),
+      cptSet:$('cCpt').value.trim(),
+      sso:$('sSso').classList.contains('on'),
+      idleMinutes:idle,
+      licenseExpiry:$('cExp').value||null
+    });
+
+    RFPrefs.save({
+      largeText: big?big.classList.contains('on'):false,
+      reduceMotion: rmv?rmv.classList.contains('on'):false,
+      density: dsel&&dsel.querySelector('button.on')?dsel.querySelector('button.on').textContent.trim().toLowerCase():'comfortable',
+      idleMinutes: idle
+    });
+    RFPrefs.idle(idle);
+
+    toast('Settings saved','Applied across your workspace only');
+  });
+
+  $('reset').addEventListener('click',function(){location.reload();});
+  var ex=$('exportBtn');
+  if(ex)ex.addEventListener('click',function(){toast('Export queued','You will get an email when the file is ready');});
+})();
+</script>
+</body>
+</html>

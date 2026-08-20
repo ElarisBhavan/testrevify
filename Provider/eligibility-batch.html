@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batch eligibility — ReviFlow</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_prefs.css">
+<script src="_prefs.js"></script>
+<script src="../_notify.js"></script>
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_session.js"></script>
+<style>
+:root{
+  --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#606E6A;--dim:#8A9A97;
+  --line:rgba(14,26,23,.09);--line-2:rgba(14,26,23,.16);
+  --accent:#0E9D73;--accent-soft:#E4F5EE;--accent-deep:#0B3D31;
+  --indigo:#5A6CFF;--indigo-soft:#EDEFFF;--amber:#B8791A;--amber-soft:#FBF0DC;
+  --danger:#C4573B;--danger-soft:#FBEAE5;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg .dots{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(14,26,23,.10) 1px,transparent 0);background-size:28px 28px;-webkit-mask-image:radial-gradient(110% 74% at 50% 0%,#000,transparent 70%);mask-image:radial-gradient(110% 74% at 50% 0%,#000,transparent 70%)}
+.bg .bloom{position:absolute;top:-28%;left:50%;transform:translateX(-50%);width:min(1040px,104vw);height:min(700px,74vw);border-radius:50%;filter:blur(84px);background:radial-gradient(circle,rgba(14,157,115,.16),rgba(14,157,115,.05) 46%,transparent 70%);animation:breathe 13s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.85;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.05)}}
+.bg .bloom2{position:absolute;bottom:-34%;right:-13%;width:min(560px,64vw);height:min(560px,64vw);border-radius:50%;filter:blur(64px);background:radial-gradient(circle,rgba(90,108,255,.11),transparent 68%)}
+
+.hdr{position:relative;z-index:3;display:flex;align-items:center;gap:14px;padding:clamp(14px,2vw,22px) clamp(16px,3.2vw,42px);border-bottom:1px solid var(--line);background:rgba(251,250,246,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:9px}.brand svg{width:24px;height:24px}
+.brand span{font-family:'Sora',sans-serif;font-size:15.5px;font-weight:600;letter-spacing:-.035em}
+.brand em{font-style:normal;color:var(--accent);font-weight:400;font-size:.9em;margin-left:4px}
+.crumb{margin-left:14px;padding-left:14px;border-left:1px solid var(--line-2);font-size:13px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.hactions{margin-left:auto;display:flex;gap:9px;align-items:center}
+.rf-who{font-family:var(--mono);font-size:10.4px;color:var(--muted)}
+.hbtn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.66);font-size:13px;font-weight:600;white-space:nowrap;transition:all .32s var(--ease)}
+.hbtn svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hbtn:hover{border-color:var(--accent);background:#fff}
+.hbtn.out:hover{border-color:var(--danger);background:rgba(196,87,59,.07);color:#9E4029}
+.hbtn.out:hover svg{stroke:var(--danger)}
+
+.wrap{position:relative;z-index:2;flex:1;width:100%;max-width:1180px;margin:0 auto;padding:clamp(20px,3vw,38px) clamp(16px,3.2vw,42px) clamp(40px,5vw,70px)}
+.ptop{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:clamp(18px,2.4vw,26px);opacity:0;transform:translateY(16px);animation:up .8s var(--ease) .08s forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.ptop>div:first-child{flex:1;min-width:270px}
+.kick{display:inline-flex;align-items:center;gap:8px;padding:5px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
+.kick i{width:5px;height:5px;border-radius:50%;background:var(--indigo);animation:blip 2.2s infinite}
+@keyframes blip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}
+.ptop h1{font-family:'Sora',sans-serif;font-size:clamp(24px,3.2vw,36px);line-height:1.08;font-weight:600;letter-spacing:-.04em;margin-bottom:9px}
+.ptop h1 em{font-style:normal;color:var(--accent)}
+.ptop p{font-size:13.6px;line-height:1.62;color:var(--muted);max-width:58ch}
+.ptop .cta{margin-left:auto;flex:none;display:flex;gap:9px;flex-wrap:wrap;padding-top:4px}
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;padding:11px 19px;border-radius:12px;font-size:13.2px;font-weight:600;white-space:nowrap;transition:all .34s var(--ease)}
+.btn svg{width:15px;height:15px;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.btn.pri{background:var(--accent-deep);color:#F2FBF7;box-shadow:0 12px 26px -14px rgba(11,61,49,.9)}
+.btn.pri svg{stroke:#F2FBF7}
+.btn.pri:hover{background:var(--accent);transform:translateY(-2px)}
+.btn.pri:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.sec{border:1px solid var(--line-2);background:rgba(255,255,255,.7)}
+.btn.sec svg{stroke:var(--accent)}
+.btn.sec:hover{border-color:var(--accent);background:#fff;transform:translateY(-2px)}
+
+.tools{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:16px;opacity:0;transform:translateY(16px);animation:up .8s var(--ease) .14s forwards}
+.search{position:relative;flex:1;min-width:200px;max-width:320px;display:flex;align-items:center}
+.search input{width:100%;padding:10px 13px 10px 36px;border-radius:11px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);font-size:13px}
+.search input:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,157,115,.13)}
+.search svg{position:absolute;left:12px;width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none}
+.sel{padding:10px 32px 10px 13px;border-radius:11px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);font-size:12.6px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606E6A' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+.sel:focus{outline:none;border-color:var(--accent)}
+.tools .sp{flex:1}
+.cnt{font-family:var(--mono);font-size:10.6px;color:var(--muted);padding:9px 13px;border-radius:99px;background:rgba(255,255,255,.72);border:1px solid var(--line-2)}
+
+/* ═══ batch cards ═══ */
+.batch{background:#fff;border:1px solid var(--line-2);border-radius:16px;margin-bottom:12px;overflow:hidden;
+  box-shadow:0 16px 40px -34px rgba(11,61,49,.4);opacity:0;transform:translateY(16px);
+  animation:up .7s var(--ease) forwards;transition:border-color .34s var(--ease),box-shadow .34s var(--ease)}
+.batch:hover{border-color:rgba(14,157,115,.35);box-shadow:0 22px 46px -30px rgba(11,61,49,.45)}
+.bhead{display:flex;align-items:center;gap:13px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bico{width:36px;height:36px;flex:none;border-radius:11px;display:grid;place-items:center;background:var(--indigo-soft)}
+.bico svg{width:17px;height:17px;stroke:var(--indigo);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.batch.done .bico{background:var(--accent-soft)}.batch.done .bico svg{stroke:var(--accent-deep)}
+.batch.failed .bico{background:var(--danger-soft)}.batch.failed .bico svg{stroke:var(--danger)}
+.bid{min-width:0;flex:1}
+.bid b{display:block;font-family:'Sora',sans-serif;font-size:14.4px;font-weight:600;letter-spacing:-.028em;line-height:1.3}
+.bid small{display:block;font-family:var(--mono);font-size:9.8px;color:var(--dim);margin-top:3px}
+.bstat{padding:5px 12px;border-radius:8px;font-size:10.6px;font-weight:700;white-space:nowrap}
+.bstat.done{background:var(--accent-soft);color:var(--accent-deep)}
+.bstat.run{background:var(--indigo-soft);color:var(--indigo)}
+.bstat.failed{background:var(--danger-soft);color:var(--danger)}
+
+.bgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line)}
+.bgrid>div{background:#fff;padding:13px 16px;min-width:0}
+.bgrid dt{font-size:9.4px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;white-space:nowrap}
+.bgrid dd{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.03em;line-height:1.15}
+.bgrid dd.sm{font-family:'Manrope',sans-serif;font-size:12.6px;font-weight:500;letter-spacing:0}
+.bgrid dd.mono{font-family:var(--mono);font-size:11.6px;font-weight:500}
+.bgrid dd.ok{color:var(--accent-deep)}
+.bgrid dd.warn{color:var(--amber)}
+.bgrid dd.bad{color:var(--danger)}
+
+.bsum{padding:14px 18px;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bar{flex:1;min-width:180px;height:9px;border-radius:99px;background:#EDF1EF;overflow:hidden;display:flex}
+.bar i{height:100%;transition:width .9s var(--ease)}
+.bar i.a{background:linear-gradient(90deg,var(--accent),#2FBF93)}
+.bar i.n{background:#C3CBC8}
+.bar i.e{background:var(--danger)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:9.8px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:8px;height:8px;border-radius:3px}
+
+.bfiles{display:flex;gap:8px;flex-wrap:wrap;padding:13px 18px;border-top:1px solid var(--line);background:var(--paper-2)}
+.fchip{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:9px;border:1px solid var(--line-2);
+  background:#fff;font-family:var(--mono);font-size:10.2px;font-weight:600;transition:all .3s var(--ease)}
+.fchip svg{width:13px;height:13px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fchip:hover{transform:translateY(-2px);box-shadow:0 10px 20px -12px rgba(11,61,49,.6)}
+.fchip.in{color:var(--muted)}.fchip.in svg{stroke:var(--muted)}
+.fchip.out{color:var(--accent-deep);border-color:rgba(14,157,115,.34)}
+.fchip.out svg{stroke:var(--accent-deep)}
+.fchip.out:hover{background:var(--accent-soft)}
+.fchip.del{margin-left:auto;color:var(--danger);border-color:rgba(196,87,59,.3)}
+.fchip.del svg{stroke:var(--danger)}
+.fchip.del:hover{background:var(--danger-soft)}
+
+.empty{padding:60px 20px;text-align:center;color:var(--dim);font-size:13px;line-height:1.7}
+.empty svg{width:32px;height:32px;stroke:var(--dim);fill:none;stroke-width:1.7;margin-bottom:12px}
+.empty b{font-family:'Sora',sans-serif;font-size:16px;color:var(--ink)}
+
+/* ═══ modal ═══ */
+.scrim{position:fixed;inset:0;z-index:90;background:rgba(14,26,23,.34);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:all .34s var(--ease)}
+.scrim.on{opacity:1;visibility:visible}
+.modal{position:fixed;z-index:91;left:50%;top:50%;width:min(620px,calc(100vw - 24px));max-height:calc(100vh - 48px);overflow:auto;
+  transform:translate(-50%,-46%) scale(.96);opacity:0;visibility:hidden;
+  background:rgba(255,255,255,.6);backdrop-filter:blur(26px) saturate(180%);
+  border:1px solid rgba(255,255,255,.66);border-radius:20px;
+  box-shadow:0 40px 90px -30px rgba(14,26,23,.55);transition:all .4s var(--ease)}
+.modal.on{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+.mhead{display:flex;align-items:center;gap:12px;padding:17px 20px;border-bottom:1px solid rgba(14,26,23,.1)}
+.mhead .mi{width:34px;height:34px;flex:none;border-radius:11px;background:var(--accent-soft);display:grid;place-items:center}
+.mhead .mi svg{width:17px;height:17px;stroke:var(--accent-deep);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mhead h3{font-family:'Sora',sans-serif;font-size:15.6px;font-weight:600;letter-spacing:-.032em}
+.mhead p{font-size:11.6px;color:var(--muted);margin-top:2px}
+.mclose{margin-left:auto;width:31px;height:31px;border-radius:9px;display:grid;place-items:center;color:var(--muted);transition:all .3s var(--ease)}
+.mclose svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round}
+.mclose:hover{background:rgba(255,255,255,.8);transform:rotate(90deg)}
+.mbody{padding:19px 20px}
+.fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.f{display:block}
+.f>span{display:flex;align-items:center;gap:6px;font-size:11.2px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.f select{width:100%;padding:10px 30px 10px 12px;border-radius:10px;border:1px solid rgba(14,26,23,.16);background:rgba(255,255,255,.76);font-size:12.8px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606E6A' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 11px center}
+.f select:focus{outline:none;border-color:var(--accent);background-color:#fff}
+.drop{padding:28px 18px;border-radius:14px;border:2px dashed rgba(14,26,23,.18);background:rgba(255,255,255,.55);text-align:center;cursor:pointer;transition:all .34s var(--ease)}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop.has{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
+.drop .di{width:42px;height:42px;margin:0 auto 12px;border-radius:13px;background:var(--accent-soft);display:grid;place-items:center;transition:transform .4s var(--ease)}
+.drop:hover .di{transform:translateY(-3px) scale(1.06)}
+.drop .di svg{width:21px;height:21px;stroke:var(--accent-deep);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.drop b{display:block;font-size:13.4px;font-weight:600;margin-bottom:4px;word-break:break-all}
+.drop small{font-size:11.2px;color:var(--muted)}
+.subhead{display:flex;align-items:center;gap:9px;margin:18px 0 11px;font-size:10.2px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.subhead::after{content:'';flex:1;height:1px;background:rgba(14,26,23,.12)}
+.prevwrap{overflow-x:auto;border:1px solid var(--line-2);border-radius:11px}
+.prev{width:100%;border-collapse:collapse;font-size:11.4px}
+.prev th{text-align:left;padding:9px 11px;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);background:var(--paper-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+.prev td{padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+.prev tr:last-child td{border-bottom:none}
+.prevnote{font-family:var(--mono);font-size:9.8px;color:var(--dim);margin-top:8px}
+.hint{margin-top:14px;padding:12px 14px;border-radius:11px;background:var(--indigo-soft);border:1px solid rgba(90,108,255,.22);font-size:11.6px;line-height:1.6;color:#3A45B8;display:flex;gap:10px}
+.hint svg{width:15px;height:15px;stroke:var(--indigo);fill:none;stroke-width:2;flex:none;margin-top:1px}
+.hint.warn{background:var(--danger-soft);border-color:rgba(196,87,59,.24);color:#9E4029}
+.hint.warn svg{stroke:var(--danger)}
+.mfoot{display:flex;gap:9px;padding:15px 20px;border-top:1px solid rgba(14,26,23,.1);background:rgba(255,255,255,.36)}
+.mfoot .sp{flex:1}
+
+.prog{height:10px;border-radius:99px;background:#EDF1EF;overflow:hidden;margin-bottom:12px}
+.prog i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent-deep),#2FBF93);transition:width .35s var(--ease)}
+.progtxt{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:16px}
+.livegrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.livegrid>div{background:rgba(255,255,255,.8);padding:12px 13px}
+.livegrid dt{font-size:9.2px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.livegrid dd{font-family:'Sora',sans-serif;font-size:19px;font-weight:600;letter-spacing:-.03em}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:95;display:flex;align-items:center;gap:12px;padding:14px 19px;border-radius:13px;background:var(--accent-deep);color:#F2FBF7;box-shadow:0 22px 44px -20px rgba(11,61,49,.9);opacity:0;pointer-events:none;transition:all .45s var(--ease);max-width:calc(100vw - 30px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast svg{width:17px;height:17px;stroke:#7BE8C0;fill:none;stroke-width:2.4;flex:none}
+.toast b{display:block;font-size:13px;font-weight:600}
+.toast small{display:block;font-size:11px;color:rgba(242,251,247,.74);margin-top:2px}
+
+@media (max-width:1000px){.bgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.crumb{display:none}}
+@media (max-width:640px){
+  .bgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fg{grid-template-columns:minmax(0,1fr)}
+  .livegrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ptop .cta{width:100%;margin-left:0}.ptop .cta .btn{flex:1;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.batch,.ptop,.tools{opacity:1;transform:none}}
+
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+</style>
+<link rel="stylesheet" href="../_session.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="dots"></div><div class="bloom"></div><div class="bloom2"></div>
+</div>
+
+<header class="hdr">
+  <div class="brand">
+    <img class="brandmark" src="../assets/logo-64.png" alt="ReviFlow RCM">
+    <span>R&nbsp;e&nbsp;v&nbsp;i&nbsp;F&nbsp;l&nbsp;o&nbsp;w</span>
+  </div>
+  <span class="crumb">Check eligibility / <b>Batch check</b></span>
+  <div class="hactions">
+    <span class="rf-who" id="rfWho"></span>
+    <a href="eligibility.html" class="hbtn"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Single check</a>
+    <a href="provider-login.html" class="hbtn out" id="logout">Log out
+      <svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ptop">
+    <div>
+      <span class="kick"><i></i>Bulk 270 / 271</span>
+      <h1>Batch <em>eligibility check</em></h1>
+      <p>Upload a spreadsheet of patients and run every one against the payer in a single pass. Results are kept here with the original file.</p>
+    </div>
+    <div class="cta">
+      <button class="btn sec" id="tplBtn"><svg viewBox="0 0 24 24"><path d="M12 3v13M7 12l5 5 5-5"/><path d="M4 20h16"/></svg>Template</button>
+      <button class="btn pri" id="newBatch"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg>New batch</button>
+    </div>
+  </div>
+
+  <div class="tools">
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Search batch ID or file name…">
+    </label>
+    <select class="sel" id="fStatus">
+      <option value="all">All batches</option><option value="complete">Complete</option>
+      <option value="running">Running</option><option value="failed">Failed</option>
+    </select>
+    <span class="sp"></span>
+    <span class="cnt" id="cnt">—</span>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="empty" id="empty" hidden>
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 5h16M4 10h16M4 15h9"/><path d="M15 17l3 3 3-3M18 20v-6"/></svg><br>
+    <b>No batches yet</b><br>
+    <span>Upload a spreadsheet to run your first bulk eligibility check.</span>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<!-- UPLOAD -->
+<div class="modal" id="mUp" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg></span>
+    <div><h3>New batch check</h3><p>Excel or CSV — one patient per row.</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="fg">
+      <label class="f"><span>Facility</span><select id="bFac"></select></label>
+      <label class="f"><span>Rendering provider</span><select id="bProv"></select></label>
+      <label class="f"><span>Default payer</span>
+        <select id="bPayer">
+          <option value="">Use the payer column in the file</option>
+          <option value="84980">Blue Cross Blue Shield of Texas (84980)</option>
+          <option value="87726">UnitedHealthcare (87726)</option>
+          <option value="CMS">Medicare (CMS)</option>
+          <option value="60054">Aetna (60054)</option>
+          <option value="62308">Cigna (62308)</option>
+          <option value="MCDTX">Texas Medicaid (MCDTX)</option>
+        </select></label>
+      <label class="f"><span>Service type</span>
+        <select id="bStc">
+          <option value="30">30 — Health benefit plan coverage</option>
+          <option value="98">98 — Professional visit, office</option>
+          <option value="MH">MH — Mental health</option>
+          <option value="47">47 — Hospital</option>
+        </select></label>
+    </div>
+
+    <div class="drop" id="drop">
+      <div class="di"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg></div>
+      <b id="dropName">Drop a file here or click to browse</b>
+      <small>.xlsx, .xls or .csv — up to 500 rows</small>
+      <input type="file" id="bFile" hidden accept=".xlsx,.xls,.csv">
+    </div>
+
+    <div id="preview" style="display:none">
+      <div class="subhead">Preview</div>
+      <div class="prevwrap"><table class="prev" id="prevTbl"></table></div>
+      <p class="prevnote" id="prevNote"></p>
+    </div>
+
+    <div class="hint" id="colHint">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>Expected columns: <b>First Name</b>, <b>Last Name</b>, <b>DOB</b>, <b>Member ID</b>, and optionally <b>Payer ID</b> and <b>Date of Service</b>. Column order does not matter.</span>
+    </div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="runBtn" disabled><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>Run batch</button>
+  </div>
+</div>
+
+<!-- RUNNING -->
+<div class="modal" id="mRun" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9"/><path d="M12 7v5l4 2"/></svg></span>
+    <div><h3>Running batch</h3><p id="runSub">—</p></div>
+  </div>
+  <div class="mbody">
+    <div class="prog"><i id="progBar"></i></div>
+    <p class="progtxt" id="progTxt">Starting…</p>
+    <div class="livegrid">
+      <div><dt>Active</dt><dd id="lActive">0</dd></div>
+      <div><dt>Inactive</dt><dd id="lInactive">0</dd></div>
+      <div><dt>Errors</dt><dd id="lError">0</dd></div>
+      <div><dt>Remaining</dt><dd id="lLeft">0</dd></div>
+    </div>
+  </div>
+  <div class="mfoot">
+    <span class="sp"></span>
+    <button class="btn sec" id="cancelRun">Stop after this one</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="tT">—</b><small id="tS"></small></span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var API='/api/eligibility';
+  var ROWS=[], FILE=null, PROVS=[], ORGS=[], MINE=null, MY_ORG=null, CANCEL=false;
+
+  function toast(t,s){$('tT').textContent=t;$('tS').textContent=s||'';
+    $('toast').classList.add('on');clearTimeout(toast._t);
+    toast._t=setTimeout(function(){$('toast').classList.remove('on');},3600);}
+  function esc(v){return String(v==null?'':v).replace(/[&<>]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function ymd(v){
+    if(v==null||v==='')return '';
+    if(typeof v==='number'){                    /* Excel serial date */
+      var d=new Date(Math.round((v-25569)*86400000));
+      return d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,'0')+String(d.getUTCDate()).padStart(2,'0');
+    }
+    var s=String(v).trim();
+    var m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);      if(m)return m[1]+m[2]+m[3];
+    m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if(m)return m[3]+String(m[1]).padStart(2,'0')+String(m[2]).padStart(2,'0');
+    return s.replace(/\D/g,'').slice(0,8);
+  }
+  function todayYmd(){var d=new Date();
+    return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');}
+  function dur(ms){
+    var s=Math.round(ms/1000);
+    if(s<60)return s+'s';
+    return Math.floor(s/60)+'m '+(s%60)+'s';
+  }
+  function when(iso){
+    var d=new Date(iso);
+    return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})+
+      ' · '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+  }
+
+  /* ── column matching, order independent ── */
+  var MAP={
+    first:['first name','firstname','first','patient first name','given name'],
+    last:['last name','lastname','last','patient last name','surname','family name'],
+    dob:['dob','date of birth','birth date','birthdate','dateofbirth'],
+    member:['member id','memberid','member','subscriber id','policy number','insurance id','id'],
+    payer:['payer id','payerid','payer','insurance','trading partner','payer name'],
+    dos:['date of service','dos','service date','appointment date']
+  };
+  function pick(headers,keys){
+    for(var i=0;i<headers.length;i++){
+      var h=String(headers[i]||'').trim().toLowerCase();
+      if(keys.indexOf(h)>-1)return i;
+    }
+    for(var j=0;j<headers.length;j++){
+      var g=String(headers[j]||'').trim().toLowerCase();
+      for(var k=0;k<keys.length;k++) if(g.indexOf(keys[k])>-1)return j;
+    }
+    return -1;
+  }
+
+  function parseGrid(grid){
+    if(!grid.length)return [];
+    var head=grid[0], idx={};
+    Object.keys(MAP).forEach(function(k){ idx[k]=pick(head,MAP[k]); });
+    if(idx.last<0||idx.member<0)return null;      /* not a usable sheet */
+    return grid.slice(1).filter(function(r){
+      return r && r.some(function(c){return String(c||'').trim();});
+    }).map(function(r,i){
+      return {
+        row:i+2,
+        first: idx.first>-1?String(r[idx.first]||'').trim():'',
+        last:  String(r[idx.last]||'').trim(),
+        dob:   idx.dob>-1?ymd(r[idx.dob]):'',
+        member:String(r[idx.member]||'').trim(),
+        payer: idx.payer>-1?String(r[idx.payer]||'').trim():'',
+        dos:   idx.dos>-1?ymd(r[idx.dos]):''
+      };
+    });
+  }
+
+  async function readFile(f){
+    FILE=f;
+    var name=f.name.toLowerCase();
+    var grid;
+    if(/\.csv$/.test(name)){
+      var text=await f.text();
+      FILE._text=text;
+      grid=text.split(/\r?\n/).map(function(l){
+        var out=[],cur='',q=false;
+        for(var i=0;i<l.length;i++){
+          var c=l[i];
+          if(c==='"'){ if(q&&l[i+1]==='"'){cur+='"';i++;} else q=!q; }
+          else if(c===','&&!q){ out.push(cur);cur=''; }
+          else cur+=c;
+        }
+        out.push(cur);return out;
+      }).filter(function(r){return r.length>1||String(r[0]||'').trim();});
+    }else{
+      var buf=await f.arrayBuffer();
+      var wb=XLSX.read(buf,{type:'array'});
+      var sh=wb.Sheets[wb.SheetNames[0]];
+      grid=XLSX.utils.sheet_to_json(sh,{header:1,raw:true,defval:''});
+      FILE._text=XLSX.utils.sheet_to_csv(sh);
+    }
+
+    var parsed=parseGrid(grid);
+    if(parsed===null){
+      $('colHint').className='hint warn';
+      $('colHint').querySelector('span').innerHTML=
+        '<b>Could not find the required columns.</b> The sheet needs at least <b>Last Name</b> and <b>Member ID</b>. '+
+        'Download the template if you are unsure of the format.';
+      $('runBtn').disabled=true;$('preview').style.display='none';
+      return;
+    }
+    if(parsed.length>500)parsed=parsed.slice(0,500);
+    ROWS=parsed;
+
+    $('colHint').className='hint';
+    $('colHint').querySelector('span').innerHTML=
+      'Matched <b>'+ROWS.length+' row'+(ROWS.length===1?'':'s')+'</b>. Rows missing a member ID are reported as errors rather than skipped.';
+    $('dropName').textContent=f.name;
+    $('drop').classList.add('has');
+
+    $('prevTbl').innerHTML=
+      '<thead><tr><th>#</th><th>Last</th><th>First</th><th>DOB</th><th>Member ID</th><th>Payer</th></tr></thead>'+
+      '<tbody>'+ROWS.slice(0,5).map(function(r){
+        return '<tr><td>'+r.row+'</td><td>'+esc(r.last)+'</td><td>'+esc(r.first)+'</td>'+
+          '<td>'+esc(r.dob)+'</td><td>'+esc(r.member)+'</td><td>'+esc(r.payer||'—')+'</td></tr>';
+      }).join('')+'</tbody>';
+    $('prevNote').textContent=ROWS.length>5?('Showing 5 of '+ROWS.length+' rows'):(ROWS.length+' rows');
+    $('preview').style.display='';
+    $('runBtn').disabled=false;
+  }
+
+  /* ── run the batch through the Stedi proxy ── */
+  async function runBatch(){
+    var prov=PROVS.filter(function(p){return String(p.id)===$('bProv').value;})[0]||MINE;
+    var org=ORGS.filter(function(o){return o.id===((prov&&prov.org_id)||MY_ORG);})[0];
+    var defPayer=$('bPayer').value, stc=$('bStc').value;
+
+    var id='BAT-'+Date.now().toString(36).toUpperCase();
+    var started=Date.now();
+    CANCEL=false;
+
+    closeM();
+    $('scrim').classList.add('on');$('mRun').classList.add('on');
+    $('runSub').textContent=id+' · '+ROWS.length+' items';
+
+    var results=[],active=0,inactive=0,errors=0;
+
+    for(var i=0;i<ROWS.length;i++){
+      if(CANCEL)break;
+      var r=ROWS[i];
+      var pct=Math.round((i/ROWS.length)*100);
+      $('progBar').style.width=pct+'%';
+      $('progTxt').textContent='Checking '+(i+1)+' of '+ROWS.length+' — '+(r.last||'row '+r.row);
+      $('lLeft').textContent=ROWS.length-i;
+
+      var out={row:r.row,last:r.last,first:r.first,dob:r.dob,member:r.member,
+               payer:r.payer||defPayer,status:'',plan:'',detail:''};
+
+      if(!r.member||!r.last){
+        out.status='Error';out.detail='Missing member ID or last name';
+        errors++;results.push(out);$('lError').textContent=errors;continue;
+      }
+
+      try{
+        var body={
+          controlNumber:String(Math.floor(100000000+Math.random()*899999999)),
+          tradingPartnerServiceId:(r.payer||defPayer||'').trim(),
+          provider:{
+            organizationName:(org&&org.name)||'Practice',
+            npi:(prov&&prov.npi)||''
+          },
+          subscriber:{firstName:r.first,lastName:r.last,dateOfBirth:r.dob,memberId:r.member},
+          encounter:{serviceTypeCodes:[stc],dateOfService:r.dos||todayYmd()}
+        };
+        var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+                                 body:JSON.stringify(body)});
+        var j=await res.json();
+
+        var aaa=j.errors||(j.subscriber&&j.subscriber.aaaErrors);
+        if(!res.ok||(aaa&&aaa.length)){
+          out.status='Error';
+          out.detail=(aaa&&aaa[0]&&(aaa[0].description||aaa[0].code))||j.message||j.error||'Rejected by payer';
+          errors++;
+        }else{
+          var st=(j.planStatus&&j.planStatus[0])||null;
+          var live=st&&/active/i.test(st.status||'');
+          out.status=live?'Active':'Inactive';
+          out.plan=(st&&(st.planDetails||st.planCoverage))||'';
+          out.detail=(st&&st.status)||'';
+          if(live)active++;else inactive++;
+        }
+      }catch(err){
+        out.status='Error';out.detail=String(err&&err.message||err);errors++;
+      }
+
+      results.push(out);
+      $('lActive').textContent=active;
+      $('lInactive').textContent=inactive;
+      $('lError').textContent=errors;
+    }
+
+    $('progBar').style.width='100%';
+    $('progTxt').textContent='Writing results…';
+
+    var head=['Row','Last Name','First Name','DOB','Member ID','Payer','Status','Plan','Detail'];
+    var csv=[head.join(',')].concat(results.map(function(r){
+      return [r.row,r.last,r.first,r.dob,r.member,r.payer,r.status,r.plan,r.detail]
+        .map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}).join(',');
+    })).join('\n');
+
+    var batch={
+      id:id,
+      created_at:new Date(started).toISOString(),
+      duration_ms:Date.now()-started,
+      total:ROWS.length,
+      processed:results.length,
+      active:active,inactive:inactive,errors:errors,
+      status:CANCEL?'failed':(errors===results.length&&results.length?'failed':'complete'),
+      summary:CANCEL
+        ? 'Stopped early after '+results.length+' of '+ROWS.length
+        : active+' active, '+inactive+' inactive, '+errors+' error'+(errors===1?'':'s'),
+      source:(prov?prov.full_name:'—')+(org?' · '+org.name:''),
+      payer:defPayer||'per row',
+      input_name:FILE?FILE.name:'input.csv',
+      input_csv:(FILE&&FILE._text)||'',
+      result_name:id+'-results.csv',
+      result_csv:csv
+    };
+    await RFStore.saveBatch(batch);
+
+    $('mRun').classList.remove('on');$('scrim').classList.remove('on');
+    document.body.style.overflow='';
+    await paint();
+    toast(CANCEL?'Batch stopped':'Batch complete',
+          batch.summary+' · '+dur(batch.duration_ms));
+  }
+
+  /* ── history ── */
+  function download(name,text){
+    var b=new Blob([text],{type:'text/csv;charset=utf-8;'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+  }
+
+  async function paint(){
+    var list=await RFStore.batches();
+    var q=($('q').value||'').toLowerCase().trim(), f=$('fStatus').value;
+    var show=list.filter(function(b){
+      if(f!=='all'&&b.status!==f)return false;
+      if(q&&(b.id+' '+b.input_name).toLowerCase().indexOf(q)<0)return false;
+      return true;
+    });
+    $('cnt').textContent=show.length+' of '+list.length;
+    $('empty').hidden=list.length>0;
+    $('list').innerHTML=show.map(function(b,i){
+      var done=b.status==='complete';
+      var tot=Math.max(1,b.processed||b.total);
+      return '<div class="batch '+(done?'done':b.status)+'" style="animation-delay:'+Math.min(.4,i*.05)+'s">'+
+        '<div class="bhead">'+
+          '<span class="bico"><svg viewBox="0 0 24 24">'+
+            (done?'<path d="M5 13l4 4L19 7"/>':'<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/>')+
+          '</svg></span>'+
+          '<span class="bid"><b>'+b.id+'</b><small>'+esc(b.input_name)+'</small></span>'+
+          '<span class="bstat '+(done?'done':b.status==='failed'?'failed':'run')+'">'+
+            (done?'Complete':b.status==='failed'?'Stopped':'Running')+'</span>'+
+        '</div>'+
+        '<dl class="bgrid">'+
+          '<div><dt>Created on</dt><dd class="sm">'+when(b.created_at)+'</dd></div>'+
+          '<div><dt>Duration</dt><dd class="mono">'+dur(b.duration_ms)+'</dd></div>'+
+          '<div><dt>Total items</dt><dd>'+b.total+'</dd></div>'+
+          '<div><dt>Active</dt><dd class="ok">'+b.active+'</dd></div>'+
+          '<div><dt>Inactive</dt><dd class="warn">'+b.inactive+'</dd></div>'+
+          '<div><dt>Errors</dt><dd class="'+(b.errors?'bad':'')+'">'+b.errors+'</dd></div>'+
+        '</dl>'+
+        '<div class="bsum">'+
+          '<span class="bar">'+
+            '<i class="a" style="width:'+(b.active/tot*100)+'%"></i>'+
+            '<i class="n" style="width:'+(b.inactive/tot*100)+'%"></i>'+
+            '<i class="e" style="width:'+(b.errors/tot*100)+'%"></i>'+
+          '</span>'+
+          '<span class="legend">'+
+            '<span><i style="background:var(--accent)"></i>Active</span>'+
+            '<span><i style="background:#C3CBC8"></i>Inactive</span>'+
+            '<span><i style="background:var(--danger)"></i>Error</span>'+
+          '</span>'+
+        '</div>'+
+        '<dl class="bgrid" style="grid-template-columns:repeat(2,minmax(0,1fr))">'+
+          '<div><dt>Summary</dt><dd class="sm">'+esc(b.summary)+'</dd></div>'+
+          '<div><dt>Source</dt><dd class="sm">'+esc(b.source)+' · payer '+esc(b.payer)+'</dd></div>'+
+        '</dl>'+
+        '<div class="bfiles">'+
+          '<button class="fchip in" data-in="'+b.id+'">'+
+            '<svg viewBox="0 0 24 24"><path d="M7 4h8l4 4v12a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>'+
+            esc(b.input_name)+'</button>'+
+          '<button class="fchip out" data-out="'+b.id+'">'+
+            '<svg viewBox="0 0 24 24"><path d="M12 3v13M7 12l5 5 5-5"/><path d="M4 20h16"/></svg>'+
+            esc(b.result_name)+'</button>'+
+          '<button class="fchip del" data-del="'+b.id+'">'+
+            '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>Delete</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  /* ── modal plumbing ── */
+  function openM(){$('scrim').classList.add('on');$('mUp').classList.add('on');document.body.style.overflow='hidden';}
+  function closeM(){$('scrim').classList.remove('on');
+    document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on');});
+    document.body.style.overflow='';}
+  $('scrim').addEventListener('click',function(){ if(!$('mRun').classList.contains('on'))closeM(); });
+  document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',closeM);});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&!$('mRun').classList.contains('on'))closeM();});
+
+  $('newBatch').addEventListener('click',function(){
+    ROWS=[];FILE=null;
+    $('dropName').textContent='Drop a file here or click to browse';
+    $('drop').classList.remove('has');$('preview').style.display='none';
+    $('runBtn').disabled=true;$('colHint').className='hint';
+    $('colHint').querySelector('span').innerHTML=
+      'Expected columns: <b>First Name</b>, <b>Last Name</b>, <b>DOB</b>, <b>Member ID</b>, and optionally '+
+      '<b>Payer ID</b> and <b>Date of Service</b>. Column order does not matter.';
+    openM();
+  });
+  $('drop').addEventListener('click',function(){$('bFile').click();});
+  $('bFile').addEventListener('change',function(){if(this.files[0])readFile(this.files[0]);});
+  ['dragenter','dragover'].forEach(function(e){
+    $('drop').addEventListener(e,function(ev){ev.preventDefault();this.classList.add('over');});});
+  ['dragleave','drop'].forEach(function(e){
+    $('drop').addEventListener(e,function(ev){ev.preventDefault();this.classList.remove('over');});});
+  $('drop').addEventListener('drop',function(ev){
+    if(ev.dataTransfer&&ev.dataTransfer.files[0])readFile(ev.dataTransfer.files[0]);});
+  $('runBtn').addEventListener('click',runBatch);
+  $('cancelRun').addEventListener('click',function(){CANCEL=true;this.textContent='Stopping…';});
+
+  $('tplBtn').addEventListener('click',function(){
+    download('reviflow-batch-template.csv',
+      'First Name,Last Name,DOB,Member ID,Payer ID,Date of Service\n'+
+      'Jack,Marshall,1985-04-12,BNF821267311,84980,\n'+
+      'Maria,Alvarez,1972-11-03,R61503620,87726,\n');
+    toast('Template downloaded','Fill it in and upload');
+  });
+
+  $('q').addEventListener('input',paint);
+  $('fStatus').addEventListener('change',paint);
+
+  document.addEventListener('click',async function(e){
+    var i=e.target.closest('[data-in]'),o=e.target.closest('[data-out]'),d=e.target.closest('[data-del]');
+    if(i){var b=await RFStore.batch(i.dataset.in);
+      if(b)download(b.input_name.replace(/\.(xlsx|xls)$/i,'.csv'),b.input_csv||'');return;}
+    if(o){var b2=await RFStore.batch(o.dataset.out);
+      if(b2)download(b2.result_name,b2.result_csv||'');return;}
+    if(d){
+      if(!confirm('Delete this batch and its files?'))return;
+      await RFStore.removeBatch(d.dataset.del);await paint();
+      toast('Batch deleted');return;
+    }
+  });
+
+  /* ── boot ── */
+  (async function(){
+    await RFStore.ready();
+    var sess=RFSession.require();
+    if(!sess)return;
+    $('rfWho').textContent=(sess.name||sess.username||'').toUpperCase();
+    $('logout').addEventListener('click',function(ev){ev.preventDefault();
+      RFSession.signOut('manual');});
+
+    ORGS=await RFStore.orgs();
+    var all=await RFStore.providers();
+    MINE=all.filter(function(p){return p.id===sess.provider_ref;})[0]
+        ||all.filter(function(p){return (p.full_name||'')===sess.name;})[0]||null;
+    MY_ORG=(MINE&&MINE.org_id)||sess.org_id||null;
+    PROVS=MY_ORG?all.filter(function(p){return p.org_id===MY_ORG;}):[];
+    if(sess.role==='provider')PROVS=MINE?[MINE]:[];
+
+    var org=ORGS.filter(function(o){return o.id===MY_ORG;})[0];
+    $('bFac').innerHTML=org
+      ?'<option value="'+org.id+'">'+org.name+'</option>'
+      :'<option value="">No facility linked</option>';
+    $('bProv').innerHTML=PROVS.length
+      ?PROVS.map(function(p){return '<option value="'+p.id+'">'+p.full_name+
+        (p.title?', '+p.title:'')+'</option>';}).join('')
+      :'<option value="">No providers</option>';
+
+    await paint();
+  })();
+})();
+</script>
+
+
+<script>
+/* Section access: a grant, not just a role. Shows a notice rather than
+   signing anyone out. */
+(function(){
+  var SECTION='eligibility';
+  document.addEventListener('DOMContentLoaded',async function(){
+    try{
+      if(typeof RFStore==='undefined'||!RFStore.can)return;
+      await RFStore.ready();
+      var lvl=await RFStore.can(SECTION);
+      if(lvl==='none'){
+        if(window.RFSession&&RFSession.denied)
+          RFSession.denied({section:'eligibility'});
+        return;
+      }
+      if(lvl==='view'){
+        /* read only: the page still loads, but nothing that writes is usable */
+        document.body.classList.add('rf-viewonly');
+        var css=document.createElement('style');
+        css.textContent=
+          '.rf-viewonly [data-write],.rf-viewonly .ib.del{opacity:.4;pointer-events:none}'+
+          '.rf-viewonly .rf-ro{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);'+
+            'z-index:900;display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:11px;'+
+            'background:#0D1A16;color:#F2FBF7;font:600 12px Manrope,system-ui,sans-serif;'+
+            'box-shadow:0 18px 40px -18px rgba(13,26,22,.8)}';
+        document.head.appendChild(css);
+        var note=document.createElement('div');
+        note.className='rf-ro';
+        note.textContent='View only — contact your practice manager to make changes';
+        document.body.appendChild(note);
+        setTimeout(function(){ note.style.display='none'; },6000);
+      }
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

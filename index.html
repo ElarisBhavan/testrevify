@@ -1,0 +1,2481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revify RCM — Revenue cycle infrastructure for modern practices</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/logo-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#606E6A;
+  --line:rgba(14,26,23,.09);--line-2:rgba(14,26,23,.16);
+  --accent:#0E9D73;--accent-soft:#E4F5EE;--accent-deep:#0B3D31;
+  --mint:#5FE3B3;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --nav-h:78px;--nav-h-sm:62px;--ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+/* ══ HEADER ══ */
+.site-header{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);border-bottom:1px solid transparent;transition:height .45s var(--ease),border-color .45s var(--ease),box-shadow .45s var(--ease)}
+.site-header::before{content:'';position:absolute;inset:0;background:rgba(251,250,246,.82);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);opacity:0;transition:opacity .45s var(--ease)}
+.site-header.scrolled{height:var(--nav-h-sm);border-bottom-color:var(--line);box-shadow:0 1px 24px -12px rgba(14,26,23,.22)}
+.site-header.scrolled::before{opacity:1}
+.header-inner{position:relative;height:100%;max-width:1360px;margin:0 auto;padding:0 clamp(18px,3.6vw,46px);display:flex;align-items:center;gap:clamp(14px,2.2vw,32px)}
+.logo{display:flex;align-items:center;gap:10px;flex:0 0 auto;margin-right:auto}
+.logo-mark{width:clamp(30px,2.4vw,34px);height:clamp(30px,2.4vw,34px);flex:none;display:grid;place-items:center;transition:transform .55s var(--ease)}
+.logo:hover .logo-mark{transform:rotate(-90deg)}
+.logo-mark svg{width:100%;height:100%;display:block}
+.logo-mark .ring{stroke:var(--accent);stroke-width:2.1;fill:none;stroke-linecap:round;stroke-dasharray:74;stroke-dashoffset:20;transition:stroke-dashoffset .55s var(--ease)}
+.logo:hover .logo-mark .ring{stroke-dashoffset:0}
+.logo-mark .pulse{stroke:var(--ink);stroke-width:2.1;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.logo-text{font-family:'Sora',sans-serif;font-size:clamp(16px,1.45vw,18.5px);font-weight:600;letter-spacing:-.035em;line-height:1;white-space:nowrap}
+.logo-text .rcm{font-weight:400;color:var(--accent);margin-left:5px;letter-spacing:.02em;font-size:.9em}
+.nav-wrap{display:flex;align-items:center;gap:clamp(10px,1.6vw,26px);flex:0 1 auto;min-width:0}
+.nav{position:relative;display:flex;align-items:center;gap:clamp(0px,.3vw,4px)}
+.nav-pill{position:absolute;top:50%;left:0;height:36px;transform:translateY(-50%);border-radius:99px;background:var(--accent-soft);border:1px solid rgba(14,157,115,.16);opacity:0;pointer-events:none;transition:left .42s var(--ease),width .42s var(--ease),opacity .3s ease}
+.nav-link{position:relative;z-index:2;padding:9px clamp(9px,1.05vw,16px);border-radius:99px;font-size:clamp(13px,1.02vw,14.5px);font-weight:500;letter-spacing:-.008em;color:var(--muted);white-space:nowrap;transform-origin:center bottom;transition:color .3s ease;will-change:transform}
+.nav-link.is-near,.nav-link.is-active{color:var(--ink)}
+.nav-link .dot{position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent);opacity:0;transform:scale(0);transition:opacity .3s var(--ease),transform .3s var(--ease)}
+.nav-link.is-active .dot{opacity:1;transform:scale(1)}
+.cta{position:relative;overflow:hidden;flex:none;display:inline-flex;align-items:center;gap:8px;padding:11px clamp(15px,1.5vw,22px);border-radius:99px;background:var(--accent-deep);color:#F4FBF8;font-size:clamp(13px,1.02vw,14.5px);font-weight:600;letter-spacing:-.01em;white-space:nowrap;transition:transform .35s var(--ease),background .35s var(--ease),box-shadow .35s var(--ease)}
+.cta::after{content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);transition:left .75s var(--ease)}
+.cta:hover{background:var(--accent);transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(14,157,115,.75)}
+.cta:hover::after{left:140%}
+.cta:active{transform:translateY(0)}
+.cta i{display:block;transition:transform .35s var(--ease)}
+.cta:hover i{transform:translateX(3px)}
+.cta svg{display:block;width:15px;height:15px}
+.cta-alt{background:transparent;color:var(--accent-deep);border:1px solid rgba(14,157,115,.45);padding-left:clamp(12px,1.2vw,16px)}
+.cta-alt::after{display:none}
+.cta-alt:hover{background:var(--accent-soft);color:var(--accent-deep);border-color:var(--accent);box-shadow:0 12px 26px -16px rgba(14,157,115,.6)}
+.cta-alt .rfdot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;animation:blip 2.2s infinite}
+.cta-alt i svg{width:13px;height:13px}
+.cta-alt:hover i{transform:translate(2px,-2px)}
+.drawer .cta-alt{background:transparent;margin-top:14px}
+@media (max-width:1180px){.nav-link{padding:8px 9px}.nav-wrap{gap:9px}}
+@media (max-width:1040px){.nav-wrap{display:none}.burger{display:grid}}
+.burger{display:none;width:42px;height:42px;flex:none;place-items:center;border-radius:11px;border:1px solid var(--line-2);transition:background .3s ease}
+.burger:hover{background:var(--paper-2)}
+.burger span{display:block;width:17px;height:1.7px;background:var(--ink);border-radius:2px;transition:transform .4s var(--ease),opacity .3s ease}
+.burger span+span{margin-top:4.5px}
+.burger.open span:nth-child(1){transform:translateY(6.2px) rotate(45deg)}
+.burger.open span:nth-child(2){opacity:0}
+.burger.open span:nth-child(3){transform:translateY(-6.2px) rotate(-45deg)}
+.drawer{position:fixed;inset:0;z-index:99;background:rgba(251,250,246,.98);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);display:flex;flex-direction:column;justify-content:center;padding:calc(var(--nav-h-sm) + 20px) clamp(24px,7vw,56px) 40px;opacity:0;visibility:hidden;transition:opacity .4s var(--ease),visibility .4s}
+.drawer.open{opacity:1;visibility:visible}
+.drawer a:not(.cta){font-family:'Sora',sans-serif;font-size:clamp(24px,6.2vw,34px);font-weight:500;letter-spacing:-.035em;padding:10px 0;color:var(--muted);border-bottom:1px solid var(--line);opacity:0;transform:translateY(20px);transition:opacity .5s var(--ease),transform .5s var(--ease),color .25s ease}
+.drawer.open a:not(.cta){opacity:1;transform:none}
+.drawer a:not(.cta):hover{color:var(--accent)}
+.drawer .cta{margin-top:30px;align-self:flex-start;font-size:16px;padding:15px 28px;opacity:0;transform:translateY(20px);transition:opacity .5s var(--ease),transform .5s var(--ease),background .35s var(--ease)}
+.drawer.open .cta{opacity:1;transform:none}
+
+/* ══ HERO ══ */
+.hero{position:relative;padding-top:calc(var(--nav-h) + clamp(34px,4.6vw,66px));padding-bottom:clamp(56px,7vw,96px);overflow:hidden;isolation:isolate}
+.hero-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.hero-bg .grid{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(14,26,23,.11) 1px,transparent 0);background-size:28px 28px;-webkit-mask-image:radial-gradient(115% 80% at 74% 6%,#000 0%,transparent 66%);mask-image:radial-gradient(115% 80% at 74% 6%,#000 0%,transparent 66%)}
+.hero-bg .glow{position:absolute;top:-24%;right:-10%;width:min(820px,80vw);height:min(820px,80vw);border-radius:50%;background:radial-gradient(circle,rgba(14,157,115,.18) 0%,rgba(14,157,115,.05) 44%,transparent 70%);filter:blur(10px)}
+.hero-bg svg{position:absolute;top:0;right:0;width:min(880px,86vw);height:100%;opacity:.5}
+.hero-bg path{fill:none;stroke:rgba(14,157,115,.42);stroke-width:1.1;stroke-dasharray:5 11;animation:flow 3.4s linear infinite}
+.hero-bg path:nth-child(2){animation-duration:4.4s;stroke:rgba(14,26,23,.18)}
+.hero-bg path:nth-child(3){animation-duration:5.2s}
+.hero-bg path:nth-child(4){animation-duration:3.9s;stroke:rgba(14,26,23,.16)}
+@keyframes flow{to{stroke-dashoffset:-160}}
+.hero-inner{position:relative;max-width:1360px;margin:0 auto;padding:0 clamp(18px,3.6vw,46px);display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);gap:clamp(30px,4vw,62px);align-items:center}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:6px 14px 6px 7px;border-radius:99px;background:rgba(255,255,255,.75);border:1px solid var(--line-2);font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:clamp(18px,2vw,26px)}
+.eyebrow b{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent-deep);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.eyebrow .live{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blip 2.2s infinite}
+@keyframes blip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.28;transform:scale(.78)}}
+h1.hero-title{font-family:'Sora',sans-serif;font-size:clamp(33px,5vw,61px);line-height:1.04;font-weight:600;letter-spacing:-.043em;margin-bottom:clamp(16px,1.8vw,24px)}
+.ln{display:block;overflow:hidden}
+.ln>span{display:block;transform:translateY(105%);transition:transform 1s var(--ease)}
+.hero-copy.in .ln>span{transform:none}
+.hero-copy.in .ln:nth-child(2)>span{transition-delay:.11s}
+.hero-copy.in .ln:nth-child(3)>span{transition-delay:.22s}
+.em{position:relative;color:var(--accent);white-space:nowrap}
+.em::after{content:'';position:absolute;left:0;right:0;bottom:.05em;height:.085em;border-radius:99px;background:rgba(14,157,115,.3);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease) 1.05s}
+.hero-copy.in .em::after{transform:scaleX(1)}
+p.lede{font-size:clamp(15px,1.28vw,18px);line-height:1.66;color:var(--muted);max-width:54ch;margin-bottom:clamp(24px,2.6vw,34px)}
+p.lede strong{color:var(--ink);font-weight:600}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:clamp(28px,3.4vw,42px)}
+.btn-lg{padding:14px 26px;font-size:15px}
+.btn-ghost{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border-radius:99px;border:1px solid var(--line-2);font-size:15px;font-weight:600;transition:background .3s ease,border-color .3s ease,transform .3s var(--ease)}
+.btn-ghost:hover{background:#fff;border-color:var(--ink);transform:translateY(-2px)}
+.btn-ghost svg{width:16px;height:16px}
+.stats{display:flex;flex-wrap:wrap;gap:clamp(18px,3vw,42px);padding-top:clamp(20px,2.4vw,28px);border-top:1px solid var(--line)}
+.stat span{display:block;font-family:'Sora',sans-serif;font-size:clamp(21px,2.1vw,28px);font-weight:600;letter-spacing:-.035em;line-height:1.1}
+.stat small{display:block;margin-top:4px;font-size:12.5px;color:var(--muted);font-weight:500}
+.hero-visual{width:100%;perspective:1400px}
+.console{position:relative;background:#0B1512;border-radius:17px;overflow:hidden;border:1px solid rgba(255,255,255,.09);box-shadow:0 40px 80px -40px rgba(11,61,49,.6),0 6px 18px -8px rgba(14,26,23,.22);transform-style:preserve-3d;transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
+.console::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(95,227,179,.6),transparent);opacity:.8}
+.console-bar{display:flex;align-items:center;gap:9px;padding:13px 16px 12px}
+.console-bar .lamp{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px rgba(95,227,179,.15);animation:blip 2.2s infinite}
+.console-bar .title{font-family:var(--mono);font-size:11.5px;color:#7E948E;letter-spacing:.02em}
+.console-bar .lat{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--mint);background:rgba(95,227,179,.1);border:1px solid rgba(95,227,179,.22);padding:3px 9px;border-radius:99px;opacity:0;transform:translateY(-3px);transition:opacity .4s var(--ease),transform .4s var(--ease)}
+.console-bar .lat.show{opacity:1;transform:none}
+.cprog{height:1.5px;background:rgba(255,255,255,.07)}
+.cprog i{display:block;height:100%;width:0;background:linear-gradient(90deg,rgba(95,227,179,.25),var(--mint))}
+.console-flow{position:relative;padding:16px 16px 13px;border-bottom:1px solid rgba(255,255,255,.07)}
+.track{position:absolute;left:20px;right:20px;top:24px;height:1.5px;background:rgba(255,255,255,.08)}
+.track i{position:absolute;left:0;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px 2px rgba(95,227,179,.55);transition:left .75s var(--ease)}
+.steps{position:relative;display:flex;justify-content:space-between}
+.stp{flex:1;text-align:center;position:relative;padding-top:16px}
+.stp::before{content:'';position:absolute;top:-1px;left:50%;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:#0B1512;border:1.5px solid rgba(255,255,255,.2);transition:border-color .4s ease,background .4s ease,transform .4s var(--ease)}
+.stp.done::before{border-color:var(--mint);background:rgba(95,227,179,.35)}
+.stp.on::before{border-color:var(--mint);background:var(--mint);transform:scale(1.25)}
+.stp b{display:block;font-family:var(--mono);font-size:9.6px;letter-spacing:.05em;color:#556964;text-transform:uppercase;transition:color .4s ease}
+.stp.on b{color:var(--mint)}
+.stp.done b{color:#8AA9A1}
+.console-body{padding:16px;min-height:290px;display:flex;flex-direction:column}
+.x12{position:relative;font-family:var(--mono);font-size:11.5px;line-height:1.9;color:#708C85;white-space:pre-wrap;word-break:break-all;min-height:82px}
+.x12 .cur{display:inline-block;width:6px;height:12px;background:var(--mint);vertical-align:-2px;animation:cur .85s steps(2) infinite}
+@keyframes cur{50%{opacity:0}}
+.scan{position:absolute;left:-16px;right:-16px;height:36px;top:0;pointer-events:none;opacity:0;background:linear-gradient(180deg,transparent,rgba(95,227,179,.18),transparent)}
+.scan.run{animation:scanmove 780ms var(--ease) forwards}
+@keyframes scanmove{0%{opacity:1;top:-12px}100%{opacity:0;top:94px}}
+.sep{display:flex;align-items:center;gap:11px;margin:14px 0 13px;color:#3D524D;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase}
+.sep::before,.sep::after{content:'';height:1px;background:rgba(255,255,255,.09);flex:1}
+.result{opacity:0}
+.result.show{opacity:1}
+.result-top{display:flex;align-items:center;gap:9px;margin-bottom:11px;opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.result.show .result-top{opacity:1;transform:none}
+.result-top .pip{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px 1px rgba(95,227,179,.6)}
+.result-top h4{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:#EAF4F0;letter-spacing:-.022em}
+.result-top .tag{margin-left:auto;font-family:var(--mono);font-size:9.6px;color:#8AA9A1;border:1px solid rgba(255,255,255,.13);padding:3px 8px;border-radius:5px;white-space:nowrap}
+.rrow{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12.5px;opacity:0;transform:translateY(7px);filter:blur(3px);transition:opacity .5s var(--ease),transform .5s var(--ease),filter .5s var(--ease)}
+.rrow:last-child{border-bottom:none}
+.result.show .rrow{opacity:1;transform:none;filter:none}
+.rrow dt{color:#7E948E}
+.rrow dd{color:#EAF4F0;font-weight:500;font-family:var(--mono);font-size:11.5px;text-align:right}
+.console-foot{display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid rgba(255,255,255,.07)}
+.console-foot span{font-family:var(--mono);font-size:10px;color:#556964;letter-spacing:.04em;white-space:nowrap}
+.spark{flex:1;height:26px}
+.spark polyline{fill:none;stroke:var(--mint);stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round;transition:all .7s linear}
+.trust{margin-top:17px;display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:12px;color:var(--muted);font-weight:500}
+.trust i{display:inline-flex;align-items:center;gap:6px}
+.trust svg{width:14px;height:14px;color:var(--accent)}
+@media (max-width:1120px){:root{--nav-h:70px}.nav-link{padding:8px 10px}}
+@media (max-width:1000px){
+  .hero-inner{grid-template-columns:minmax(0,1fr);gap:clamp(34px,6vw,48px);justify-items:center;text-align:center}
+  p.lede{max-width:58ch;margin-left:auto;margin-right:auto}
+  .hero-actions,.stats,.trust{justify-content:center}
+  .stats{width:100%;max-width:640px}
+  .hero-visual{max-width:620px;margin-inline:auto;perspective:none}
+  .console{transform:none!important}
+  .hero-bg svg{opacity:.3}
+}
+@media (max-width:940px){.nav-link{font-size:12.6px;padding:8px 8px}.cta{padding:10px 16px;font-size:13px}.nav-wrap{gap:10px}}
+@media (max-width:840px){:root{--nav-h:66px;--nav-h-sm:58px}.nav-wrap{display:none}.burger{display:grid}}
+@media (max-width:600px){
+  .hero-actions .btn-lg,.hero-actions .btn-ghost{flex:1 1 100%;justify-content:center}
+  .stats{gap:16px 22px}.stat{flex:1 1 40%;text-align:left}
+  .stp b{font-size:8.4px;letter-spacing:.02em}
+  .console-body{min-height:0}.rrow{font-size:12px}
+}
+@media (max-width:420px){:root{--nav-h:62px;--nav-h-sm:56px}.logo{gap:8px}.console-foot span:last-child{display:none}}
+
+/* ══ SERVICES REEL ══ */
+.reel{position:relative;background:var(--paper-2);border-top:1px solid var(--line)}
+.reel-head{max-width:1240px;margin:0 auto;padding:clamp(60px,7.5vw,104px) clamp(18px,3.6vw,46px) clamp(24px,2.6vw,38px)}
+.kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:15px}
+.kicker::before{content:'';width:26px;height:1px;background:var(--accent)}
+.reel-head h2{font-family:'Sora',sans-serif;font-size:clamp(27px,3.8vw,47px);line-height:1.07;font-weight:600;letter-spacing:-.04em;max-width:20ch}
+.reel-head p{margin-top:15px;font-size:clamp(14.5px,1.15vw,16.5px);line-height:1.65;color:var(--muted);max-width:58ch}
+
+.reel-scroll{position:relative;height:700vh}
+.reel-sticky{position:sticky;top:var(--nav-h-sm);height:calc(100vh - var(--nav-h-sm));display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,1.6vh,20px);padding:clamp(8px,1.6vh,20px) 0}
+.stage{max-width:1240px;margin:0 auto;width:100%;padding:0 clamp(18px,3.6vw,46px);display:grid;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);gap:clamp(22px,3vw,50px);align-items:center}
+
+/* copy */
+.act-copy{min-height:clamp(240px,34vh,310px);display:flex;flex-direction:column;justify-content:center}
+.act-no{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--muted);margin-bottom:13px}
+.act-no b{color:var(--accent);font-weight:500}
+.act-badge{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:99px;background:#fff;border:1px solid rgba(14,157,115,.28);color:var(--accent-deep);font-size:11.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;margin-bottom:14px}
+.act-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.act-title{font-family:'Sora',sans-serif;font-size:clamp(22px,2.7vw,36px);line-height:1.11;font-weight:600;letter-spacing:-.038em;margin-bottom:12px}
+.act-text{font-size:clamp(14px,1.1vw,16px);line-height:1.68;color:var(--muted);max-width:45ch;margin-bottom:18px}
+.act-text b{color:var(--ink);font-weight:600}
+.act-chips{display:flex;flex-wrap:wrap;gap:7px}
+.act-chips span{padding:5px 11px;border-radius:8px;background:rgba(255,255,255,.85);border:1px solid var(--line);font-size:12px;font-weight:500;color:var(--muted)}
+.act-fade{opacity:0;transform:translateY(16px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.act-fade.on{opacity:1;transform:none}
+
+/* stage panel */
+.layers{border-radius:18px;overflow:hidden;border:1px solid var(--line-2);background:#fff;box-shadow:0 34px 70px -46px rgba(14,26,23,.5)}
+.layer-top{position:relative;height:clamp(178px,27vh,254px);background:radial-gradient(120% 130% at 30% 0%,#FFFFFF 0%,#F6F5EF 62%,#EFEEE6 100%);overflow:hidden}
+.layer-top::after{content:'';position:absolute;inset:0;background:radial-gradient(60% 70% at 76% 30%,rgba(14,157,115,.10),transparent 70%);pointer-events:none}
+.frame{position:absolute;inset:0;opacity:0;transform:scale(1.04);transition:opacity .55s var(--ease),transform .9s var(--ease);pointer-events:none}
+.frame.on{opacity:1;transform:none}
+.frame svg{width:100%;height:100%;display:block}
+
+.rise{opacity:0;transform:translateY(16px)}
+.frame.on .rise{animation:riseIn .75s var(--ease) forwards}
+.frame.on .r2{animation-delay:.12s}.frame.on .r3{animation-delay:.24s}
+.frame.on .r4{animation-delay:.36s}.frame.on .r5{animation-delay:.48s}
+@keyframes riseIn{to{opacity:1;transform:none}}
+.frame.on .pop{animation:popIn .7s var(--ease) .3s both}
+@keyframes popIn{0%{opacity:0;transform:scale(.5)}60%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+.frame.on .ring{animation:ringOut 2.6s ease-out .5s infinite}
+@keyframes ringOut{0%{opacity:.55;transform:scale(.55)}100%{opacity:0;transform:scale(1.5)}}
+.frame.on .glide{animation:glide 3s var(--ease) infinite}
+@keyframes glide{0%{opacity:0;transform:translateX(-26px)}18%{opacity:1}72%{opacity:1;transform:translateX(46px)}100%{opacity:0;transform:translateX(62px)}}
+.frame.on .travel{animation:travel 3.2s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+.frame.on .grow{transform-origin:bottom;animation:grow .9s var(--ease) both}
+.frame.on .g2{animation-delay:.1s}.frame.on .g3{animation-delay:.2s}
+.frame.on .g4{animation-delay:.3s}.frame.on .g5{animation-delay:.4s}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.frame.on .fall{animation:fall 2.8s var(--ease) infinite}
+.frame.on .f2{animation-delay:.35s}.frame.on .f3{animation-delay:.7s}
+@keyframes fall{0%{opacity:0;transform:translateY(-40px)}25%{opacity:1}55%,100%{opacity:1;transform:translateY(0)}}
+.frame.on .sweep{animation:sweep 2.4s ease-in-out infinite}
+@keyframes sweep{0%,100%{opacity:.25}50%{opacity:1}}
+.frame.on .draw{stroke-dasharray:220;stroke-dashoffset:220;animation:draw 1.6s var(--ease) .35s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* divider */
+.divide{display:flex;align-items:center;gap:10px;padding:9px 16px;background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+.divide em{font-style:normal;color:var(--ink);font-weight:600}
+.divide .arw{margin-left:auto;color:var(--accent);font-size:13px}
+
+/* engine panel */
+.engine{background:linear-gradient(165deg,#0F1E19 0%,#0A1512 55%,#08110F 100%);padding:13px 15px 14px;position:relative}
+.engine::before{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(95,227,179,.55),transparent)}
+.eng-head{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.eng-head .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px rgba(95,227,179,.16);animation:blip 2.2s infinite}
+.eng-head b{font-size:11.5px;font-weight:600;color:#DCEBE6;letter-spacing:-.01em}
+.eng-head .step{margin-left:auto;font-size:10.5px;color:var(--mint);background:rgba(95,227,179,.1);border:1px solid rgba(95,227,179,.24);padding:3px 10px;border-radius:99px;font-weight:600;white-space:nowrap}
+.eng-rows{min-height:82px;margin-bottom:12px}
+.erow{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:12px;opacity:0;transform:translateX(-8px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.erow.on{opacity:1;transform:none}
+.erow .pip{width:6px;height:6px;border-radius:50%;flex:none;background:rgba(255,255,255,.22)}
+.erow.ok .pip{background:var(--mint);box-shadow:0 0 9px 1px rgba(95,227,179,.55)}
+.erow.warn .pip{background:#F0B44C;box-shadow:0 0 9px 1px rgba(240,180,76,.5)}
+.erow p{color:#9FB8B1;flex:1;min-width:0;line-height:1.45}
+.erow.ok p{color:#DCEBE6}
+.erow .t{font-family:var(--mono);font-size:10px;color:#5D746E;flex:none}
+.eng-steps{display:flex;gap:5px;flex-wrap:wrap}
+.estep{flex:1 1 auto;min-width:0;text-align:center;padding:6px 7px;border-radius:7px;border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:600;letter-spacing:.01em;color:#546964;white-space:nowrap;transition:all .45s var(--ease)}
+.estep.done{color:#8AA9A1;border-color:rgba(255,255,255,.15)}
+.estep.on{background:var(--mint);border-color:var(--mint);color:#06251C;box-shadow:0 0 22px -6px rgba(95,227,179,.75)}
+
+/* rail */
+.rail{max-width:1240px;margin:0 auto;width:100%;padding:0 clamp(18px,3.6vw,46px);display:flex;align-items:center;gap:clamp(12px,2vw,24px)}
+.rail-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);flex:none}
+.rail-track{flex:1;position:relative;height:2px;background:var(--line-2);border-radius:2px}
+.rail-track i{position:absolute;left:0;top:0;height:100%;width:0;background:var(--accent);border-radius:2px;transition:width .55s var(--ease)}
+.rail-track b{position:absolute;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--paper-2);border:2px solid var(--line-2);transform:translateX(-50%);transition:border-color .4s ease,background .4s ease}
+.rail-track b.on{border-color:var(--accent);background:var(--accent)}
+.rail-metric{text-align:right;flex:none;min-width:112px}
+.rail-metric span{display:block;font-family:'Sora',sans-serif;font-size:clamp(16px,1.8vw,23px);font-weight:600;letter-spacing:-.03em;line-height:1.15}
+.rail-metric small{display:block;font-size:10.5px;color:var(--muted);font-weight:500;margin-top:2px}
+
+@media (max-width:1040px){
+  .reel-scroll{height:640vh}
+  .stage{grid-template-columns:minmax(0,1fr);gap:20px;justify-items:center;text-align:center;max-width:700px}
+  .act-copy{min-height:clamp(190px,26vh,240px);align-items:center}
+  .act-badge{align-self:center}
+  .act-text{max-width:56ch}
+  .act-chips{justify-content:center}
+  .layers{width:100%}
+  .layer-top{height:clamp(150px,20vh,196px)}
+  .rail{max-width:700px}
+}
+@media (max-width:700px){
+  .reel-scroll{height:560vh}
+  .reel-sticky{justify-content:flex-start;padding-top:14px}
+  .act-copy{min-height:0;margin-bottom:4px}
+  .act-title{font-size:clamp(20px,5.4vw,26px)}
+  .act-text{font-size:13.5px;margin-bottom:14px}
+  .act-chips span{font-size:11px;padding:4px 9px}
+  .estep{font-size:9px;padding:5px 5px}
+  .eng-rows{min-height:74px}
+  .erow{font-size:11.2px}
+  .rail-label{display:none}
+  .layer-top{height:132px}
+}
+@media (max-height:720px){
+  .layer-top{height:clamp(130px,20vh,170px)}
+  .act-copy{min-height:0}
+  .act-chips{display:none}
+}
+
+/* ══ WHY US ══ */
+.why{position:relative;background:var(--paper);border-top:1px solid var(--line);padding:clamp(64px,8vw,112px) 0 clamp(60px,7vw,104px);overflow:hidden}
+.why::before{content:'';position:absolute;top:6%;right:-14%;width:min(620px,60vw);height:min(620px,60vw);border-radius:50%;background:radial-gradient(circle,rgba(14,157,115,.08),transparent 68%);pointer-events:none}
+.wwrap{position:relative;max-width:1240px;margin:0 auto;padding:0 clamp(18px,3.6vw,46px)}
+.why-head{margin-bottom:clamp(30px,4vw,50px)}
+.why-head h2{font-family:'Sora',sans-serif;font-size:clamp(27px,3.8vw,47px);line-height:1.07;font-weight:600;letter-spacing:-.04em;max-width:19ch}
+.why-head p{margin-top:15px;font-size:clamp(14.5px,1.15vw,16.5px);line-height:1.65;color:var(--muted);max-width:60ch}
+
+.wfade{opacity:0;transform:translateY(22px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
+.wfade.in{opacity:1;transform:none}
+
+/* comparison */
+.cmp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line-2);border-radius:17px;overflow:hidden;margin-bottom:clamp(46px,6vw,86px);background:var(--paper-2)}
+.cmp-h{padding:16px clamp(16px,2vw,26px);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line-2)}
+.cmp-h.new{background:#fff;color:var(--accent-deep);display:flex;align-items:center;gap:8px}
+.cmp-h.new::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.cmp-c{padding:clamp(15px,1.8vw,22px) clamp(16px,2vw,26px);border-bottom:1px solid var(--line);font-size:14px;line-height:1.6;color:var(--muted);display:flex;gap:11px;align-items:flex-start}
+.cmp-c.new{background:#fff;color:var(--ink)}
+.cmp-c:nth-last-child(-n+2){border-bottom:none}
+.cmp-c .mk{flex:none;width:18px;height:18px;margin-top:1px;border-radius:50%;display:grid;place-items:center;background:rgba(14,26,23,.07)}
+.cmp-c.new .mk{background:var(--accent-soft)}
+.cmp-c .mk svg{width:10px;height:10px;fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;stroke:var(--muted)}
+.cmp-c.new .mk svg{stroke:var(--accent-deep)}
+.cmp-c b{color:var(--ink);font-weight:600}
+.cmp-c.old b{color:#4A5754}
+.cmp-row{display:contents}
+.cmp-c{opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.cmp.in .cmp-c{opacity:1;transform:none}
+.cmp.in .cmp-c:nth-child(3),.cmp.in .cmp-c:nth-child(4){transition-delay:.06s}
+.cmp.in .cmp-c:nth-child(5),.cmp.in .cmp-c:nth-child(6){transition-delay:.14s}
+.cmp.in .cmp-c:nth-child(7),.cmp.in .cmp-c:nth-child(8){transition-delay:.22s}
+.cmp.in .cmp-c:nth-child(9),.cmp.in .cmp-c:nth-child(10){transition-delay:.3s}
+.cmp.in .cmp-c:nth-child(11),.cmp.in .cmp-c:nth-child(12){transition-delay:.38s}
+
+/* implementation timeline */
+.tl-head{margin-bottom:clamp(24px,3vw,40px)}
+.tl-head h3{font-family:'Sora',sans-serif;font-size:clamp(21px,2.5vw,32px);font-weight:600;letter-spacing:-.035em;margin-bottom:10px}
+.tl-head p{font-size:14.5px;line-height:1.65;color:var(--muted);max-width:56ch}
+.tl{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(10px,1.4vw,20px);margin-bottom:clamp(46px,6vw,86px);padding-top:34px}
+.tl-track{position:absolute;top:8px;left:6%;right:6%;height:2px;background:var(--line-2);border-radius:2px}
+.tl-track i{position:absolute;inset:0;width:0;background:var(--accent);border-radius:2px;transition:width 2.2s var(--ease)}
+.tl.in .tl-track i{width:100%}
+.tl-step{position:relative;opacity:0;transform:translateY(16px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.tl.in .tl-step{opacity:1;transform:none}
+.tl.in .tl-step:nth-child(3){transition-delay:.34s}
+.tl.in .tl-step:nth-child(4){transition-delay:.68s}
+.tl.in .tl-step:nth-child(5){transition-delay:1.02s}
+.tl.in .tl-step:nth-child(6){transition-delay:1.36s}
+.tl.in .tl-step:nth-child(7){transition-delay:1.7s}
+.tl-step::before{content:'';position:absolute;top:-32px;left:0;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--line-2);transition:border-color .4s ease,background .4s ease,transform .4s var(--ease)}
+.tl.in .tl-step::before{border-color:var(--accent);background:var(--accent);transform:scale(1.1)}
+.tl-when{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;font-weight:500}
+.tl-step h4{font-family:'Sora',sans-serif;font-size:clamp(15px,1.35vw,18px);font-weight:600;letter-spacing:-.028em;margin-bottom:7px}
+.tl-step p{font-size:13px;line-height:1.6;color:var(--muted)}
+
+/* tenets */
+.tenets{display:grid}
+.tenet{position:relative;display:grid;grid-template-columns:clamp(92px,10vw,138px) minmax(0,1fr);gap:clamp(20px,3vw,46px);align-items:start;padding:clamp(34px,4.4vw,60px) 0}
+.tenet:not(:first-child)::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--line-2);transform:scaleX(0);transform-origin:left;transition:transform 1.1s var(--ease)}
+.tenet.in:not(:first-child)::before{transform:scaleX(1)}
+
+.tenet-mark{width:100%;max-width:clamp(78px,9vw,116px);aspect-ratio:1;opacity:0;transform:scale(.86) translateY(10px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.tenet.in .tenet-mark{opacity:1;transform:none}
+.tenet-mark svg{width:100%;height:100%;display:block;overflow:visible}
+.tm-line{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.tm-acc{fill:none;stroke:var(--accent);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.tm-fill{fill:var(--accent-soft)}
+.tm-solid{fill:var(--accent)}
+
+.tenet.in .bar1{animation:barfill 4.2s var(--ease) infinite}
+.tenet.in .bar2{animation:barfill 4.2s var(--ease) .45s infinite}
+.tenet.in .bar3{animation:barfill 4.2s var(--ease) .9s infinite}
+@keyframes barfill{0%,8%{fill:#E4E7E5;transform:translateX(0)}18%{transform:translateX(5px)}26%,70%{fill:#0E9D73;transform:translateX(0)}86%,100%{fill:#E4E7E5;transform:translateX(0)}}
+.tenet.in .cursor{animation:cursormove 4.2s var(--ease) infinite}
+@keyframes cursormove{0%{transform:translate(0,0)}22%{transform:translate(0,0)}30%,44%{transform:translate(0,26px)}52%,66%{transform:translate(0,52px)}80%,100%{transform:translate(0,0)}}
+
+.tenet.in .glassSweep{animation:glassSweep 3.6s ease-in-out infinite}
+@keyframes glassSweep{0%{transform:translateX(-58px)}55%,100%{transform:translateX(58px)}}
+.tenet.in .gb1{animation:gbar 3.6s ease-in-out infinite}
+.tenet.in .gb2{animation:gbar 3.6s ease-in-out .18s infinite}
+.tenet.in .gb3{animation:gbar 3.6s ease-in-out .36s infinite}
+@keyframes gbar{0%,100%{opacity:.28}45%{opacity:1}}
+
+.tenet.in .doorPanel{transform-origin:22px 50%;animation:doorOpen 4s var(--ease) infinite}
+@keyframes doorOpen{0%,12%{transform:scaleX(1)}42%,72%{transform:scaleX(.14)}92%,100%{transform:scaleX(1)}}
+.tenet.in .walkOut{animation:walkOut 4s var(--ease) infinite}
+@keyframes walkOut{0%,34%{opacity:0;transform:translateX(-10px)}48%{opacity:1}66%{opacity:1;transform:translateX(24px)}78%,100%{opacity:0;transform:translateX(30px)}}
+
+.tenet-no{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--accent);margin-bottom:11px;opacity:0;transform:translateY(8px);transition:opacity .6s var(--ease) .1s,transform .6s var(--ease) .1s}
+.tenet.in .tenet-no{opacity:1;transform:none}
+.tenet h4{font-family:'Sora',sans-serif;font-size:clamp(24px,3.1vw,40px);line-height:1.06;font-weight:600;letter-spacing:-.042em;margin-bottom:13px}
+.tenet h4 .mask{display:block;overflow:hidden}
+.tenet h4 .mask>span{display:block;transform:translateY(110%);transition:transform .95s var(--ease) .16s}
+.tenet.in h4 .mask>span{transform:none}
+.tenet>div>p{font-size:clamp(14px,1.2vw,16.5px);line-height:1.65;color:var(--muted);max-width:56ch;margin-bottom:clamp(20px,2.4vw,30px);opacity:0;transform:translateY(12px);transition:opacity .7s var(--ease) .3s,transform .7s var(--ease) .3s}
+.tenet.in>div>p{opacity:1;transform:none}
+.tenet ul{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,30px)}
+.tenet li{padding-top:14px;border-top:1px solid var(--line-2);font-size:13.5px;line-height:1.6;color:var(--muted);opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease),border-color .5s ease}
+.tenet.in li{opacity:1;transform:none}
+.tenet.in li:nth-child(1){transition-delay:.42s}
+.tenet.in li:nth-child(2){transition-delay:.52s}
+.tenet.in li:nth-child(3){transition-delay:.62s}
+.tenet li:hover{border-color:var(--accent)}
+.tenet li b{display:block;color:var(--ink);font-weight:600;font-size:14px;margin-bottom:4px;letter-spacing:-.015em}
+
+@media (max-width:900px){
+  .tenet{grid-template-columns:minmax(0,1fr);gap:18px;padding:clamp(30px,7vw,44px) 0}
+  .tenet-mark{max-width:66px}
+  .tenet ul{grid-template-columns:minmax(0,1fr);gap:0}
+  .tenet li{padding:13px 0;border-top:1px solid var(--line)}
+}
+
+.why-cta{margin-top:clamp(32px,4vw,52px);display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:clamp(20px,2.4vw,30px);border:1px solid var(--line-2);border-radius:17px;background:linear-gradient(120deg,#fff,var(--paper-2))}
+.why-cta p{flex:1;min-width:240px;font-size:clamp(15px,1.4vw,18px);line-height:1.5;font-family:'Sora',sans-serif;font-weight:500;letter-spacing:-.025em}
+.why-cta small{display:block;margin-top:6px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:400;color:var(--muted);letter-spacing:0}
+
+@media (max-width:1040px){
+  .tl{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 20px;padding-top:0}
+  .tl-track{display:none}
+  .tl-step{padding-left:22px}
+  .tl-step::before{top:4px;left:0}
+  .tl.in .tl-step:nth-child(n){transition-delay:0s}
+  .tl.in .tl-step:nth-child(3){transition-delay:.08s}
+  .tl.in .tl-step:nth-child(4){transition-delay:.16s}
+  .tl.in .tl-step:nth-child(5){transition-delay:.24s}
+  .tl.in .tl-step:nth-child(6){transition-delay:.32s}
+  .tl.in .tl-step:nth-child(7){transition-delay:.4s}
+  .pillars{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:700px){
+  .cmp{grid-template-columns:minmax(0,1fr)}
+  .cmp-h{border-top:1px solid var(--line-2)}
+  .cmp-h:first-child{border-top:none}
+  .cmp-c{border-bottom:none;padding-top:12px;padding-bottom:16px}
+  .cmp-c.old{padding-bottom:6px}
+  .tl{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ══ AUTOMATION ══ */
+.auto{
+  --x-bg:#F3F7F6;--x-ink:#0B1A1F;--x-mut:#5A6E72;
+  --x-line:rgba(11,26,31,.10);--x-line2:rgba(11,26,31,.18);
+  --x-acc:#00C48C;--x-acc2:#5A6CFF;--x-amber:#F0A93B;
+  position:relative;background:var(--x-bg);color:var(--x-ink);
+  padding:clamp(60px,7.4vw,104px) 0 clamp(56px,6.6vw,92px);overflow:hidden;
+  border-top:1px solid var(--line)
+}
+.auto::before{content:'';position:absolute;top:-22%;right:-10%;width:min(760px,74vw);height:min(760px,74vw);border-radius:50%;pointer-events:none;
+  background:conic-gradient(from 210deg,rgba(0,196,140,.22),rgba(90,108,255,.18),rgba(0,196,140,.1),rgba(0,196,140,.22));filter:blur(70px)}
+.auto::after{content:'';position:absolute;bottom:-26%;left:-14%;width:min(560px,60vw);height:min(560px,60vw);border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(90,108,255,.16),transparent 68%);filter:blur(50px)}
+.awrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 clamp(18px,3.6vw,46px)}
+
+.auto .kicker{color:var(--x-acc2)}
+.auto .kicker::before{background:var(--x-acc2)}
+.auto-head{margin-bottom:clamp(26px,3.2vw,42px);max-width:64ch}
+.auto-head h2{font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,50px);line-height:1.05;font-weight:600;letter-spacing:-.043em;max-width:18ch}
+.auto-head h2 .hl{background:linear-gradient(96deg,var(--x-acc),var(--x-acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.auto-head p{margin-top:14px;font-size:clamp(14.5px,1.15vw,16.5px);line-height:1.65;color:var(--x-mut);max-width:54ch}
+.afade{opacity:0;transform:translateY(22px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
+.afade.in{opacity:1;transform:none}
+
+
+/* why healthcare + zero-touch chain */
+.whyauto{margin-bottom:clamp(28px,3.4vw,46px)}
+.whyauto>p{font-size:clamp(14px,1.12vw,16px);line-height:1.72;color:var(--x-mut);max-width:74ch;margin-bottom:clamp(20px,2.4vw,30px)}
+.whyauto>p b{color:var(--x-ink);font-weight:600}
+.wgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,2vw,28px)}
+.wgrid>div{padding-top:15px;border-top:1px solid var(--x-line2);opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease),border-color .4s ease}
+.whyauto.in .wgrid>div{opacity:1;transform:none}
+.whyauto.in .wgrid>div:nth-child(2){transition-delay:.08s}
+.whyauto.in .wgrid>div:nth-child(3){transition-delay:.16s}
+.whyauto.in .wgrid>div:nth-child(4){transition-delay:.24s}
+.wgrid>div:hover{border-color:var(--x-acc)}
+.wgrid b{display:block;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.026em;margin-bottom:7px;color:var(--x-ink)}
+.wgrid p{font-size:12.8px;line-height:1.6;color:var(--x-mut)}
+
+.chain{position:relative;border:1px solid var(--x-line);border-radius:18px;background:rgba(255,255,255,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:clamp(18px,2.2vw,26px);margin-bottom:clamp(28px,3.4vw,48px);overflow:hidden;box-shadow:0 26px 54px -40px rgba(11,26,31,.5)}
+.chain::before{content:'';position:absolute;top:0;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--x-acc),var(--x-acc2),transparent);opacity:.6}
+.chain-top{display:flex;align-items:center;gap:10px;margin-bottom:clamp(18px,2.2vw,28px);flex-wrap:wrap}
+.chain-top .lamp{width:7px;height:7px;border-radius:50%;background:var(--x-acc);box-shadow:0 0 0 3px rgba(0,196,140,.18);animation:blip 2.2s infinite}
+.chain-top b{font-size:12.5px;font-weight:600;letter-spacing:-.01em}
+.chain-top .touches{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--x-mut)}
+.chain-top .touches em{font-style:normal;font-family:'Sora',sans-serif;font-size:23px;font-weight:600;letter-spacing:-.03em;line-height:1;background:linear-gradient(96deg,var(--x-acc),var(--x-acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.chain-rail{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(6px,1vw,14px);padding-top:26px}
+.chain-track{position:absolute;top:7px;left:1%;right:3%;height:2px;background:var(--x-line2);border-radius:2px}
+.chain-track i{position:absolute;left:0;top:0;height:100%;width:0;background:linear-gradient(90deg,var(--x-acc),var(--x-acc2));border-radius:2px;transition:width .8s var(--ease)}
+.chain-track u{position:absolute;top:-4px;left:0;width:10px;height:10px;border-radius:50%;background:var(--x-acc);box-shadow:0 0 14px 3px rgba(0,196,140,.55);transition:left .8s var(--ease)}
+.cnode{position:relative;text-align:left}
+.cnode::before{content:'';position:absolute;top:-24px;left:0;width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid var(--x-line2);transition:all .45s var(--ease)}
+.cnode.done::before{border-color:var(--x-acc);background:rgba(0,196,140,.35)}
+.cnode.on::before{border-color:var(--x-acc);background:var(--x-acc);transform:scale(1.3)}
+.cnode .cw{display:block;font-family:var(--mono);font-size:9.6px;letter-spacing:.08em;color:#8A9A99;margin-bottom:6px;transition:color .4s ease}
+.cnode.on .cw,.cnode.done .cw{color:#08745A}
+.cnode h5{font-size:12.8px;font-weight:600;letter-spacing:-.015em;line-height:1.3;color:var(--x-mut);transition:color .4s ease}
+.cnode.on h5{color:var(--x-ink)}
+.cnode.done h5{color:#37484C}
+.cnode small{display:block;margin-top:5px;font-family:var(--mono);font-size:9.6px;color:#8A9A99}
+
+@media (max-width:1040px){
+  .wgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .chain-rail{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 14px;padding-top:0}
+  .chain-track{display:none}
+  .cnode{padding-left:20px}
+  .cnode::before{top:2px;left:0}
+}
+@media (max-width:640px){
+  .wgrid{grid-template-columns:minmax(0,1fr);gap:0}
+  .wgrid>div{padding:14px 0;border-top:1px solid var(--x-line)}
+  .chain-rail{grid-template-columns:minmax(0,1fr);gap:16px}
+}
+
+/* switchboard */
+.board{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:clamp(16px,2.4vw,38px);align-items:stretch;margin-bottom:clamp(28px,3.4vw,44px)}
+.sw{display:flex;flex-direction:column;gap:4px}
+.swi{position:relative;overflow:hidden;text-align:left;display:grid;grid-template-columns:auto 1fr;gap:0 13px;padding:clamp(13px,1.5vw,17px) clamp(14px,1.6vw,18px);border-radius:14px;border:1px solid transparent;transition:background .4s var(--ease),border-color .4s var(--ease)}
+.swi:hover{background:rgba(255,255,255,.72)}
+.swi.on{background:#fff;border-color:var(--x-line);box-shadow:0 18px 40px -30px rgba(11,26,31,.55)}
+.swi .n{grid-row:1 / span 2;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--x-mut);background:rgba(11,26,31,.05);transition:all .4s var(--ease)}
+.swi.on .n{background:linear-gradient(135deg,var(--x-acc),var(--x-acc2));color:#fff}
+.swi h3{font-family:'Sora',sans-serif;font-size:clamp(15px,1.35vw,18px);font-weight:600;letter-spacing:-.028em;line-height:1.25;color:var(--x-mut);transition:color .4s ease}
+.swi.on h3{color:var(--x-ink)}
+.swi p{font-size:13px;line-height:1.55;color:var(--x-mut);max-height:0;opacity:0;overflow:hidden;transition:max-height .5s var(--ease),opacity .4s ease,margin .5s var(--ease)}
+.swi.on p{max-height:80px;opacity:1;margin-top:6px}
+.swi .chips{display:flex;flex-wrap:wrap;gap:6px;max-height:0;opacity:0;overflow:hidden;transition:max-height .5s var(--ease),opacity .4s ease .1s,margin .5s var(--ease)}
+.swi.on .chips{max-height:60px;opacity:1;margin-top:10px}
+.swi .chips span{font-family:var(--mono);font-size:10.5px;padding:4px 9px;border-radius:6px;background:rgba(0,196,140,.11);color:#08745A;font-weight:500}
+.swi .chips span:nth-child(2){background:rgba(90,108,255,.11);color:#3A45B8}
+.swi .bar{position:absolute;left:0;bottom:0;height:2px;width:0;background:linear-gradient(90deg,var(--x-acc),var(--x-acc2))}
+.swi.on .bar{animation:swbar 5.2s linear forwards}
+.swi.on.paused .bar{animation-play-state:paused}
+@keyframes swbar{to{width:100%}}
+
+/* stage */
+.stagebox{position:relative;border-radius:22px;overflow:hidden;background:#fff;border:1px solid var(--x-line);box-shadow:0 40px 80px -50px rgba(11,26,31,.6);min-height:clamp(300px,40vh,392px)}
+.stagebox::before{content:'';position:absolute;inset:0;background:radial-gradient(90% 80% at 78% 12%,rgba(0,196,140,.10),transparent 62%),radial-gradient(70% 70% at 12% 92%,rgba(90,108,255,.09),transparent 64%);pointer-events:none}
+.scene{position:absolute;inset:0;opacity:0;transform:scale(1.05);transition:opacity .5s var(--ease),transform .8s var(--ease);pointer-events:none}
+.scene.on{opacity:1;transform:none}
+.scene svg{width:100%;height:100%;display:block;overflow:visible}
+.scene-cap{position:absolute;left:0;right:0;bottom:0;padding:14px clamp(16px,2vw,22px);display:flex;align-items:center;gap:10px;border-top:1px solid var(--x-line);background:rgba(255,255,255,.72);backdrop-filter:blur(8px);font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;color:var(--x-mut);flex-wrap:wrap}
+.scene-cap i{width:6px;height:6px;border-radius:50%;background:var(--x-acc);flex:none;animation:blip 2s infinite}
+.scene-cap b{color:var(--x-ink);font-weight:600}
+.sl{fill:none;stroke:#0B1A1F;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.78}
+.sa{fill:none;stroke:var(--x-acc);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.sb{fill:none;stroke:var(--x-acc2);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.fa{fill:var(--x-acc)}.fb{fill:var(--x-acc2)}.fg{fill:#EDF1F0}.fw{fill:#fff}
+
+/* scene 1 · scheduling */
+.scene.on .slotOut{animation:slotOut 4s var(--ease) infinite}
+@keyframes slotOut{0%,14%{fill:#5A6CFF;opacity:1}26%,44%{fill:#EDF1F0;opacity:1}56%,100%{fill:#EDF1F0;opacity:1}}
+.scene.on .slotIn{animation:slotIn 4s var(--ease) infinite}
+@keyframes slotIn{0%,44%{opacity:0;transform:translateX(70px)}58%,88%{opacity:1;transform:translateX(0)}100%{opacity:1;transform:translateX(0)}}
+.scene.on .ping{animation:pingOut 2.4s ease-out infinite}
+@keyframes pingOut{0%{opacity:.5;transform:scale(.4)}100%{opacity:0;transform:scale(1.5)}}
+
+/* scene 2 · eligibility */
+.scene.on .wave1{animation:waveOut 2.6s ease-out infinite}
+.scene.on .wave2{animation:waveOut 2.6s ease-out .55s infinite}
+.scene.on .wave3{animation:waveOut 2.6s ease-out 1.1s infinite}
+@keyframes waveOut{0%{opacity:.55;transform:scale(.3)}100%{opacity:0;transform:scale(1.35)}}
+.scene.on .stamp{animation:stampIn 3.4s var(--ease) infinite}
+@keyframes stampIn{0%,42%{opacity:0;transform:scale(1.7) rotate(-7deg)}54%{opacity:1;transform:scale(1) rotate(-7deg)}88%,100%{opacity:1;transform:scale(1) rotate(-7deg)}}
+
+/* scene 3 · submission */
+.scene.on .docPass{animation:docPass 3.6s var(--ease) infinite}
+@keyframes docPass{0%{transform:translateX(-40px);opacity:0}12%{opacity:1}46%{transform:translateX(96px)}74%{transform:translateX(210px);opacity:1}90%,100%{transform:translateX(250px);opacity:0}}
+.scene.on .scanline{animation:scanpulse 1.5s ease-in-out infinite}
+@keyframes scanpulse{0%,100%{opacity:.3;transform:scaleY(.9)}50%{opacity:1;transform:scaleY(1)}}
+.scene.on .tk{animation:tkOn 3.6s steps(1) infinite}
+.scene.on .tk2{animation-delay:.16s}.scene.on .tk3{animation-delay:.32s}
+.scene.on .tk4{animation-delay:.48s}.scene.on .tk5{animation-delay:.64s}
+@keyframes tkOn{0%,42%{opacity:.16}52%,88%{opacity:1}100%{opacity:.16}}
+
+/* scene 4 · posting */
+.scene.on .coin1{animation:coinDrop 3.4s var(--ease) infinite}
+.scene.on .coin2{animation:coinDrop 3.4s var(--ease) .3s infinite}
+.scene.on .coin3{animation:coinDrop 3.4s var(--ease) .6s infinite}
+@keyframes coinDrop{0%{opacity:0;transform:translateY(-72px)}22%{opacity:1}44%,100%{opacity:1;transform:translateY(0)}}
+.scene.on .needle{transform-origin:240px 210px;animation:needleSettle 3.4s var(--ease) infinite}
+@keyframes needleSettle{0%,20%{transform:rotate(-46deg)}46%{transform:rotate(14deg)}64%,100%{transform:rotate(0deg)}}
+
+/* scene 5 · dashboard */
+.scene.on .rb1{animation:reBar 4s var(--ease) infinite}
+.scene.on .rb2{animation:reBar2 4s var(--ease) infinite}
+.scene.on .rb3{animation:reBar3 4s var(--ease) infinite}
+.scene.on .rb4{animation:reBar4 4s var(--ease) infinite}
+@keyframes reBar{0%,20%{transform:scaleY(.36)}48%,100%{transform:scaleY(1)}}
+@keyframes reBar2{0%,20%{transform:scaleY(1)}48%,100%{transform:scaleY(.52)}}
+@keyframes reBar3{0%,20%{transform:scaleY(.62)}48%,100%{transform:scaleY(.8)}}
+@keyframes reBar4{0%,20%{transform:scaleY(.8)}48%,100%{transform:scaleY(.44)}}
+.scene.on .fcast{stroke-dasharray:180;stroke-dashoffset:180;animation:fcastDraw 4s var(--ease) infinite}
+@keyframes fcastDraw{0%,26%{stroke-dashoffset:180}62%,100%{stroke-dashoffset:0}}
+.scene.on .gauge{stroke-dasharray:150;stroke-dashoffset:150;animation:gaugeSweep 4s var(--ease) infinite}
+@keyframes gaugeSweep{0%,14%{stroke-dashoffset:150}52%,100%{stroke-dashoffset:44}}
+
+/* scene 3 · charge capture */
+.scene.on .s6a{animation:s6a 5.2s var(--ease) infinite}
+@keyframes s6a{0%,8%{transform:translate(0,0);opacity:1}26%{transform:translate(222px,-40px);opacity:1}30%,100%{transform:translate(222px,-40px);opacity:0}}
+.scene.on .s6b{animation:s6b 5.2s var(--ease) infinite}
+@keyframes s6b{0%,20%{transform:translate(0,0);opacity:1}38%{transform:translate(222px,-30px);opacity:1}42%,100%{transform:translate(222px,-30px);opacity:0}}
+.scene.on .s6c{animation:s6c 5.2s var(--ease) infinite}
+@keyframes s6c{0%,32%{transform:translate(0,0);opacity:1}50%{transform:translate(222px,-20px);opacity:1}54%,100%{transform:translate(222px,-20px);opacity:0}}
+.scene.on .s6s1{animation:s6slot 5.2s steps(1) infinite}
+.scene.on .s6s2{animation:s6slot 5.2s steps(1) .62s infinite}
+.scene.on .s6s3{animation:s6slot 5.2s steps(1) 1.24s infinite}
+@keyframes s6slot{0%,24%{opacity:0}30%,100%{opacity:1}}
+.scene.on .s6badge{animation:s6badge 5.2s var(--ease) infinite}
+@keyframes s6badge{0%,54%{opacity:0;transform:translateY(10px)}64%,100%{opacity:1;transform:none}}
+.scene.on .s6scan{animation:s6scan 5.2s ease-in-out infinite}
+@keyframes s6scan{0%{opacity:0;transform:translateY(0)}10%{opacity:.85}46%{opacity:.85;transform:translateY(112px)}56%,100%{opacity:0;transform:translateY(112px)}}
+
+/* proof strip */
+.proof{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--x-line);border:1px solid var(--x-line);border-radius:16px;overflow:hidden;margin-bottom:clamp(22px,2.6vw,32px)}
+.proof div{background:rgba(255,255,255,.72);padding:clamp(15px,1.8vw,21px)}
+.proof b{display:block;font-family:'Sora',sans-serif;font-size:clamp(19px,2.1vw,27px);font-weight:600;letter-spacing:-.035em;line-height:1.05;margin-bottom:5px;background:linear-gradient(96deg,var(--x-acc),var(--x-acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.proof small{font-size:11.8px;color:var(--x-mut);line-height:1.45;display:block}
+.own{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding-bottom:clamp(20px,2.4vw,30px)}
+.own strong{font-family:'Sora',sans-serif;font-size:clamp(15px,1.4vw,18px);font-weight:600;letter-spacing:-.028em}
+.own span{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--x-mut)}
+.own span::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--x-acc)}
+.auto-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.auto-cta .cta{background:linear-gradient(120deg,var(--x-acc),var(--x-acc2));color:#fff}
+.auto-cta .cta:hover{filter:brightness(1.08);box-shadow:0 16px 34px -16px rgba(90,108,255,.6)}
+.auto-cta .ghost2{padding:14px 24px;border-radius:99px;border:1px solid var(--x-line2);font-size:15px;font-weight:600;transition:background .3s ease,border-color .3s ease,transform .3s var(--ease)}
+.auto-cta .ghost2:hover{background:#fff;border-color:var(--x-ink);transform:translateY(-2px)}
+
+@media (max-width:1000px){
+  .board{grid-template-columns:minmax(0,1fr);gap:16px}
+  .stagebox{min-height:clamp(260px,34vh,320px);order:-1}
+  .proof{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:600px){
+  .proof{grid-template-columns:minmax(0,1fr)}
+  .swi{padding:12px 13px}
+  .swi p{font-size:12.5px}
+  .auto-cta .cta,.auto-cta .ghost2{flex:1 1 100%;justify-content:center;text-align:center}
+}
+
+/* ══ COMPLIANCE ══ */
+.comply{position:relative;background:var(--paper);border-top:1px solid var(--line);padding:clamp(64px,8vw,112px) 0 clamp(60px,7vw,100px);overflow:hidden}
+.comply::before{content:'';position:absolute;top:-10%;left:-12%;width:min(660px,64vw);height:min(660px,64vw);border-radius:50%;background:radial-gradient(circle,rgba(14,157,115,.09),transparent 68%);pointer-events:none}
+.cwrap{position:relative;max-width:1240px;margin:0 auto;padding:0 clamp(18px,3.6vw,46px)}
+.comply-head{max-width:64ch;margin-bottom:clamp(32px,4vw,52px)}
+.comply-head h2{font-family:'Sora',sans-serif;font-size:clamp(27px,3.8vw,47px);line-height:1.07;font-weight:600;letter-spacing:-.04em;max-width:20ch}
+.comply-head p{margin-top:15px;font-size:clamp(14.5px,1.15vw,16.5px);line-height:1.65;color:var(--muted);max-width:58ch}
+
+/* seals */
+.seals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1.4vw,18px);margin-bottom:clamp(38px,5vw,68px)}
+.seal{position:relative;background:#fff;border:1px solid var(--line-2);border-radius:15px;padding:clamp(16px,1.8vw,24px);overflow:hidden;transition:transform .45s var(--ease),box-shadow .45s var(--ease),border-color .45s var(--ease)}
+.seal:hover{transform:translateY(-4px);border-color:rgba(14,157,115,.4);box-shadow:0 22px 44px -28px rgba(11,61,49,.45)}
+.seal-emblem{width:46px;height:46px;margin-bottom:14px}
+.seal-emblem circle.outer{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:132;stroke-dashoffset:132;transition:stroke-dashoffset 1.1s var(--ease)}
+.seal.in .seal-emblem circle.outer{stroke-dashoffset:0}
+.seal-emblem circle.inner{fill:var(--accent-soft)}
+.seal-emblem path{fill:none;stroke:var(--accent-deep);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.seal h3{font-family:'Sora',sans-serif;font-size:clamp(14.5px,1.2vw,17px);font-weight:600;letter-spacing:-.025em;margin-bottom:6px}
+.seal p{font-size:12.5px;line-height:1.6;color:var(--muted)}
+.seal .status{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:5px}
+.seal{opacity:0;transform:translateY(20px)}
+.seal.in{opacity:1;transform:none;transition:opacity .7s var(--ease),transform .7s var(--ease),box-shadow .45s var(--ease),border-color .45s var(--ease)}
+
+/* controls explorer */
+.ctrl{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:clamp(18px,2.4vw,38px);align-items:start}
+.ctrl-list{display:flex;flex-direction:column;gap:5px}
+.ctrl-btn{position:relative;overflow:hidden;text-align:left;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:1px solid transparent;color:var(--muted);font-size:14.5px;font-weight:500;transition:background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease)}
+.ctrl-btn:hover{background:rgba(255,255,255,.7);color:var(--ink)}
+.ctrl-btn.on{background:#fff;border-color:var(--line-2);color:var(--ink);font-weight:600;box-shadow:0 14px 30px -24px rgba(11,61,49,.5)}
+.ctrl-btn .n{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none;transition:color .35s ease}
+.ctrl-btn.on .n{color:var(--accent)}
+.ctrl-btn .bar{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--accent)}
+.ctrl-btn.on .bar{animation:ctrlbar 7s linear forwards}
+.ctrl-btn.on.paused .bar{animation-play-state:paused}
+@keyframes ctrlbar{to{width:100%}}
+
+.ctrl-panel{position:relative;background:#fff;border:1px solid var(--line-2);border-radius:17px;overflow:hidden;box-shadow:0 30px 60px -46px rgba(14,26,23,.45);min-height:clamp(330px,42vh,400px)}
+.cpane{position:absolute;inset:0;padding:clamp(20px,2.4vw,32px);opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease),transform .5s var(--ease);pointer-events:none;display:flex;flex-direction:column}
+.cpane.on{opacity:1;transform:none;pointer-events:auto}
+.cpane-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
+.cpane-ico{width:56px;height:56px;flex:none;border-radius:14px;background:var(--accent-soft);display:grid;place-items:center}
+.cpane-ico svg{width:30px;height:30px}
+.cpane-ico .st{fill:none;stroke:var(--accent-deep);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.cpane-ico .ac{fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.cpane.on .cpane-ico .puls{animation:sweep 2.2s ease-in-out infinite}
+.cpane.on .cpane-ico .spin{transform-origin:center;animation:slowspin 9s linear infinite}
+@keyframes slowspin{to{transform:rotate(360deg)}}
+@keyframes sweep{0%,100%{opacity:.3}50%{opacity:1}}
+.cpane h3{font-family:'Sora',sans-serif;font-size:clamp(18px,1.8vw,23px);font-weight:600;letter-spacing:-.03em;margin-bottom:6px}
+.cpane .sub{font-size:13.5px;line-height:1.6;color:var(--muted)}
+.cpane ul{list-style:none;display:grid;gap:2px;margin-top:auto}
+.cpane li{display:flex;gap:11px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;line-height:1.55;color:var(--muted);opacity:0;transform:translateY(8px)}
+.cpane.on li{animation:liIn .55s var(--ease) forwards}
+.cpane.on li:nth-child(1){animation-delay:.1s}.cpane.on li:nth-child(2){animation-delay:.18s}
+.cpane.on li:nth-child(3){animation-delay:.26s}.cpane.on li:nth-child(4){animation-delay:.34s}
+@keyframes liIn{to{opacity:1;transform:none}}
+.cpane li b{color:var(--ink);font-weight:600}
+.cpane li .tick{flex:none;width:17px;height:17px;margin-top:1px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center}
+.cpane li .tick svg{width:10px;height:10px;stroke:var(--accent-deep);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* stats strip */
+.cstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-top:clamp(32px,4vw,54px);background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.cstat{background:var(--paper);padding:clamp(16px,1.8vw,24px)}
+.cstat span{display:block;font-family:'Sora',sans-serif;font-size:clamp(18px,2vw,26px);font-weight:600;letter-spacing:-.035em;line-height:1.1;margin-bottom:5px}
+.cstat small{font-size:12px;color:var(--muted);font-weight:500;line-height:1.5;display:block}
+.cnote{margin-top:18px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.cnote svg{width:14px;height:14px;color:var(--accent);flex:none}
+
+@media (max-width:1040px){
+  .seals{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ctrl{grid-template-columns:minmax(0,1fr);gap:16px}
+  .ctrl-list{flex-direction:row;overflow-x:auto;gap:7px;padding-bottom:4px;scrollbar-width:none}
+  .ctrl-list::-webkit-scrollbar{display:none}
+  .ctrl-btn{flex:none;padding:11px 15px;font-size:13.5px;border:1px solid var(--line);background:rgba(255,255,255,.6);white-space:nowrap}
+  .ctrl-panel{min-height:clamp(370px,54vh,440px)}
+  .cstats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:600px){
+  .seals{grid-template-columns:minmax(0,1fr)}
+  .cpane-top{gap:13px}
+  .cpane-ico{width:46px;height:46px;border-radius:12px}
+  .cpane-ico svg{width:25px;height:25px}
+  .cpane li{font-size:13px}
+}
+
+
+/* ══ CONTACT ══ */
+.contact{position:relative;background:#0B2C24;color:#EAF6F1;padding:clamp(62px,7.6vw,108px) 0 clamp(56px,6.6vw,92px);overflow:hidden}
+.contact::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.05) 1px,transparent 0);background-size:32px 32px;-webkit-mask-image:radial-gradient(100% 70% at 30% 0%,#000,transparent 72%);mask-image:radial-gradient(100% 70% at 30% 0%,#000,transparent 72%)}
+.contact::after{content:'';position:absolute;bottom:-30%;right:-10%;width:min(720px,72vw);height:min(720px,72vw);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(95,227,179,.18),transparent 66%);filter:blur(60px)}
+.cnwrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 clamp(18px,3.6vw,46px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:start}
+.contact .kicker{color:#5FE3B3}
+.contact .kicker::before{background:#5FE3B3}
+.contact h2{font-family:'Sora',sans-serif;font-size:clamp(28px,3.9vw,48px);line-height:1.06;font-weight:600;letter-spacing:-.042em;max-width:16ch;margin-bottom:15px}
+.contact h2 em{font-style:normal;color:#5FE3B3}
+.cn-lede{font-size:clamp(14.5px,1.15vw,16.5px);line-height:1.68;color:#9DBAB1;max-width:46ch;margin-bottom:clamp(24px,3vw,36px)}
+.cn-steps{display:grid;gap:2px;margin-bottom:clamp(24px,3vw,34px)}
+.cn-step{display:flex;gap:14px;padding:14px 0;border-top:1px solid rgba(255,255,255,.11)}
+.cn-step b{flex:none;width:26px;height:26px;border-radius:8px;background:rgba(95,227,179,.14);color:#5FE3B3;display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:500}
+.cn-step div{flex:1}
+.cn-step strong{display:block;font-size:14px;font-weight:600;letter-spacing:-.02em;margin-bottom:3px}
+.cn-step p{font-size:13px;line-height:1.6;color:#9DBAB1}
+.cn-direct{display:flex;flex-wrap:wrap;gap:10px 26px;padding-top:20px;border-top:1px solid rgba(255,255,255,.11)}
+.cn-direct a{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500;color:#EAF6F1;transition:color .3s ease}
+.cn-direct a:hover{color:#5FE3B3}
+.cn-direct svg{width:15px;height:15px;stroke:#5FE3B3;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.cform{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:clamp(20px,2.6vw,32px);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.cform h3{font-family:'Sora',sans-serif;font-size:18px;font-weight:600;letter-spacing:-.028em;margin-bottom:5px}
+.cform>p{font-size:12.8px;color:#9DBAB1;margin-bottom:20px}
+.frow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-bottom:13px}
+.fld{display:block}
+.fld span{display:block;font-size:11.5px;color:#9DBAB1;margin-bottom:6px;font-weight:500}
+.fld span i{color:#FF9A9A;font-style:normal}
+.fld input,.fld select,.fld textarea{width:100%;padding:11px 13px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:10px;color:#EAF6F1;font-size:13.5px;font-family:inherit;transition:border-color .25s ease,box-shadow .25s ease,background .25s ease}
+.fld input::placeholder,.fld textarea::placeholder{color:#6C8880}
+.fld input:hover,.fld select:hover,.fld textarea:hover{border-color:rgba(255,255,255,.24)}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:#5FE3B3;background:rgba(95,227,179,.06);box-shadow:0 0 0 3px rgba(95,227,179,.14)}
+.fld input.bad,.fld textarea.bad{border-color:#FF9A9A;box-shadow:0 0 0 3px rgba(255,154,154,.14)}
+.fld select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239DBAB1' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.fld select option{background:#0B2C24;color:#EAF6F1}
+.fld textarea{resize:vertical;min-height:92px}
+.fld{margin-bottom:13px}
+.frow .fld{margin-bottom:0}
+.cform button{width:100%;justify-content:center;margin-top:6px;background:#5FE3B3;color:#06251C;border-radius:12px;padding:14px 20px;font-size:14.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:transform .3s var(--ease),box-shadow .3s var(--ease),filter .3s ease}
+.cform button:hover{filter:brightness(1.07);transform:translateY(-2px);box-shadow:0 14px 30px -14px rgba(95,227,179,.6)}
+.cform button svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.cform .fine{margin-top:13px;font-size:11.5px;line-height:1.6;color:#7E9B93;text-align:center}
+.cform.sent .fbody{display:none}
+.csent{display:none;text-align:center;padding:26px 6px}
+.cform.sent .csent{display:block}
+.csent .ok{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;background:rgba(95,227,179,.16);display:grid;place-items:center}
+.csent .ok svg{width:26px;height:26px;stroke:#5FE3B3;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.csent b{display:block;font-family:'Sora',sans-serif;font-size:18px;font-weight:600;letter-spacing:-.028em;margin-bottom:7px}
+.csent p{font-size:13.5px;line-height:1.6;color:#9DBAB1;max-width:34ch;margin:0 auto}
+
+/* FOOTER */
+.site-footer{position:relative;background:#06110E;color:#8FA8A1;overflow:hidden;padding:clamp(48px,5.6vw,76px) 0 0}
+.site-footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(95,227,179,.45),rgba(124,140,255,.35),transparent)}
+.site-footer::after{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:min(900px,90vw);height:min(420px,45vw);border-radius:50%;pointer-events:none;background:radial-gradient(ellipse,rgba(95,227,179,.09),transparent 68%);filter:blur(50px)}
+.ftwrap{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:0 clamp(18px,3.6vw,46px)}
+.ftgrid{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:clamp(26px,3.4vw,52px);align-items:start;padding-bottom:clamp(32px,3.8vw,46px)}
+.ftbrand .logo{margin:0 0 16px;gap:10px}
+.ftbrand .logo-text{color:#EAF6F1;font-size:19px}
+.ftbrand .logo-text .rcm{color:#5FE3B3}
+.ftbrand>p{font-size:13.2px;line-height:1.68;max-width:32ch;margin-bottom:20px}
+.ftbadges{display:flex;flex-wrap:wrap;gap:7px}
+.ftbadges span{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:7px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.03);font-size:11px;font-weight:500;color:#9FB8B1}
+.ftbadges span::before{content:'';width:5px;height:5px;border-radius:50%;background:#5FE3B3;flex:none}
+.ftcol{display:flex;flex-direction:column;align-items:flex-start}
+.ftcol h4{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#5D746E;font-weight:500;margin:0 0 16px;padding-bottom:10px;width:100%;border-bottom:1px solid rgba(255,255,255,.08)}
+.ftcol a{position:relative;display:inline-block;font-size:13.4px;line-height:1.5;padding:6px 0;color:#8FA8A1;transition:color .28s var(--ease),transform .28s var(--ease)}
+.ftcol a:hover{color:#EAF6F1;transform:translateX(4px)}
+.ftcol a::before{content:'';position:absolute;left:-11px;top:50%;width:5px;height:1.5px;background:#5FE3B3;opacity:0;transform:translateY(-50%) scaleX(0);transform-origin:right;transition:opacity .28s var(--ease),transform .28s var(--ease)}
+.ftcol a:hover::before{opacity:1;transform:translateY(-50%) scaleX(1)}
+.ftbase{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;padding:20px 0 22px;border-top:1px solid rgba(255,255,255,.08);font-size:12.4px}
+.ftbase p{color:#5D746E;margin:0}
+.ftlegal{display:flex;flex-wrap:wrap;gap:6px 18px}
+.ftlegal a{color:#8FA8A1;transition:color .25s ease}
+.ftlegal a:hover{color:#5FE3B3}
+.ftright{margin-left:auto;display:flex;align-items:center;gap:9px}
+.ftsoc{width:32px;height:32px;border-radius:9px;border:1px solid rgba(255,255,255,.11);display:grid;place-items:center;transition:all .3s var(--ease)}
+.ftsoc svg{width:15px;height:15px;fill:currentColor}
+.ftsoc:hover{border-color:#5FE3B3;color:#5FE3B3;background:rgba(95,227,179,.08);transform:translateY(-2px)}
+.fttop{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:99px;border:1px solid rgba(255,255,255,.11);font-size:12px;font-weight:600;color:#EAF6F1;transition:all .3s var(--ease)}
+.fttop svg{width:13px;height:13px;stroke:#5FE3B3;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
+.fttop:hover{border-color:#5FE3B3;background:rgba(95,227,179,.08)}
+.fttop:hover svg{transform:translateY(-2px)}
+/*.ftmark{position:relative;z-index:1;display:block;width:100%;margin-top:-2px;font-family:'Sora',sans-serif;font-weight:700;letter-spacing:-.05em;line-height:.78;font-size:clamp(56px,13.4vw,186px);text-align:center;user-select:none;pointer-events:none;white-space:nowrap;overflow:hidden;color:transparent;transform: translateX(var(--ftpx, 0px));transition: filter .5s var(--ease);
+
+  background-image:linear-gradient(100deg,rgba(234,246,241,.05) 0%,rgba(234,246,241,.05) 34%,rgba(95,227,179,.42) 47%,rgba(124,140,255,.34) 55%,rgba(234,246,241,.05) 68%,rgba(234,246,241,.05) 100%);
+  background-size:230% 100%;-webkit-background-clip:text;background-clip:text;
+  animation:ftshine 8s linear infinite;
+  transform:translateX(var(--ftpx,0px));transition:filter .5s var(--ease)}*/
+  /* 1. Simplify the outer container (Removed background clipping here) */
+.ftmark {
+  position: relative;z-index: 1;display: block;width: 100%;margin-top: -2px;font-family: 'Sora', sans-serif;font-weight: 700;letter-spacing: -.05em;line-height: .78;
+  font-size: clamp(56px, 13.4vw, 186px);text-align: center;user-select: none;pointer-events: none;white-space: nowrap;overflow: hidden;transform: translateX(var(--ftpx, 0px));transition: filter .5s var(--ease);
+}
+
+@keyframes ftshine {
+  0% { background-position: 0% 0; }
+  100% { background-position: -177% 0; }
+}
+
+.site-footer:hover .ftmark {
+  filter: brightness(1.45);
+}
+
+.ftmark i {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  font-style: normal;
+}
+
+/* 2. Move the text fill, gradient, clip, and animation directly to the letters */
+.ftmark b {
+  display: inline-block;
+  font-weight: inherit;
+  transform: translateY(0%);
+  transition: transform 5s var(--ease);
+  
+  /* Text clipping logic now applied directly to the individual characters */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(100deg, rgba(234, 246, 241, .05) 0%, rgba(234, 246, 241, .05) 34%, rgba(95, 227, 179, .42) 47%, rgba(124, 140, 255, .34) 55%, rgba(234, 246, 241, .05) 68%, rgba(234, 246, 241, .05) 100%);
+  background-size: 230% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: ftshine 8s linear infinite;
+}
+
+.ftmark.in b {
+  transform: translateY(0);
+}
+
+
+/*@keyframes ftshine{0%{background-position:210% 0}100%{background-position:-70% 0}}
+.site-footer:hover .ftmark{filter:brightness(1.45)}
+.ftmark i{display:inline-block;overflow:hidden;vertical-align:bottom;font-style:normal}
+.ftmark b{display:inline-block;font-weight:inherit;transform:translateY(0%);transition:transform 1s var(--ease)}
+.ftmark.in b{transform:translateY(0)}*/
+
+
+@media (max-width:900px){
+  .ftgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 30px}
+  .ftbrand{grid-column:1 / -1}
+  .ftbrand>p{max-width:44ch}
+}
+@media (max-width:560px){
+  .ftbase{flex-direction:column;align-items:flex-start;gap:14px}
+  .ftright{margin-left:0}
+  .ftmark{font-size:clamp(44px,17vw,90px)}
+}
+
+@media (max-width:900px){
+  .cnwrap{grid-template-columns:minmax(0,1fr)}
+  }
+@media (max-width:560px){
+  .frow{grid-template-columns:minmax(0,1fr)}
+  .ftgrid{grid-template-columns:minmax(0,1fr)}
+  
+}
+
+.placeholder{min-height:60vh;display:grid;place-items:center;padding:60px clamp(18px,4vw,46px);background:var(--paper);border-top:1px solid var(--line)}
+.placeholder p{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:rgba(96,110,106,.6);font-weight:700}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}html{scroll-behavior:auto}.ln>span{transform:none}}
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+</style>
+</head>
+<body id="top">
+
+<header class="site-header" id="header">
+  <div class="header-inner">
+    <a href="#home" class="logo" aria-label="Revify RCM home">
+      <img class="logo-mark" src="assets/logo-64.png" alt="ReviFlow RCM">
+      <span class="logo-text">Revify<span class="rcm">RCM</span></span>
+    </a>
+    <div class="nav-wrap">
+      <nav class="nav" id="nav" aria-label="Primary">
+        <span class="nav-pill" id="navPill" aria-hidden="true"></span>
+        <a class="nav-link is-active" href="#home">Home<span class="dot"></span></a>
+        <a class="nav-link" href="#about">About us<span class="dot"></span></a>
+        <a class="nav-link" href="#services">Services<span class="dot"></span></a>
+        <a class="nav-link" href="#compliance">Compliance<span class="dot"></span></a>
+        <a class="nav-link" href="resources.html">Resources<span class="dot"></span></a>
+        <a class="nav-link" href="insights.html">Insights<span class="dot"></span></a>
+      </nav>
+      <a href="#contact" class="cta">Contact
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></i>
+      </a>
+      <a href="reviflow.html" class="cta cta-alt">
+        <span class="rfdot"></span>ReviFlow
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></i>
+      </a>
+    </div>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="drawer" id="drawer">
+  <a href="#home">Home</a><a href="#about">About us</a><a href="#services">Services</a>
+  <a href="#compliance">Compliance</a><a href="resources.html">Resources</a><a href="insights.html">Insights</a>
+  <a href="#contact" class="cta">Contact
+    <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></i>
+  </a>
+  <a href="reviflow.html" class="cta cta-alt">
+    <span class="rfdot"></span>ReviFlow
+    <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></i>
+  </a>
+</div>
+
+<main>
+<section class="hero" id="home">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="grid"></div>
+    <div class="glow"></div>
+    <svg viewBox="0 0 880 760" preserveAspectRatio="xMaxYMid slice">
+      <path d="M-40 120 C 220 120, 300 300, 560 300"/>
+      <path d="M-40 260 C 240 260, 320 330, 560 330"/>
+      <path d="M-40 520 C 240 520, 320 380, 560 380"/>
+      <path d="M-40 660 C 220 660, 300 420, 560 420"/>
+    </svg>
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-copy" id="heroCopy">
+      <span class="eyebrow"><b><i class="live"></i>Live</b> 3,400+ payer connections</span>
+      <h1 class="hero-title">
+        <span class="ln"><span>Payers speak X12.</span></span>
+        <span class="ln"><span>Your team gets</span></span>
+        <span class="ln"><span><span class="em">plain answers</span>.</span></span>
+      </h1>
+      <p class="lede">Revify RCM runs the full revenue cycle on one connection — eligibility before the visit, claims scrubbed against 140+ payer rules, status without a phone call, and remittances posted the moment they land. <strong>Sub-second responses, every payer you bill.</strong></p>
+      <div class="hero-actions">
+        <a href="#contact" class="cta btn-lg">Book a demo
+          <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></i>
+        </a>
+        <a href="#services" class="btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+          See the workflow
+        </a>
+      </div>
+      <div class="stats">
+        <div class="stat"><span data-count="3400" data-suffix="+">0</span><small>Payer connections</small></div>
+        <div class="stat"><span data-count="842" data-suffix="ms">0</span><small>Median coverage answer</small></div>
+        <div class="stat"><span data-count="99" data-suffix=".2%">0</span><small>First-pass acceptance</small></div>
+        <div class="stat"><span data-count="31" data-suffix="%">0</span><small>Fewer denials in year one</small></div>
+      </div>
+    </div>
+
+    <div class="hero-visual reveal" id="heroVisual">
+      <div class="console" id="console" role="img" aria-label="A claim moving through eligibility, submission, status, remittance and denial review">
+        <div class="console-bar">
+          <span class="lamp"></span>
+          <span class="title" id="cTitle">revify · transaction stream</span>
+          <span class="lat" id="cLat">842 ms</span>
+        </div>
+        <div class="cprog"><i id="cProg"></i></div>
+        <div class="console-flow">
+          <div class="track"><i id="cDot"></i></div>
+          <div class="steps" id="cSteps">
+            <div class="stp"><b>eligibility</b></div>
+            <div class="stp"><b>claim</b></div>
+            <div class="stp"><b>status</b></div>
+            <div class="stp"><b>remit</b></div>
+            <div class="stp"><b>appeal</b></div>
+          </div>
+        </div>
+        <div class="console-body">
+          <div class="x12" id="cX12"></div>
+          <div class="sep">Revify resolves</div>
+          <div class="result" id="cResult"></div>
+        </div>
+        <div class="console-foot">
+          <span>throughput</span>
+          <svg class="spark" viewBox="0 0 200 26" preserveAspectRatio="none"><polyline id="cSpark" points=""/></svg>
+          <span id="cTps">1,284 txn/min</span>
+        </div>
+      </div>
+      <div class="trust">
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg>HIPAA compliant</i>
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>SOC 2 Type II</i>
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>X12 5010 certified</i>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="reel" id="services">
+  <div class="reel-head">
+    <span class="kicker">How Revify works</span>
+    <h2>One patient. One visit. Seven things happening behind the wall.</h2>
+    <p>Follow a single encounter from the front desk to the month-end report. Everything above the line is what your staff and your patient experience. Everything below it is Revify, working the claim the whole way.</p>
+  </div>
+
+  <div class="reel-scroll" id="reelScroll">
+    <div class="reel-sticky">
+      <div class="stage">
+
+        <div class="act-copy">
+          <span class="act-no act-fade" id="actNo"></span>
+          <span class="act-badge act-fade" id="actBadge"></span>
+          <h3 class="act-title act-fade" id="actTitle"></h3>
+          <p class="act-text act-fade" id="actText"></p>
+          <div class="act-chips act-fade" id="actChips"></div>
+        </div>
+
+        <div class="layers">
+          <div class="layer-top" id="frames">
+
+            <div class="frame" data-i="0">
+              <svg viewBox="0 0 420 260" aria-hidden="true">
+                <rect class="rise" x="54" y="76" width="176" height="108" rx="14" fill="#FFFFFF" stroke="rgba(14,26,23,.10)"/>
+                <rect class="rise r2" x="54" y="76" width="176" height="26" rx="14" fill="#0B3D31"/>
+                <rect class="rise r2" x="54" y="90" width="176" height="12" fill="#0B3D31"/>
+                <rect class="rise r3" x="74" y="122" width="72" height="9" rx="4.5" fill="#D8DEDB"/>
+                <rect class="rise r3" x="74" y="142" width="108" height="9" rx="4.5" fill="#E7EAE8"/>
+                <rect class="rise r4" x="74" y="162" width="52" height="9" rx="4.5" fill="#E7EAE8"/>
+                <circle class="ring" cx="306" cy="130" r="46" fill="none" stroke="#0E9D73" stroke-width="2" style="transform-origin:306px 130px"/>
+                <circle class="pop" cx="306" cy="130" r="38" fill="#D9F0E6" style="transform-origin:306px 130px"/>
+                <circle class="pop" cx="306" cy="130" r="27" fill="#0E9D73" style="transform-origin:306px 130px"/>
+                <path class="pop" d="M296 130l7 8 13-15" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" style="transform-origin:306px 130px"/>
+              </svg>
+            </div>
+
+            <div class="frame" data-i="1">
+              <svg viewBox="0 0 420 260" aria-hidden="true">
+                <rect class="rise" x="112" y="52" width="196" height="158" rx="14" fill="#FFFFFF" stroke="rgba(14,26,23,.10)"/>
+                <rect class="rise r2" x="136" y="80" width="86" height="10" rx="5" fill="#D8DEDB"/>
+                <rect class="rise r2" x="136" y="102" width="148" height="8" rx="4" fill="#EDEFEE"/>
+                <g class="rise r3"><rect x="136" y="126" width="76" height="26" rx="8" fill="#D9F0E6"/><text x="150" y="144" font-family="'JetBrains Mono',monospace" font-size="13" fill="#0B3D31" font-weight="500">99213</text></g>
+                <g class="rise r4"><rect x="220" y="126" width="70" height="26" rx="8" fill="#D9F0E6"/><text x="232" y="144" font-family="'JetBrains Mono',monospace" font-size="13" fill="#0B3D31" font-weight="500">E11.65</text></g>
+                <g class="rise r5"><rect x="136" y="164" width="56" height="26" rx="8" fill="#0E9D73"/><text x="150" y="182" font-family="'JetBrains Mono',monospace" font-size="13" fill="#fff" font-weight="500">-25</text></g>
+                <circle class="pop" cx="284" cy="177" r="15" fill="#0B3D31" style="transform-origin:284px 177px"/>
+                <path class="pop" d="M277 177l5 5 9-10" fill="none" stroke="#5FE3B3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="transform-origin:284px 177px"/>
+              </svg>
+            </div>
+
+            <div class="frame" data-i="2">
+              <svg viewBox="0 0 420 260" aria-hidden="true">
+                <rect class="rise" x="252" y="58" width="118" height="146" rx="16" fill="#0B3D31"/>
+                <rect class="rise r2" x="268" y="76" width="86" height="110" rx="10" fill="#0E9D73" opacity=".28"/>
+                <path class="rise r2" d="M290 100h42M290 118h42M290 136h30" stroke="#5FE3B3" stroke-width="3" stroke-linecap="round"/>
+                <g class="glide">
+                  <rect x="72" y="96" width="110" height="72" rx="11" fill="#FFFFFF" stroke="rgba(14,26,23,.12)"/>
+                  <rect x="88" y="114" width="56" height="8" rx="4" fill="#D8DEDB"/>
+                  <rect x="88" y="130" width="78" height="8" rx="4" fill="#EDEFEE"/>
+                  <rect x="88" y="146" width="40" height="8" rx="4" fill="#EDEFEE"/>
+                </g>
+                <path class="sweep" d="M196 132h44" stroke="#0E9D73" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="2 8"/>
+                <circle class="pop" cx="311" cy="176" r="15" fill="#5FE3B3" style="transform-origin:311px 176px"/>
+                <path class="pop" d="M304 176l5 5 9-10" fill="none" stroke="#06251C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="transform-origin:311px 176px"/>
+              </svg>
+            </div>
+
+            <div class="frame" data-i="3">
+              <svg viewBox="0 0 420 260" aria-hidden="true">
+                <path class="draw" d="M78 178 C 140 178, 150 82, 210 82 C 270 82, 280 178, 342 178" fill="none" stroke="#0E9D73" stroke-width="2.2" stroke-linecap="round"/>
+                <circle class="rise" cx="78" cy="178" r="17" fill="#FFFFFF" stroke="rgba(14,26,23,.12)"/>
+                <circle class="rise r2" cx="210" cy="82" r="21" fill="#0B3D31"/>
+                <circle class="rise r3" cx="342" cy="178" r="17" fill="#D9F0E6" stroke="#0E9D73"/>
+                <path class="rise r2" d="M203 82h14M210 75v14" stroke="#5FE3B3" stroke-width="2.6" stroke-linecap="round"/>
+                <circle class="travel" r="6" fill="#0E9D73" style="offset-path:path('M78 178 C 140 178, 150 82, 210 82 C 270 82, 280 178, 342 178')"/>
+                <circle class="travel" r="6" fill="#0E9D73" opacity=".35" style="offset-path:path('M78 178 C 140 178, 150 82, 210 82 C 270 82, 280 178, 342 178');animation-delay:-1.6s"/>
+                <rect class="rise r4" x="52" y="204" width="52" height="8" rx="4" fill="#D8DEDB"/>
+                <rect class="rise r4" x="184" y="118" width="52" height="8" rx="4" fill="#D8DEDB"/>
+                <rect class="rise r5" x="316" y="204" width="52" height="8" rx="4" fill="#D8DEDB"/>
+              </svg>
+            </div>
+
+            <div class="frame" data-i="4">
+              <svg viewBox="0 0 420 260" aria-hidden="true">
+                <rect class="rise" x="66" y="60" width="288" height="146" rx="14" fill="#FFFFFF" stroke="rgba(14,26,23,.10)"/>
+                <rect class="grow" x="94" y="128" width="30" height="52" rx="7" fill="#E2E6E4"/>
+                <rect class="grow g2" x="138" y="112" width="30" height="68" rx="7" fill="#E2E6E4"/>
+                <rect class="grow g3" x="182" y="96" width="30" height="84" rx="7" fill="#F0B44C"/>
+                <rect class="grow g4" x="226" y="140" width="30" height="40" rx="7" fill="#D9F0E6"/>
+                <rect class="grow g5" x="270" y="152" width="30" height="28" rx="7" fill="#0E9D73"/>
+                <rect class="rise" x="94" y="82" width="76" height="9" rx="4.5" fill="#D8DEDB"/>
+                <path class="sweep" d="M197 76v-14" stroke="#F0B44C" stroke-width="2.4" stroke-linecap="round"/>
+                <circle class="pop" cx="197" cy="52" r="13" fill="#F0B44C" style="transform-origin:197px 52px"/>
+                <path class="pop" d="M197 46v7M197 58h.01" stroke="#3A2A08" stroke-width="2.6" stroke-linecap="round" style="transform-origin:197px 52px"/>
+                <rect class="rise r5" x="66" y="192" width="288" height="14" rx="7" fill="#F6F5EF"/>
+              </svg>
+            </div>
+
+            <div class="frame" data-i="5">
+              <svg viewBox="0 0 420 260" aria-hidden="true">
+                <rect class="rise" x="58" y="96" width="176" height="118" rx="14" fill="#FFFFFF" stroke="rgba(14,26,23,.10)"/>
+                <rect class="rise r2" x="80" y="122" width="80" height="9" rx="4.5" fill="#D8DEDB"/>
+                <rect class="rise r2" x="80" y="144" width="132" height="9" rx="4.5" fill="#EDEFEE"/>
+                <rect class="rise r3" x="80" y="176" width="94" height="20" rx="10" fill="#D9F0E6"/>
+                <text class="rise r3" x="94" y="191" font-family="'JetBrains Mono',monospace" font-size="12" fill="#0B3D31" font-weight="500">posted</text>
+                <ellipse class="fall" cx="316" cy="188" rx="42" ry="13" fill="#0B3D31"/>
+                <ellipse class="fall f2" cx="316" cy="164" rx="42" ry="13" fill="#0E9D73"/>
+                <ellipse class="fall f3" cx="316" cy="140" rx="42" ry="13" fill="#5FE3B3"/>
+                <path class="sweep" d="M316 96v-24" stroke="#0E9D73" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="2 7"/>
+                <circle class="pop" cx="316" cy="60" r="14" fill="#0E9D73" style="transform-origin:316px 60px"/>
+                <path class="pop" d="M316 53v14M311 58h10" stroke="#fff" stroke-width="2.4" stroke-linecap="round" style="transform-origin:316px 60px"/>
+              </svg>
+            </div>
+
+            <div class="frame" data-i="6">
+              <svg viewBox="0 0 420 260" aria-hidden="true">
+                <rect class="rise" x="60" y="52" width="300" height="158" rx="16" fill="#0B3D31"/>
+                <rect class="rise r2" x="82" y="76" width="70" height="9" rx="4.5" fill="rgba(95,227,179,.5)"/>
+                <rect class="grow" x="82" y="146" width="26" height="42" rx="6" fill="rgba(255,255,255,.16)"/>
+                <rect class="grow g2" x="118" y="130" width="26" height="58" rx="6" fill="rgba(255,255,255,.2)"/>
+                <rect class="grow g3" x="154" y="112" width="26" height="76" rx="6" fill="#0E9D73"/>
+                <rect class="grow g4" x="190" y="126" width="26" height="62" rx="6" fill="rgba(255,255,255,.2)"/>
+                <rect class="grow g5" x="226" y="100" width="26" height="88" rx="6" fill="#5FE3B3"/>
+                <path class="draw" d="M88 168 C 132 152, 168 122, 200 130 C 236 138, 268 96, 330 88" fill="none" stroke="#5FE3B3" stroke-width="2.4" stroke-linecap="round"/>
+                <circle class="pop" cx="330" cy="88" r="7" fill="#5FE3B3" style="transform-origin:330px 88px"/>
+                <rect class="rise r5" x="276" y="146" width="64" height="42" rx="9" fill="rgba(255,255,255,.08)"/>
+                <rect class="rise r5" x="288" y="160" width="40" height="7" rx="3.5" fill="rgba(95,227,179,.6)"/>
+                <rect class="rise r5" x="288" y="173" width="24" height="7" rx="3.5" fill="rgba(255,255,255,.25)"/>
+              </svg>
+            </div>
+
+          </div>
+
+          <div class="divide">
+            <span>Above — <em>what your practice sees</em></span>
+            <span class="arw">↓</span>
+            <span>Below — <em>what Revify runs</em></span>
+          </div>
+
+          <div class="engine">
+            <div class="eng-head">
+              <span class="dot"></span>
+              <b>Revify engine</b>
+              <span class="step" id="engStep">Eligibility check</span>
+            </div>
+            <div class="eng-rows" id="engRows"></div>
+            <div class="eng-steps" id="engSteps">
+              <span class="estep">Eligibility</span>
+              <span class="estep">Coding</span>
+              <span class="estep">Submission</span>
+              <span class="estep">Clearing</span>
+              <span class="estep">A/R</span>
+              <span class="estep">Posting</span>
+              <span class="estep">Reporting</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="rail">
+        <span class="rail-label">Encounter timeline</span>
+        <div class="rail-track" id="railTrack"><i id="railFill"></i></div>
+        <div class="rail-metric">
+          <span id="railValue">842 ms</span>
+          <small id="railLabel">coverage answer</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="why" id="about">
+  <div class="wwrap">
+
+    <div class="why-head wfade">
+      <span class="kicker">Why do you need us?</span>
+      <h2>Most practices don't have a billing problem. They have a visibility problem.</h2>
+      <p>The money is usually there. It gets lost in the gap between the front desk, the coder, the clearinghouse, and the payer — and nobody owns the whole path. Revify owns the whole path, and shows you every inch of it.</p>
+    </div>
+
+    <div class="cmp" id="cmp">
+      <div class="cmp-h">Without a single platform</div>
+      <div class="cmp-h new">With Revify RCM</div>
+
+      <div class="cmp-c old"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>Coverage checked by phone or across four portals.</b> Ten minutes a patient, and still wrong sometimes.</span></div>
+      <div class="cmp-c new"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>One check reaches every payer you bill,</b> run in batch the night before the schedule.</span></div>
+
+      <div class="cmp-c old"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>You learn about a denial at posting,</b> thirty days after the mistake was made.</span></div>
+      <div class="cmp-c new"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>Errors are caught before submission,</b> and denials arrive with the root cause already named.</span></div>
+
+      <div class="cmp-c old"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>A clearinghouse, an eligibility tool, a denial vendor, and a reporting add-on.</b> Four contracts, four support queues.</span></div>
+      <div class="cmp-c new"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>One platform, one contract, one thread.</b> The same system that submits the claim also explains why it was denied.</span></div>
+
+      <div class="cmp-c old"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>A monthly PDF from your billing vendor</b> that arrives after you can do anything about it.</span></div>
+      <div class="cmp-c new"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>The same live dashboard we work from.</b> Every claim's full history, open to you at any hour.</span></div>
+
+      <div class="cmp-c old"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>An escalation goes into a ticket queue</b> and comes back from someone who has never seen your payer mix.</span></div>
+      <div class="cmp-c new"><img class="mk" src="assets/logo-64.png" alt="ReviFlow RCM"><span><b>A named team who knows your specialty,</b> your top five payers, and your denial history by heart.</span></div>
+    </div>
+
+    <div class="tl-head wfade">
+      <h3>How we actually put this in place</h3>
+      <p>No rip-and-replace, and no month where you are flying blind. We run alongside what you have until the numbers prove we should take over.</p>
+    </div>
+
+    <div class="tl" id="tl">
+      <div class="tl-track"><i></i></div>
+
+      <div class="tl-step">
+        <span class="tl-when">Days 1–3</span>
+        <h4>Discovery</h4>
+        <p>We map your payer mix, specialties, practice management system, and the denial reasons already costing you the most. You get that analysis whether or not you sign.</p>
+      </div>
+
+      <div class="tl-step">
+        <span class="tl-when">Week 1</span>
+        <h4>Connection</h4>
+        <p>Payer enrollments are filed, NPIs and taxonomies registered, and your system connects. We handle the paperwork trail with each payer, not you.</p>
+      </div>
+
+      <div class="tl-step">
+        <span class="tl-when">Week 2</span>
+        <h4>Parallel run</h4>
+        <p>Everything runs twice — your current process and ours — with nothing switched over. Zero risk to cash flow while we prove the difference.</p>
+      </div>
+
+      <div class="tl-step">
+        <span class="tl-when">Weeks 3–4</span>
+        <h4>Reconcile and cut over</h4>
+        <p>We show you the delta: what we caught that your current path missed, claim by claim. You decide when to switch, and we stay in the room for the first 30 days.</p>
+      </div>
+
+      <div class="tl-step">
+        <span class="tl-when">Every month after</span>
+        <h4>Steady state review</h4>
+        <p>Denial trends ranked by dollars, payer scorecards, and the preventable causes routed back to whoever can fix them at intake.</p>
+      </div>
+    </div>
+
+    <div class="tenets" id="tenets">
+
+      <article class="tenet">
+        <div class="tenet-mark">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <rect class="tm-fill" x="6" y="8" width="108" height="104" rx="14" opacity=".45"/>
+            <rect class="bar1" x="30" y="30" width="66" height="14" rx="7" fill="#E4E7E5"/>
+            <rect class="bar2" x="30" y="56" width="66" height="14" rx="7" fill="#E4E7E5"/>
+            <rect class="bar3" x="30" y="82" width="66" height="14" rx="7" fill="#E4E7E5"/>
+            <g class="cursor"><circle class="tm-solid" cx="20" cy="37" r="6"/></g>
+          </svg>
+        </div>
+        <div>
+          <span class="tenet-no">01</span>
+          <h4><span class="mask"><span>We work it.</span></span><span class="mask"><span>Not just watch it.</span></span></h4>
+          <p>A dashboard has never filed an appeal. Behind the software sits a team assigned to your account by name — the same people every month, who know your payer mix without looking it up.</p>
+          <ul>
+            <li><b>A named pod</b>One lead analyst, a certified coder, an A/R specialist. Not a rotating queue.</li>
+            <li><b>Four-hour response</b>On anything touching cash, through a direct line rather than a shared inbox.</li>
+            <li><b>We file the appeals</b>Your worklist gets worked, not just monitored — unless you'd rather keep it.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tenet">
+        <div class="tenet-mark">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <rect class="tm-fill" x="6" y="8" width="108" height="104" rx="14" opacity=".45"/>
+            <rect class="gb1 tm-solid" x="28" y="66" width="13" height="30" rx="5"/>
+            <rect class="gb2 tm-solid" x="50" y="48" width="13" height="48" rx="5"/>
+            <rect class="gb3 tm-solid" x="72" y="34" width="13" height="62" rx="5"/>
+            <rect x="18" y="20" width="84" height="80" rx="11" fill="rgba(255,255,255,.62)" stroke="#0E1A17" stroke-width="2.4"/>
+            <g clip-path="inset(20px 18px 20px 18px round 11px)">
+              <rect class="glassSweep" x="34" y="14" width="20" height="92" fill="rgba(255,255,255,.85)" transform="skewX(-16)"/>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <span class="tenet-no">02</span>
+          <h4><span class="mask"><span>Glass walls,</span></span><span class="mask"><span>not curtains.</span></span></h4>
+          <p>Most billing partners hand you a summary once a month, after the moment to act has passed. You get the same live screen we work from — including the parts that make us look bad.</p>
+          <ul>
+            <li><b>One shared view</b>Identical data, live. Not a report someone prepared for you on the 3rd.</li>
+            <li><b>Full claim history</b>Who touched it, what changed, what the payer said, and exactly when.</li>
+            <li><b>We publish our misses</b>Monthly reviews open with what we got wrong, before what we got right.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="tenet">
+        <div class="tenet-mark">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <rect class="tm-fill" x="6" y="8" width="108" height="104" rx="14" opacity=".45"/>
+            <path class="tm-line" d="M22 100V44a38 38 0 0176 0v56"/>
+            <rect class="doorPanel tm-solid" x="22" y="44" width="76" height="56" rx="4" opacity=".22"/>
+            <path class="tm-acc walkOut" d="M62 74h26M80 66l10 8-10 8"/>
+            <circle class="tm-solid" cx="90" cy="76" r="3.4"/>
+          </svg>
+        </div>
+        <div>
+          <span class="tenet-no">03</span>
+          <h4><span class="mask"><span>The door</span></span><span class="mask"><span>stays open.</span></span></h4>
+          <p>Lock-in is what a vendor reaches for when the results can't hold you. Ours can, so nothing in the contract is designed to trap you — and we'll help you leave if it comes to that.</p>
+          <ul>
+            <li><b>Thirty-day exit</b>No termination penalty, and we assist with the migration out.</li>
+            <li><b>Your data stays yours</b>Full export in a standard format, on demand, at any point.</li>
+            <li><b>Paid on collections</b>Not per seat. If your cash doesn't improve, neither does our invoice.</li>
+          </ul>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="why-cta wfade">
+      <p>Ask us for the discovery analysis first.
+        <small>Three days, your real claim data, and an honest read on what you are leaving on the table — before any contract exists.</small>
+      </p>
+      <a href="#contact" class="cta btn-lg">Start with discovery
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></i>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<section class="auto" id="automation">
+  <div class="awrap">
+
+    <div class="auto-head afade">
+      <span class="kicker">Automation</span>
+      <h2>Ready to stop <span class="hl">touching every claim?</span></h2>
+      <p>Five points in the encounter still move by hand at most practices. Each one is a place money leaks. Revify closes all five — and shows you the data the whole way.</p>
+    </div>
+
+
+    <div class="whyauto afade">
+      <p>Healthcare is the only industry where the work is finished before you are even allowed to write the invoice. A provider delivers care, and only then does the real administrative marathon begin — verify the coverage, code the encounter, satisfy that particular payer's particular rules, submit, chase, appeal, post. <b>None of it is clinical, none of it is billable, and all of it stands between the care you gave and the money you are owed.</b></p>
+      <div class="wgrid">
+        <div><b>Admin is a second payroll</b><p>Every manual touch is unpaid labour. A mid-size practice can spend more staff hours moving claims than its clinicians spend seeing the patients those claims came from.</p></div>
+        <div><b>Rules move faster than teams</b><p>Payer policies, edit sets and authorisation requirements change constantly. A manual process is always working from last quarter's rulebook.</p></div>
+        <div><b>You cannot hire your way out</b><p>Experienced coders and A/R staff are scarce and roles sit open for months. Automation is the only capacity you can add on the day you need it.</p></div>
+        <div><b>Delay is the real cost</b><p>A denial found at posting is thirty days of cash already gone. Catching it before submission is worth more than working it well afterwards.</p></div>
+      </div>
+    </div>
+
+    <div class="chain afade" id="chain">
+      <div class="chain-top">
+        <span class="lamp"></span>
+        <b>Zero-touch encounter</b>
+        <span class="touches">Human touches required <em>0</em></span>
+      </div>
+      <div class="chain-rail" id="chainRail">
+        <div class="chain-track"><i id="chainFill"></i><u id="chainDot"></u></div>
+        <div class="cnode"><span class="cw">08:12:04</span><h5>Appointment booked</h5><small>patient portal</small></div>
+        <div class="cnode"><span class="cw">+0.8 sec</span><h5>Coverage verified</h5><small>active · $0 due</small></div>
+        <div class="cnode"><span class="cw">day of visit</span><h5>Charges captured</h5><small>coded and validated</small></div>
+        <div class="cnode"><span class="cw">17:40</span><h5>Claim released</h5><small>142 edits passed</small></div>
+        <div class="cnode"><span class="cw">day 24</span><h5>Payment posted</h5><small>$196.00 · 0 variance</small></div>
+        <div class="cnode"><span class="cw">continuous</span><h5>Dashboard updated</h5><small>live to the second</small></div>
+      </div>
+    </div>
+
+    <div class="board afade">
+
+      <div class="sw" id="sw" role="tablist" aria-label="Automation capabilities">
+        <button class="swi on" role="tab" aria-selected="true">
+          <span class="n">01</span>
+          <h3>Slots fill themselves</h3>
+          <p>A cancellation backfills from the waitlist before anyone opens the notification.</p>
+          <div class="chips"><span>38% fewer no-shows</span><span>&lt;4 min backfill</span></div>
+          <span class="bar"></span>
+        </button>
+
+        <button class="swi" role="tab" aria-selected="false">
+          <span class="n">02</span>
+          <h3>Coverage checked at booking</h3>
+          <p>Fires the second a slot is created, again 48 hours out, again the morning of the visit.</p>
+          <div class="chips"><span>0.8s median</span><span>3 checks per visit</span></div>
+          <span class="bar"></span>
+        </button>
+        <button class="swi" role="tab" aria-selected="false">
+          <span class="n">03</span>
+          <h3>Charges captured and verified</h3>
+          <p>Documentation is read, codes are assigned and checked against payer policy before anything reaches billing.</p>
+          <div class="chips"><span>1.6s to code</span><span>0 provider queries</span></div>
+          <span class="bar"></span>
+        </button>
+
+        <button class="swi" role="tab" aria-selected="false">
+          <span class="n">04</span>
+          <h3>Claims out the same day</h3>
+          <p>142 payer rules run before release. Most flags repair themselves without a human.</p>
+          <div class="chips"><span>99.2% first-pass</span><span>71% auto-repaired</span></div>
+          <span class="bar"></span>
+        </button>
+
+        <button class="swi" role="tab" aria-selected="false">
+          <span class="n">05</span>
+          <h3>Remittances post themselves</h3>
+          <p>Payments match, adjustments categorise, and underpayments get flagged instead of swallowed.</p>
+          <div class="chips"><span>98.6% auto-posted</span><span>same-day close</span></div>
+          <span class="bar"></span>
+        </button>
+
+        <button class="swi" role="tab" aria-selected="false">
+          <span class="n">06</span>
+          <h3>You see it before it breaks</h3>
+          <p>Denial risk is scored before submission, and A/R is projected forward rather than reported backward.</p>
+          <div class="chips"><span>risk per claim</span><span>live to the second</span></div>
+          <span class="bar"></span>
+        </button>
+      </div>
+
+      <div class="stagebox" id="stagebox">
+
+        <div class="scene on" data-s="0">
+          <svg viewBox="0 0 480 320" aria-hidden="true">
+            <rect class="fw" x="46" y="40" width="300" height="200" rx="16" stroke="rgba(11,26,31,.10)"/>
+            <path class="sl" d="M46 78h300" opacity=".3"/>
+            <rect class="fg" x="72" y="98" width="58" height="30" rx="8"/>
+            <rect class="fb" x="142" y="98" width="58" height="30" rx="8" opacity=".22"/>
+            <rect class="fg" x="212" y="98" width="58" height="30" rx="8"/>
+            <rect class="fg" x="72" y="142" width="58" height="30" rx="8"/>
+            <rect class="slotOut" x="142" y="142" width="58" height="30" rx="8" fill="#5A6CFF"/>
+            <rect class="fg" x="212" y="142" width="58" height="30" rx="8"/>
+            <rect class="fg" x="72" y="186" width="58" height="30" rx="8"/>
+            <rect class="fb" x="212" y="186" width="58" height="30" rx="8" opacity=".22"/>
+            <circle class="fb" cx="171" cy="157" r="26" opacity=".2" class="ping"/>
+            <g class="slotIn">
+              <rect class="fa" x="300" y="142" width="132" height="34" rx="10" opacity=".14"/>
+              <rect class="fa" x="300" y="142" width="4" height="34" rx="2"/>
+              <circle class="fa" cx="322" cy="159" r="8"/>
+              <rect class="fa" x="338" y="152" width="60" height="6" rx="3" opacity=".55"/>
+              <rect class="fa" x="338" y="163" width="38" height="5" rx="2.5" opacity=".3"/>
+            </g>
+          </svg>
+          <div class="scene-cap"><i></i>Waitlist backfill · <b>seat refilled in 3m 12s</b> · no coordinator involved</div>
+        </div>
+
+        <div class="scene" data-s="1">
+          <svg viewBox="0 0 480 320" aria-hidden="true">
+            <circle class="fb wave3" cx="180" cy="150" r="110" opacity=".14"/>
+            <circle class="fa wave2" cx="180" cy="150" r="110" opacity=".16"/>
+            <circle class="fa wave1" cx="180" cy="150" r="110" opacity=".18"/>
+            <rect class="fw" x="96" y="106" width="172" height="104" rx="14" stroke="rgba(11,26,31,.12)"/>
+            <rect x="96" y="106" width="172" height="26" rx="14" fill="#0B1A1F"/>
+            <rect x="96" y="120" width="172" height="12" fill="#0B1A1F"/>
+            <rect class="fg" x="116" y="150" width="70" height="8" rx="4"/>
+            <rect class="fg" x="116" y="168" width="104" height="8" rx="4"/>
+            <rect class="fg" x="116" y="186" width="52" height="8" rx="4"/>
+            <g class="stamp" style="transform-origin:352px 150px">
+              <rect x="284" y="122" width="136" height="56" rx="12" fill="rgba(0,196,140,.14)" stroke="#00C48C" stroke-width="2"/>
+              <path class="sa" d="M304 150l9 9 16-19"/>
+              <text x="338" y="146" font-family="'JetBrains Mono',monospace" font-size="13" fill="#08745A" font-weight="500">ACTIVE</text>
+              <text x="338" y="166" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5A6E72">$0 due</text>
+            </g>
+          </svg>
+          <div class="scene-cap"><i></i>Verified at booking · <b>0.84s</b> · re-checked 48h out and morning of</div>
+        </div>
+
+        <div class="scene" data-s="2">
+          <svg viewBox="0 0 480 320" aria-hidden="true">
+            <rect class="fw" x="34" y="60" width="180" height="204" rx="13" stroke="rgba(11,26,31,.12)"/>
+            <rect x="34" y="60" width="180" height="30" rx="13" fill="#0B1A1F"/>
+            <rect x="34" y="76" width="180" height="14" fill="#0B1A1F"/>
+            <text x="52" y="81" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#7FE9C6">ENCOUNTER NOTE</text>
+            <rect class="fg" x="52" y="104" width="96" height="7" rx="3.5"/>
+            <rect class="fg" x="52" y="118" width="128" height="7" rx="3.5"/>
+            <rect class="fg" x="52" y="132" width="72" height="7" rx="3.5"/>
+            <rect class="fa s6scan" x="34" y="98" width="180" height="3" opacity="0"/>
+
+            <g class="s6a"><rect x="52" y="150" width="76" height="24" rx="7" fill="rgba(0,196,140,.16)" stroke="rgba(0,196,140,.45)"/><text x="64" y="166" font-family="'JetBrains Mono',monospace" font-size="11" fill="#08745A">99213</text></g>
+            <g class="s6b"><rect x="52" y="182" width="76" height="24" rx="7" fill="rgba(90,108,255,.16)" stroke="rgba(90,108,255,.45)"/><text x="62" y="198" font-family="'JetBrains Mono',monospace" font-size="11" fill="#3A45B8">E11.65</text></g>
+            <g class="s6c"><rect x="52" y="214" width="76" height="24" rx="7" fill="rgba(0,196,140,.16)" stroke="rgba(0,196,140,.45)"/><text x="66" y="230" font-family="'JetBrains Mono',monospace" font-size="11" fill="#08745A">mod 25</text></g>
+
+            <text x="268" y="82" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#5A6E72">VALIDATED</text>
+            <rect class="fg" x="268" y="96" width="176" height="28" rx="8"/>
+            <rect class="fg" x="268" y="136" width="176" height="28" rx="8"/>
+            <rect class="fg" x="268" y="176" width="176" height="28" rx="8"/>
+            <g class="s6s1"><rect x="268" y="96" width="176" height="28" rx="8" fill="rgba(0,196,140,.14)" stroke="rgba(0,196,140,.4)"/><text x="284" y="115" font-family="'JetBrains Mono',monospace" font-size="10.5" fill="#08745A">99213 · level supported</text><path d="M418 110l4 4 8-9" fill="none" stroke="#00C48C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+            <g class="s6s2"><rect x="268" y="136" width="176" height="28" rx="8" fill="rgba(0,196,140,.14)" stroke="rgba(0,196,140,.4)"/><text x="284" y="155" font-family="'JetBrains Mono',monospace" font-size="10.5" fill="#08745A">E11.65 · medically nec.</text><path d="M418 150l4 4 8-9" fill="none" stroke="#00C48C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+            <g class="s6s3"><rect x="268" y="176" width="176" height="28" rx="8" fill="rgba(0,196,140,.14)" stroke="rgba(0,196,140,.4)"/><text x="284" y="195" font-family="'JetBrains Mono',monospace" font-size="10.5" fill="#08745A">mod 25 · bundling clear</text><path d="M418 190l4 4 8-9" fill="none" stroke="#00C48C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+            <g class="s6badge">
+              <rect x="268" y="222" width="176" height="40" rx="11" fill="rgba(0,196,140,.10)" stroke="rgba(0,196,140,.35)"/>
+              <text x="286" y="239" font-family="'Sora',sans-serif" font-size="12" font-weight="600" fill="#08745A">Coded in 1.6s</text>
+              <text x="286" y="254" font-family="'JetBrains Mono',monospace" font-size="9.5" fill="#5A6E72">0 queries back to the provider</text>
+            </g>
+          </svg>
+          <div class="scene-cap"><i></i>Documentation read and coded · <b>3 codes validated</b> · nothing sent back to the clinician</div>
+        </div>
+
+        <div class="scene" data-s="3">
+          <svg viewBox="0 0 480 320" aria-hidden="true">
+            <rect class="fb scanline" x="196" y="72" width="6" height="176" rx="3" opacity=".5"/>
+            <rect class="fa scanline" x="204" y="72" width="2" height="176" rx="1" opacity=".7"/>
+            <g class="docPass">
+              <rect class="fw" x="60" y="106" width="106" height="132" rx="12" stroke="rgba(11,26,31,.14)"/>
+              <rect class="fg" x="80" y="130" width="60" height="7" rx="3.5"/>
+              <rect class="fg" x="80" y="148" width="66" height="7" rx="3.5"/>
+              <rect class="fg" x="80" y="166" width="40" height="7" rx="3.5"/>
+              <rect class="fa" x="80" y="196" width="46" height="20" rx="6" opacity=".2"/>
+            </g>
+            <g transform="translate(300,96)">
+              <rect class="tk fa" x="0" y="0" width="120" height="18" rx="6" opacity=".16"/>
+              <rect class="tk tk2 fa" x="0" y="26" width="120" height="18" rx="6" opacity=".16"/>
+              <rect class="tk tk3 fa" x="0" y="52" width="120" height="18" rx="6" opacity=".16"/>
+              <rect class="tk tk4 fa" x="0" y="78" width="120" height="18" rx="6" opacity=".16"/>
+              <rect class="tk tk5 fa" x="0" y="104" width="120" height="18" rx="6" opacity=".16"/>
+            </g>
+            <text x="300" y="250" font-family="'JetBrains Mono',monospace" font-size="12" fill="#08745A">142 / 142 rules</text>
+          </svg>
+          <div class="scene-cap"><i></i>Scrubbed and released · <b>0 rejections</b> · out by 18:00 on the date of service</div>
+        </div>
+
+        <div class="scene" data-s="3">
+          <svg viewBox="0 0 480 320" aria-hidden="true">
+            <ellipse class="fb coin1" cx="120" cy="196" rx="52" ry="15" opacity=".85"/>
+            <ellipse class="fa coin2" cx="120" cy="166" rx="52" ry="15" opacity=".7"/>
+            <ellipse class="fa coin3" cx="120" cy="136" rx="52" ry="15"/>
+            <path class="sl" d="M52 214v22a10 10 0 0010 10h116a10 10 0 0010-10v-22"/>
+            <circle class="fg" cx="330" cy="210" r="76"/>
+            <path class="sa gauge" d="M270 210a60 60 0 01120 0" style="stroke-dasharray:190;stroke-dashoffset:0" opacity=".35"/>
+            <g class="needle"><path class="sb" d="M330 210l0-48" stroke-width="4"/><circle class="fb" cx="330" cy="210" r="7"/></g>
+            <text x="330" y="244" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#08745A">variance $0.00</text>
+          </svg>
+          <div class="scene-cap"><i></i>Matched and posted · <b>$1,376.00</b> · contractual adjustment categorised automatically</div>
+        </div>
+
+        <div class="scene" data-s="4">
+          <svg viewBox="0 0 480 320" aria-hidden="true">
+            <path class="sl" d="M60 244h360" opacity=".25"/>
+            <rect class="fa rb1" x="86" y="124" width="40" height="120" rx="8" style="transform-origin:bottom" opacity=".85"/>
+            <rect class="fb rb2" x="146" y="124" width="40" height="120" rx="8" style="transform-origin:bottom" opacity=".55"/>
+            <rect class="fa rb3" x="206" y="124" width="40" height="120" rx="8" style="transform-origin:bottom" opacity=".7"/>
+            <rect class="fb rb4" x="266" y="124" width="40" height="120" rx="8" style="transform-origin:bottom" opacity=".45"/>
+            <path class="sb fcast" d="M96 190C150 176 200 150 250 138s70-30 116-42" stroke-dasharray="6 7"/>
+            <circle class="fb" cx="366" cy="96" r="7"/>
+            <rect class="fw" x="316" y="150" width="112" height="62" rx="12" stroke="rgba(11,26,31,.12)"/>
+            <text x="332" y="174" font-family="'JetBrains Mono',monospace" font-size="11" fill="#5A6E72">risk today</text>
+            <text x="332" y="196" font-family="'Sora',sans-serif" font-size="19" font-weight="600" fill="#00C48C">2.1%</text>
+          </svg>
+          <div class="scene-cap"><i></i>Root causes re-ranked by dollars · <b>forecast, not a rear-view report</b></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="proof afade">
+      <div><b>0</b><small>Human touches from booking to posted payment</small></div>
+      <div><b>40 min</b><small>Staff time returned per encounter</small></div>
+      <div><b>11.4 days</b><small>Average A/R, down from 31</small></div>
+      <div><b>100%</b><small>Of your data, visible and exportable</small></div>
+    </div>
+
+    <div class="own afade">
+      <strong>Your data stays in your hands.</strong>
+      <span>Full CSV and API export</span>
+      <span>Read-only warehouse sync</span>
+      <span>Every automated decision shows its reasoning</span>
+    </div>
+
+    <div class="auto-cta afade">
+      <a href="#contact" class="cta btn-lg">See it on your own data
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></i>
+      </a>
+      <a href="#services" class="ghost2">Walk through the workflow</a>
+    </div>
+
+  </div>
+</section>
+
+<section class="comply" id="compliance">
+  <div class="cwrap">
+
+    <div class="comply-head">
+      <span class="kicker">Trust and compliance</span>
+      <h2>Handling protected health information is the boring part. We take it seriously anyway.</h2>
+      <p>Every claim we touch carries PHI. That means the controls around it matter as much as the throughput. Here is what is audited, what is encrypted, who can see what, and what happens if something goes wrong.</p>
+    </div>
+
+    <div class="seals" id="seals">
+      <article class="seal">
+        <span class="status">Current</span>
+        <svg class="seal-emblem" viewBox="0 0 48 48" aria-hidden="true">
+          <circle class="outer" cx="24" cy="24" r="21"/>
+          <circle class="inner" cx="24" cy="24" r="15"/>
+          <path d="M24 15l7 3v6.5c0 4.4-3 7.4-7 8.5-4-1.1-7-4.1-7-8.5V18z"/>
+          <path d="M21.4 23.6l2 2 3.4-4"/>
+        </svg>
+        <h3>HIPAA</h3>
+        <p>Security, Privacy, and Breach Notification Rules. A Business Associate Agreement is signed before a single record moves.</p>
+      </article>
+
+      <article class="seal">
+        <span class="status">Type II</span>
+        <svg class="seal-emblem" viewBox="0 0 48 48" aria-hidden="true">
+          <circle class="outer" cx="24" cy="24" r="21"/>
+          <circle class="inner" cx="24" cy="24" r="15"/>
+          <path d="M18 24.5l4 4 8-9"/>
+          <path d="M17 32h14"/>
+        </svg>
+        <h3>SOC 2 Type II</h3>
+        <p>Security, availability, and confidentiality controls tested by an independent auditor across a full 12-month window.</p>
+      </article>
+
+      <article class="seal">
+        <span class="status">r2 certified</span>
+        <svg class="seal-emblem" viewBox="0 0 48 48" aria-hidden="true">
+          <circle class="outer" cx="24" cy="24" r="21"/>
+          <circle class="inner" cx="24" cy="24" r="15"/>
+          <rect x="18" y="23" width="12" height="9" rx="2"/>
+          <path d="M20.5 23v-3a3.5 3.5 0 017 0v3"/>
+        </svg>
+        <h3>HITRUST CSF</h3>
+        <p>The healthcare-specific framework that maps HIPAA, NIST, and ISO into one certifiable set of controls.</p>
+      </article>
+
+      <article class="seal">
+        <span class="status">5010</span>
+        <svg class="seal-emblem" viewBox="0 0 48 48" aria-hidden="true">
+          <circle class="outer" cx="24" cy="24" r="21"/>
+          <circle class="inner" cx="24" cy="24" r="15"/>
+          <path d="M21 19l-4 5 4 5M27 19l4 5-4 5"/>
+        </svg>
+        <h3>X12 5010</h3>
+        <p>Certified against the HIPAA-mandated transaction formats for eligibility, claims, status, and remittance.</p>
+      </article>
+    </div>
+
+    <div class="ctrl">
+      <div class="ctrl-list" id="ctrlList" role="tablist" aria-label="Compliance controls">
+        <button class="ctrl-btn on" role="tab" aria-selected="true" aria-controls="cp0"><span class="n">01</span>Encryption and data handling<span class="bar"></span></button>
+        <button class="ctrl-btn" role="tab" aria-selected="false" aria-controls="cp1"><span class="n">02</span>Access control<span class="bar"></span></button>
+        <button class="ctrl-btn" role="tab" aria-selected="false" aria-controls="cp2"><span class="n">03</span>Audit trail<span class="bar"></span></button>
+        <button class="ctrl-btn" role="tab" aria-selected="false" aria-controls="cp3"><span class="n">04</span>Vendors and BAAs<span class="bar"></span></button>
+        <button class="ctrl-btn" role="tab" aria-selected="false" aria-controls="cp4"><span class="n">05</span>Incident response<span class="bar"></span></button>
+      </div>
+
+      <div class="ctrl-panel">
+
+        <div class="cpane on" id="cp0" role="tabpanel">
+          <div class="cpane-top">
+            <div class="cpane-ico"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <rect class="st" x="7" y="14" width="18" height="12" rx="3"/>
+              <path class="st" d="M11 14v-3.5a5 5 0 0110 0V14"/>
+              <circle class="ac puls" cx="16" cy="20" r="2.4"/>
+            </svg></div>
+            <div><h3>Encryption and data handling</h3>
+              <p class="sub">PHI is encrypted before it leaves your network and stays encrypted at rest. It never appears anywhere it can leak.</p></div>
+          </div>
+          <ul>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>TLS 1.3 in transit, AES-256 at rest.</b> No unencrypted transport is accepted, including from legacy practice management systems.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Keys held in a managed HSM</b> with scheduled rotation and separation from the systems that use them.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>No PHI in URLs, logs, or error reports.</b> Identifiers are tokenized before anything reaches observability tooling.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>US-only data residency.</b> Storage and processing stay within US regions, including backups.</span></li>
+          </ul>
+        </div>
+
+        <div class="cpane" id="cp1" role="tabpanel">
+          <div class="cpane-top">
+            <div class="cpane-ico"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <circle class="st" cx="12" cy="12" r="5"/>
+              <path class="st" d="M4 27c0-5 3.6-8 8-8s8 3 8 8"/>
+              <path class="ac puls" d="M21 13h7M25 9l4 4-4 4"/>
+            </svg></div>
+            <div><h3>Access control</h3>
+              <p class="sub">The smallest number of people who can do the job, for the shortest time they need it.</p></div>
+          </div>
+          <ul>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>SSO and enforced MFA</b> on every account. SAML and SCIM provisioning so offboarding is immediate.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Role-based least privilege.</b> Billing staff, providers, and administrators each see only the records their role requires.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Just-in-time production access.</b> Engineer access is time-boxed, approved, and expires automatically.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Quarterly access reviews</b> with an exportable record for your own audits.</span></li>
+          </ul>
+        </div>
+
+        <div class="cpane" id="cp2" role="tabpanel">
+          <div class="cpane-top">
+            <div class="cpane-ico"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path class="st" d="M8 5h12l5 5v17a2 2 0 01-2 2H8a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+              <path class="st" d="M19 5v6h6"/>
+              <path class="ac puls" d="M11 18h11M11 23h7"/>
+            </svg></div>
+            <div><h3>Audit trail</h3>
+              <p class="sub">Every read and write against a record is logged, immutably, with enough context to answer an OCR request.</p></div>
+          </div>
+          <ul>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Actor, timestamp, record, and reason</b> captured on every PHI access — including our own staff.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Write-once retention for seven years,</b> beyond the six-year HIPAA documentation requirement.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Self-serve export.</b> Pull a full access history for any patient or date range without opening a ticket.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Anomaly alerts</b> on unusual volume, off-hours access, or bulk record retrieval.</span></li>
+          </ul>
+        </div>
+
+        <div class="cpane" id="cp3" role="tabpanel">
+          <div class="cpane-top">
+            <div class="cpane-ico"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <circle class="st" cx="16" cy="16" r="11"/>
+              <path class="ac spin" d="M16 5v4M16 23v4M5 16h4M23 16h4"/>
+              <path class="st" d="M12 16l3 3 5-6"/>
+            </svg></div>
+            <div><h3>Vendors and BAAs</h3>
+              <p class="sub">Your obligations do not stop at our door, so neither do ours. Every downstream party is under contract.</p></div>
+          </div>
+          <ul>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>A signed BAA with every customer</b> and with every subprocessor that could touch PHI.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Published subprocessor list</b> with advance notice before anyone is added.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Annual vendor security review,</b> including clearinghouse and payer connectivity partners.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Contractual deletion on exit.</b> Your data is returned or destroyed on a defined schedule, with certification.</span></li>
+          </ul>
+        </div>
+
+        <div class="cpane" id="cp4" role="tabpanel">
+          <div class="cpane-top">
+            <div class="cpane-ico"><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path class="st" d="M16 4l11 4v9c0 7-4.6 10.8-11 12.6C9.6 27.8 5 24 5 17V8z"/>
+              <path class="ac puls" d="M16 11v7M16 21.5h.01"/>
+            </svg></div>
+            <div><h3>Incident response</h3>
+              <p class="sub">Rehearsed, documented, and time-bound. You hear from a person, not a status page.</p></div>
+          </div>
+          <ul>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>24/7 monitoring</b> with on-call escalation and defined severity tiers.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Customer notice within 72 hours</b> of confirming an incident affecting your data — well inside HIPAA's 60-day breach notification window.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Annual tabletop exercises</b> and a post-incident report shared with affected customers.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Tested disaster recovery</b> with a one-hour recovery point and four-hour recovery time objective.</span></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="cstats">
+      <div class="cstat"><span>99.99%</span><small>Platform availability, measured monthly</small></div>
+      <div class="cstat"><span>7 years</span><small>Immutable audit log retention</small></div>
+      <div class="cstat"><span>AES-256</span><small>At rest, TLS 1.3 in transit</small></div>
+      <div class="cstat"><span>Zero</span><small>PHI written to logs or URLs</small></div>
+    </div>
+
+    <p class="cnote">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5h8l4 4v11a1 1 0 01-1 1H8a1 1 0 01-1-1V6a1 1 0 011-1z"/><path d="M11 13h5M11 17h3"/></svg>
+      Security documentation, the current SOC 2 report, and our subprocessor list are available under NDA — ask your account contact.
+    </p>
+
+  </div>
+</section>
+
+</main>
+
+<section class="contact" id="contact">
+  <div class="cnwrap">
+
+    <div class="cn-copy">
+      <span class="kicker">Contact</span>
+      <h2>Start with the numbers, <em>not the sales call</em>.</h2>
+      <p class="cn-lede">Send us three days of claim data and we will come back with what your current process is missing — before any contract exists, and whether or not you go ahead with us.</p>
+
+      <div class="cn-steps">
+        <div class="cn-step"><b>1</b><div><strong>You send a sample</strong><p>A short export from your practice management system. We sign the BAA before anything moves.</p></div></div>
+        <div class="cn-step"><b>2</b><div><strong>We run the analysis</strong><p>Three business days. Denial causes ranked by dollars, payer behaviour, and where your A/R is actually stuck.</p></div></div>
+        <div class="cn-step"><b>3</b><div><strong>You keep it</strong><p>The findings are yours regardless of what you decide next. No obligation attached.</p></div></div>
+      </div>
+
+      <div class="cn-direct">
+        <a href="mailto:hello@revifyrcm.com"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>hello@revifyrcm.com</a>
+        <a href="tel:+18005550142"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>+1 (800) 555-0142</a>
+        <a href="#compliance"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg>Security docs under NDA</a>
+      </div>
+    </div>
+
+    <form class="cform" id="cform" name="contact" method="POST" data-netlify="true" netlify-honeypot="company-website">
+      <input type="hidden" name="form-name" value="contact">
+      <p hidden><label>Leave blank <input name="company-website"></label></p>
+
+      <div class="fbody">
+        <h3>Request your discovery analysis</h3>
+        <p>We reply within one business day.</p>
+
+        <div class="frow">
+          <label class="fld"><span>Full name <i>*</i></span><input type="text" name="name" required placeholder="Dana Whitfield"></label>
+          <label class="fld"><span>Work email <i>*</i></span><input type="email" name="email" required placeholder="dana@practice.com"></label>
+        </div>
+        <div class="frow">
+          <label class="fld"><span>Practice or organisation <i>*</i></span><input type="text" name="organisation" required placeholder="Northside Medical Group"></label>
+          <label class="fld"><span>Phone</span><input type="tel" name="phone" placeholder="Optional"></label>
+        </div>
+        <div class="frow">
+          <label class="fld"><span>Specialty</span><input type="text" name="specialty" placeholder="Family medicine, cardiology…"></label>
+          <label class="fld"><span>Monthly claim volume</span>
+            <select name="volume">
+              <option value="">Select a range</option>
+              <option>Under 1,000</option><option>1,000 – 5,000</option>
+              <option>5,000 – 20,000</option><option>Over 20,000</option>
+            </select></label>
+        </div>
+        <label class="fld"><span>What is hurting most right now?</span><textarea name="message" placeholder="Denials we cannot explain, A/R creeping past 45 days, eligibility eating the front desk…"></textarea></label>
+
+        <button type="submit">Request the analysis
+          <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="fine">Protected health information is never sent through this form. We will share a secure transfer link before you send any data.</p>
+      </div>
+
+      <div class="csent">
+        <div class="ok"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+        <b>Request received</b>
+        <p>We will reply within one business day with a BAA and a secure link for your sample export.</p>
+      </div>
+    </form>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="ftwrap">
+
+    <div class="ftgrid">
+      <div class="ftbrand">
+        <a href="index.html" class="logo" aria-label="Revify RCM home">
+          <img class="logo-mark" src="assets/logo-64.png" alt="ReviFlow RCM">
+          <span class="logo-text">Revify<span class="rcm">RCM</span></span>
+        </a>
+        <p>Revenue cycle infrastructure for practices and hospitals that would rather treat patients than chase payers.</p>
+        <div class="ftbadges">
+          <span>HIPAA compliant</span>
+          <span>SOC 2 Type II</span>
+          <span>X12 5010</span>
+        </div>
+      </div>
+
+      <nav class="ftcol" aria-label="Platform">
+        <h4>Platform</h4>
+        <a href="index.html#services">How it works</a>
+        <a href="index.html#automation">Automation</a>
+        <a href="index.html#about">Why Revify</a>
+        <a href="index.html#compliance">Compliance</a>
+      </nav>
+
+      <nav class="ftcol" aria-label="Company">
+        <h4>Company</h4>
+        <a href="resources.html">Resources</a>
+        <a href="insights.html">Insights</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="mailto:careers@revifyrcm.com">Careers</a>
+      </nav>
+
+      <nav class="ftcol" aria-label="Get in touch">
+        <h4>Get in touch</h4>
+        <a href="mailto:hello@revifyrcm.com">hello@revifyrcm.com</a>
+        <a href="tel:+18005550142">+1 (800) 555-0142</a>
+        <a href="index.html#contact">Request discovery</a>
+        <a href="index.html#compliance">Security docs</a>
+      </nav>
+    </div>
+
+    <div class="ftbase">
+      <p>© 2026 Revify RCM. All rights reserved.</p>
+      <div class="ftlegal">
+        <a href="#">Privacy policy</a>
+        <a href="#">Terms of service</a>
+        <a href="#">HIPAA notice</a>
+        <a href="#">Subprocessors</a>
+      </div>
+      <div class="ftright">
+        <a class="ftsoc" href="#" aria-label="Revify RCM on LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 11-.01 5.001A2.5 2.5 0 014.98 3.5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-.95 1.83-1.95 3.75-1.95 4 0 4.4 2.5 4.4 5.8V21h-4v-5.5c0-1.3-.02-3-1.9-3-1.9 0-2.2 1.45-2.2 2.9V21H9z"/></svg></a>
+        <a class="ftsoc" href="#" aria-label="Revify RCM on X"><svg viewBox="0 0 24 24"><path d="M17.5 3h3.2l-7 8 8.2 10h-6.4l-5-6.1L4.7 21H1.5l7.5-8.6L1.2 3h6.6l4.5 5.6zm-1.1 16h1.8L7.7 4.8H5.8z"/></svg></a>
+        <a class="fttop" href="#top"><svg viewBox="0 0 24 24"><path d="M12 19V6M6 12l6-6 6 6"/></svg>Back to top</a>
+      </div>
+    </div>
+
+  </div>
+  <span class="ftmark" aria-hidden="true">REVIFY RCM</span>
+</footer>
+
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var header=document.getElementById('header'),nav=document.getElementById('nav'),
+      pill=document.getElementById('navPill'),
+      links=Array.prototype.slice.call(nav.querySelectorAll('.nav-link')),
+      burger=document.getElementById('burger'),drawer=document.getElementById('drawer');
+
+  var ticking=false;
+  function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(function(){header.classList.toggle('scrolled',window.scrollY>24);ticking=false;});}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  var RADIUS=150,MAXSCALE=.24,rects=[],raf=null;
+  function measure(){var b=nav.getBoundingClientRect();rects=links.map(function(l){var r=l.getBoundingClientRect();return{el:l,center:r.left+r.width/2};});}
+  function resetNav(){rects.forEach(function(r){r.el.style.transform='';r.el.classList.remove('is-near');});pill.style.opacity='0';}
+  function applyNav(x){rects.forEach(function(r){var d=Math.abs(x-r.center),t=Math.max(0,1-d/RADIUS),f=t*t*(3-2*t);r.el.style.transform='scale('+(1+MAXSCALE*f).toFixed(4)+') translateY('+(-4*f).toFixed(2)+'px)';r.el.classList.toggle('is-near',f>.45);});}
+  measure();
+  var rT;window.addEventListener('resize',function(){clearTimeout(rT);resetNav();rT=setTimeout(function(){measure();placeDot();},130);});
+  if(!reduce&&window.matchMedia('(hover: hover)').matches){
+    nav.addEventListener('mousemove',function(e){if(raf)return;raf=requestAnimationFrame(function(){applyNav(e.clientX);raf=null;});});
+    nav.addEventListener('mouseleave',resetNav);
+  }
+  links.forEach(function(l){
+    l.addEventListener('mouseenter',function(){var b=nav.getBoundingClientRect(),r=l.getBoundingClientRect();pill.style.left=(r.left-b.left)+'px';pill.style.width=r.width+'px';pill.style.opacity='1';});
+    l.addEventListener('click',function(){links.forEach(function(x){x.classList.remove('is-active');});l.classList.add('is-active');});
+  });
+  function setDrawer(o){
+    drawer.classList.toggle('open',o);burger.classList.toggle('open',o);
+    burger.setAttribute('aria-expanded',String(o));burger.setAttribute('aria-label',o?'Close menu':'Open menu');
+    document.body.style.overflow=o?'hidden':'';
+    drawer.querySelectorAll('a').forEach(function(a,i){a.style.transitionDelay=o?(.05+i*.05)+'s':'0s';});
+  }
+  burger.addEventListener('click',function(){setDrawer(!drawer.classList.contains('open'));});
+  drawer.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){setDrawer(false);});});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')setDrawer(false);});
+  window.addEventListener('resize',function(){if(window.innerWidth>840&&drawer.classList.contains('open'))setDrawer(false);});
+
+  var copy=document.getElementById('heroCopy'),visual=document.getElementById('heroVisual');
+  setTimeout(function(){copy.classList.add('in');},120);
+  setTimeout(function(){visual.classList.add('in');},280);
+
+  var consoleEl=document.getElementById('console');
+  if(!reduce&&window.matchMedia('(hover: hover)').matches){
+    visual.addEventListener('mousemove',function(e){
+      if(window.innerWidth<=1000)return;
+      var r=visual.getBoundingClientRect();
+      var px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;
+      consoleEl.style.transform='rotateY('+(px*5).toFixed(2)+'deg) rotateX('+(-py*4).toFixed(2)+'deg)';
+    });
+    visual.addEventListener('mouseleave',function(){consoleEl.style.transform='';});
+  }
+
+  var counted=false;
+  function runCounters(){
+    if(counted)return;counted=true;
+    document.querySelectorAll('.stat span').forEach(function(el){
+      var end=parseFloat(el.dataset.count),suf=el.dataset.suffix||'',t0=null,dur=1600;
+      if(reduce){el.textContent=(end>999?end.toLocaleString():end)+suf;return;}
+      function tick(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3),v=Math.round(end*e);
+        el.textContent=(end>999?v.toLocaleString():v)+suf;if(p<1)requestAnimationFrame(tick);}
+      requestAnimationFrame(tick);
+    });
+  }
+
+  var SCENES=[
+    {step:0,title:'eligibility check',lat:'842 ms',
+     x12:'NM1*IL*1*DOE*JANE****MI*1AA2CC3DD45~\nDMG*D8*19550505~\nEQ*30~',
+     head:'Active coverage confirmed',tag:'medicare part b',
+     rows:[['Plan','Part A & B'],['Deductible','$0 remaining'],['Office copay','$0.00'],['Checked','2 days pre-visit']]},
+    {step:1,title:'claim submission',lat:'1.14 s',
+     x12:'CLM*PCN88412*245.00***11:B:1*Y*A*Y~\nHI*ABK:E1165~\nSV1*HC:99213*245.00*UN*1~',
+     head:'Accepted on first pass',tag:'clean claim',
+     rows:[['Charge','$245.00'],['Payer edits','142 passed'],['Rejections','0'],['Time to payer','1.1 s']]},
+    {step:2,title:'claim status',lat:'610 ms',
+     x12:'TRN*1*PCN88412~\nDTP*472*RD8*20260712-20260712~',
+     head:'Finalized — payment issued',tag:'adjudicated',
+     rows:[['Adjudicated','Jul 21, 2026'],['Allowed','$196.00'],['EFT trace','9924418'],['Staff calls','0']]},
+    {step:3,title:'remittance posting',lat:'auto-posted',
+     x12:'CLP*PCN88412*1*245.00*196.00**MC*94411~\nCAS*CO*45*49.00~',
+     head:'Posted without a keystroke',tag:'0 variance',
+     rows:[['Paid','$196.00'],['Contractual','CO-45 · $49.00'],['Patient owes','$0.00'],['Posting lag','none']]},
+    {step:4,title:'denial appeal',lat:'flagged in 4 s',
+     x12:'CLP*PCN90277*4*1180.00*0.00**MC*94533~\nCAS*CO*197*1180.00~',
+     head:'Appeal drafted and queued',tag:'prior auth',
+     rows:[['At risk','$1,180.00'],['Root cause','auth not on file'],['Overturn odds','78%'],['Packet','ready to send']]}
+  ];
+
+  var elX12=document.getElementById('cX12'),elRes=document.getElementById('cResult'),
+      elLat=document.getElementById('cLat'),elTitle=document.getElementById('cTitle'),
+      elProg=document.getElementById('cProg'),elDot=document.getElementById('cDot'),
+      stps=Array.prototype.slice.call(document.getElementById('cSteps').children),
+      elSpark=document.getElementById('cSpark'),elTps=document.getElementById('cTps'),
+      current=0;
+
+  function placeDot(){
+    if(!elDot)return;
+    var track=elDot.parentNode,tr=track.getBoundingClientRect(),s=stps[current].getBoundingClientRect();
+    elDot.style.left=Math.max(0,(s.left+s.width/2)-tr.left-4)+'px';
+  }
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function paint(s){
+    elRes.innerHTML='<div class="result-top"><span class="pip"></span><h4>'+s.head+'</h4><span class="tag">'+s.tag+'</span></div>'+
+      s.rows.map(function(r,i){return '<dl class="rrow" style="transition-delay:'+(.08+i*.08)+'s"><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd></dl>';}).join('');
+  }
+  async function play(){
+    var i=0;
+    while(true){
+      var s=SCENES[i];current=s.step;
+      elTitle.textContent='revify · '+s.title;
+      stps.forEach(function(st,n){st.classList.toggle('on',n===s.step);st.classList.toggle('done',n<s.step);});
+      placeDot();
+      elLat.classList.remove('show');elRes.classList.remove('show');
+      elProg.style.transition='none';elProg.style.width='0%';
+      elX12.innerHTML='<span class="scan"></span>';
+      var txt=s.x12,out='';
+      for(var c=0;c<txt.length;c++){
+        out+=txt[c];
+        elX12.innerHTML='<span class="scan"></span>'+out+'<span class="cur"></span>';
+        await sleep(txt[c]==='\n'?70:10);
+      }
+      elX12.innerHTML='<span class="scan run"></span>'+out;
+      await sleep(600);
+      elLat.textContent=s.lat;elLat.classList.add('show');
+      paint(s);await sleep(30);elRes.classList.add('show');
+      elProg.style.transition='width 3.4s linear';elProg.style.width='100%';
+      await sleep(3500);
+      i=(i+1)%SCENES.length;
+    }
+  }
+  function staticState(){
+    var s=SCENES[0];current=0;
+    elTitle.textContent='revify · '+s.title;
+    stps.forEach(function(st,n){st.classList.toggle('on',n===0);});
+    placeDot();elX12.textContent=s.x12;
+    elLat.textContent=s.lat;elLat.classList.add('show');
+    paint(s);elRes.classList.add('show');
+  }
+  var sp=[];for(var k=0;k<26;k++)sp.push(10+Math.random()*11);
+  function drawSpark(){
+    elSpark.setAttribute('points',sp.map(function(v,n){return (n*(200/(sp.length-1))).toFixed(1)+','+(26-v).toFixed(1);}).join(' '));
+  }
+  drawSpark();
+  if(!reduce){
+    setInterval(function(){
+      sp.shift();sp.push(9+Math.random()*12);drawSpark();
+      elTps.textContent=(1180+Math.floor(Math.random()*260)).toLocaleString()+' txn/min';
+    },1400);
+  }
+  var started=false;
+  var io=new IntersectionObserver(function(en){
+    en.forEach(function(e){
+      if(!e.isIntersecting)return;
+      runCounters();
+      if(!started){started=true;placeDot();reduce?staticState():play();}
+    });
+  },{threshold:.2});
+  io.observe(consoleEl);
+  io.observe(document.querySelector('.stats'));
+  window.addEventListener('load',placeDot);
+})();
+</script>
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var ACTS=[
+    {no:'01',time:'09:38 — check-in',badge:'Eligibility check',
+     title:'Maria hands over her card.',
+     text:'Before she sits down, Revify has asked her payer what is active, what is left on the deductible, and what she owes at the desk. <b>Your front desk collects the right amount the first time.</b>',
+     chips:['Real-time verification','Coverage discovery','Patient responsibility','Pre-visit batches'],
+     rows:[['ok','Coverage request sent to payer','0.31s'],
+           ['ok','Active coverage confirmed · Part A &amp; B','0.84s'],
+           ['ok','Patient owes today: $0.00','0.86s']],
+     value:'842 ms',label:'coverage answer'},
+
+    {no:'02',time:'10:04 — visit closes',badge:'Coding',
+     title:'The visit becomes a coded claim.',
+     text:'Documentation is parsed, procedure and diagnosis codes are validated against payer policy, and modifiers are checked before anything is billed. <b>Coding errors get caught here, not on a denial letter.</b>',
+     chips:['CPT and ICD-10 validation','NCCI edits','Modifier logic','Medical necessity checks'],
+     rows:[['ok','Encounter documentation parsed','1.2s'],
+           ['ok','99213 · E11.65 validated against policy','1.6s'],
+           ['ok','Modifier and bundling checks passed','1.9s']],
+     value:'100%',label:'codes validated'},
+
+    {no:'03',time:'10:06 — same morning',badge:'Claim submission',
+     title:'The claim leaves clean.',
+     text:'Revify assembles the claim from your charge data, runs it against payer-specific edits, and repairs what would have bounced. <b>It reaches the payer the same morning the patient walked out.</b>',
+     chips:['Professional and institutional','142 payer edits','Auto-repair','Attachment handling'],
+     rows:[['ok','Claim assembled · $245.00','2.1s'],
+           ['ok','142 payer edits applied · 0 repairs needed','2.4s'],
+           ['ok','Delivered and acknowledged','2.6s']],
+     value:'0',label:'rejections'},
+
+    {no:'04',time:'day 1 – day 14',badge:'Clearinghouse monitoring',
+     title:'Every hop is watched.',
+     text:'The claim is tracked from clearinghouse to payer intake to adjudication. If it stalls at any hop, Revify knows before you would have. <b>Nobody on your team sits on hold.</b>',
+     chips:['Hop-level tracking','Acknowledgment matching','Stall alerts','Zero hold time'],
+     rows:[['ok','Clearinghouse hop accepted','day 1'],
+           ['ok','Payer intake confirmed','day 2'],
+           ['ok','Adjudication in progress · watch set','day 3']],
+     value:'0',label:'payer calls made'},
+
+    {no:'05',time:'day 19',badge:'A/R follow-up',
+     title:'Nothing ages quietly.',
+     text:'A second claim comes back short-paid — prior authorization missing. Revify names the root cause, scores how likely it is to overturn, and drafts the appeal. <b>The worklist arrives already solved.</b>',
+     chips:['Aging by payer','Root-cause tagging','Overturn scoring','Auto-drafted appeals'],
+     rows:[['warn','Denial detected · $1,180.00 at risk','day 19'],
+           ['ok','Root cause: authorization not on file','day 19'],
+           ['ok','Appeal packet drafted · 78% overturn odds','day 19']],
+     value:'78%',label:'overturn probability'},
+
+    {no:'06',time:'day 26',badge:'Payment posting',
+     title:'The money lands and posts itself.',
+     text:'Remittances match back to their claims, contractual adjustments are categorized, and balances move without anyone keying a line. <b>Your ledger closes the day the payment clears.</b>',
+     chips:['Auto-posting','EFT reconciliation','Underpayment flags','Same-day close'],
+     rows:[['ok','Remittance matched to 2 claims','day 26'],
+           ['ok','Contractual adjustment categorized','day 26'],
+           ['ok','$1,376.00 posted · variance $0.00','day 26']],
+     value:'$1,376',label:'collected, no rework'},
+
+    {no:'07',time:'month close',badge:'Reporting',
+     title:'You see exactly why the money moved.',
+     text:'Denials ranked by dollar impact, payer scorecards refreshed, and the preventable causes routed back to the front desk. <b>Next month starts cleaner than this one did.</b>',
+     chips:['Denial analytics','Payer scorecards','A/R aging trends','Prevention feedback'],
+     rows:[['ok','Denial reasons ranked by dollar impact','close'],
+           ['ok','Payer scorecards refreshed','close'],
+           ['ok','Root causes routed back to intake','close']],
+     value:'11 days',label:'average A/R'}
+  ];
+
+  var scroll=document.getElementById('reelScroll');
+  if(!scroll)return;
+
+  var elNo=document.getElementById('actNo'),elBadge=document.getElementById('actBadge'),
+      elTitle=document.getElementById('actTitle'),elText=document.getElementById('actText'),
+      elChips=document.getElementById('actChips'),elRows=document.getElementById('engRows'),
+      elStep=document.getElementById('engStep'),
+      frames=Array.prototype.slice.call(document.querySelectorAll('.frame')),
+      steps=Array.prototype.slice.call(document.getElementById('engSteps').children),
+      fades=Array.prototype.slice.call(document.querySelectorAll('.act-fade')),
+      railFill=document.getElementById('railFill'),railTrack=document.getElementById('railTrack'),
+      railValue=document.getElementById('railValue'),railLabel=document.getElementById('railLabel');
+
+  ACTS.forEach(function(a,i){
+    var b=document.createElement('b');
+    b.style.left=(i/(ACTS.length-1)*100)+'%';
+    railTrack.appendChild(b);
+  });
+  var pips=Array.prototype.slice.call(railTrack.querySelectorAll('b'));
+  var current=-1,rowTimers=[];
+
+  function paintRows(rows){
+    rowTimers.forEach(clearTimeout);rowTimers=[];
+    elRows.innerHTML=rows.map(function(r){
+      return '<div class="erow '+r[0]+'"><span class="pip"></span><p>'+r[1]+'</p><span class="t">'+r[2]+'</span></div>';
+    }).join('');
+    var items=elRows.querySelectorAll('.erow');
+    items.forEach(function(el,i){
+      if(reduce){el.classList.add('on');return;}
+      rowTimers.push(setTimeout(function(){el.classList.add('on');},180+i*260));
+    });
+  }
+
+  function setAct(i){
+    if(i===current)return;
+    current=i;
+    var a=ACTS[i];
+
+    fades.forEach(function(f){f.classList.remove('on');});
+    setTimeout(function(){
+      elNo.innerHTML='Act <b>'+a.no+'</b> — '+a.time;
+      elBadge.textContent=a.badge;
+      elTitle.textContent=a.title;
+      elText.innerHTML=a.text;
+      elChips.innerHTML=a.chips.map(function(c){return '<span>'+c+'</span>';}).join('');
+      fades.forEach(function(f,n){f.style.transitionDelay=(n*0.055)+'s';f.classList.add('on');});
+    },reduce?0:170);
+
+    frames.forEach(function(f,n){f.classList.toggle('on',n===i);});
+    steps.forEach(function(s,n){s.classList.toggle('on',n===i);s.classList.toggle('done',n<i);});
+    elStep.textContent=a.badge;
+    paintRows(a.rows);
+    railFill.style.width=(i/(ACTS.length-1)*100)+'%';
+    pips.forEach(function(p,n){p.classList.toggle('on',n<=i);});
+    railValue.textContent=a.value;
+    railLabel.textContent=a.label;
+  }
+
+  var ticking=false;
+  function update(){
+    var r=scroll.getBoundingClientRect(),vh=window.innerHeight;
+    if(r.top>vh||r.bottom<0)return;
+    var total=r.height-vh;
+    var p=Math.min(1,Math.max(0,(-r.top)/(total||1)));
+    setAct(Math.min(ACTS.length-1,Math.floor(p*ACTS.length)));
+  }
+  window.addEventListener('scroll',function(){
+    if(ticking)return;ticking=true;
+    requestAnimationFrame(function(){update();ticking=false;});
+  },{passive:true});
+  window.addEventListener('resize',update);
+  setAct(0);update();
+})();
+</script>
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var seals=Array.prototype.slice.call(document.querySelectorAll('.seal'));
+  if(seals.length){
+    var sio=new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if(!e.isIntersecting)return;
+        var i=seals.indexOf(e.target);
+        setTimeout(function(){e.target.classList.add('in');},i*110);
+        sio.unobserve(e.target);
+      });
+    },{threshold:.3});
+    seals.forEach(function(s){sio.observe(s);});
+  }
+
+  var list=document.getElementById('ctrlList');
+  if(!list)return;
+
+  /* zero-touch chain cycle */
+  var cnodes=[].slice.call(document.querySelectorAll('#chainRail .cnode')),
+      cfill=document.getElementById('chainFill'),cdot=document.getElementById('chainDot'),
+      chainEl=document.getElementById('chain'),cIdx=0,cTimer=null,cVis=false;
+  function placeChain(){
+    if(!cnodes.length||!cfill||window.innerWidth<=1040)return;
+    var tr=cfill.parentNode.getBoundingClientRect(),n=cnodes[cIdx].getBoundingClientRect();
+    var x=Math.max(0,(n.left+5)-tr.left);
+    cfill.style.width=x+'px';cdot.style.left=(x-4)+'px';
+  }
+  function stepChain(){
+    cnodes.forEach(function(n,k){n.classList.toggle('on',k===cIdx);n.classList.toggle('done',k<cIdx);});
+    placeChain();
+    cIdx=(cIdx+1)%cnodes.length;
+  }
+  function startChain(){
+    clearInterval(cTimer);
+    if(reduce){cnodes.forEach(function(n){n.classList.add('done');});return;}
+    if(!cVis)return;
+    stepChain();cTimer=setInterval(stepChain,1500);
+  }
+  if(chainEl){
+    new IntersectionObserver(function(en){
+      en.forEach(function(e){cVis=e.isIntersecting;if(cVis)startChain();else clearInterval(cTimer);});
+    },{threshold:.25}).observe(chainEl);
+  }
+  window.addEventListener('resize',placeChain);
+
+  var btns=Array.prototype.slice.call(list.children),
+      panes=Array.prototype.slice.call(document.querySelectorAll('.cpane')),
+      idx=0,timer=null,paused=false,visible=false;
+
+  function show(i,manual){
+    idx=i;
+    btns.forEach(function(b,n){
+      b.classList.remove('on');
+      b.setAttribute('aria-selected',String(n===i));
+      var bar=b.querySelector('.bar');
+      bar.style.animation='none';bar.offsetHeight;bar.style.animation='';
+    });
+    btns[i].classList.add('on');
+    panes.forEach(function(p,n){p.classList.toggle('on',n===i);});
+    if(manual)restart();
+  }
+  function next(){show((idx+1)%btns.length);}
+  function restart(){
+    clearInterval(timer);
+    if(reduce||paused||!visible)return;
+    timer=setInterval(next,7000);
+  }
+
+  btns.forEach(function(b,i){
+    b.addEventListener('click',function(){show(i,true);});
+    b.addEventListener('keydown',function(e){
+      if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();show((i+1)%btns.length,true);btns[(i+1)%btns.length].focus();}
+      if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();var p=(i-1+btns.length)%btns.length;show(p,true);btns[p].focus();}
+    });
+  });
+
+  var region=document.querySelector('.ctrl');
+  function pause(){paused=true;clearInterval(timer);btns[idx].classList.add('paused');}
+  function resume(){paused=false;btns[idx].classList.remove('paused');restart();}
+  region.addEventListener('mouseenter',pause);
+  region.addEventListener('mouseleave',resume);
+  region.addEventListener('focusin',pause);
+  region.addEventListener('focusout',resume);
+
+  var vio=new IntersectionObserver(function(en){
+    en.forEach(function(e){visible=e.isIntersecting;restart();});
+  },{threshold:.2});
+  vio.observe(region);
+})();
+</script>
+
+<script>
+(function(){
+  var targets=[].slice.call(document.querySelectorAll('.wfade,#cmp,#tl'));
+  var pillars=[].slice.call(document.querySelectorAll('.tenet'));
+  if(!targets.length&&!pillars.length)return;
+
+  var io=new IntersectionObserver(function(en){
+    en.forEach(function(e){
+      if(!e.isIntersecting)return;
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    });
+  },{threshold:.18,rootMargin:'0px 0px -8% 0px'});
+  targets.forEach(function(t){io.observe(t);});
+
+  var pio=new IntersectionObserver(function(en){
+    en.forEach(function(e){
+      if(!e.isIntersecting)return;
+      var i=pillars.indexOf(e.target);
+      setTimeout(function(){e.target.classList.add('in');},i*90);
+      pio.unobserve(e.target);
+    });
+  },{threshold:.2});
+  pillars.forEach(function(p){pio.observe(p);});
+})();
+</script>
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var sec=document.getElementById('automation');
+  if(!sec)return;
+
+  var io=new IntersectionObserver(function(en){
+    en.forEach(function(e){if(!e.isIntersecting)return;e.target.classList.add('in');io.unobserve(e.target);});
+  },{threshold:.15,rootMargin:'0px 0px -6% 0px'});
+  [].slice.call(sec.querySelectorAll('.afade')).forEach(function(t){io.observe(t);});
+
+  /* ── one clock drives the chain and the switchboard together ── */
+  var STEP=5200;
+  var btns   =[].slice.call(document.querySelectorAll('#sw .swi')),
+      scenes =[].slice.call(document.querySelectorAll('#stagebox .scene')),
+      cnodes =[].slice.call(document.querySelectorAll('#chainRail .cnode')),
+      cfill  =document.getElementById('chainFill'),
+      cdot   =document.getElementById('chainDot'),
+      board  =sec.querySelector('.board'),
+      chainEl=document.getElementById('chain');
+
+  var steps=Math.max(btns.length,cnodes.length),
+      i=0,timer=null,paused=false,vBoard=false,vChain=false;
+
+  function placeChain(){
+    if(!cnodes.length||!cfill||window.innerWidth<=1040)return;
+    var tr=cfill.parentNode.getBoundingClientRect(),
+        n=cnodes[Math.min(i,cnodes.length-1)].getBoundingClientRect(),
+        x=Math.max(0,(n.left+5)-tr.left);
+    cfill.style.width=x+'px';
+    cdot.style.left=(x-4)+'px';
+  }
+
+  function show(n,manual){
+    i=n;
+    btns.forEach(function(b,k){
+      b.classList.toggle('on',k===n);
+      b.setAttribute('aria-selected',String(k===n));
+      var bar=b.querySelector('.bar');
+      if(bar){bar.style.animation='none';bar.offsetHeight;bar.style.animation='';}
+    });
+    scenes.forEach(function(sc,k){sc.classList.toggle('on',k===n);});
+    cnodes.forEach(function(cn,k){
+      cn.classList.toggle('on',k===n);
+      cn.classList.toggle('done',k<n);
+    });
+    placeChain();
+    if(manual)restart();
+  }
+
+  function restart(){
+    clearInterval(timer);
+    if(reduce||paused||!(vBoard||vChain))return;
+    timer=setInterval(function(){show((i+1)%steps);},STEP);
+  }
+
+  btns.forEach(function(b,k){
+    b.addEventListener('click',function(){show(k,true);});
+    b.addEventListener('keydown',function(e){
+      if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();var n=(k+1)%steps;show(n,true);btns[n].focus();}
+      if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();var pv=(k-1+steps)%steps;show(pv,true);btns[pv].focus();}
+    });
+  });
+
+  if(board){
+    board.addEventListener('mouseenter',function(){paused=true;clearInterval(timer);btns[i]&&btns[i].classList.add('paused');});
+    board.addEventListener('mouseleave',function(){paused=false;btns[i]&&btns[i].classList.remove('paused');restart();});
+    board.addEventListener('focusin',function(){paused=true;clearInterval(timer);btns[i]&&btns[i].classList.add('paused');});
+    board.addEventListener('focusout',function(){paused=false;btns[i]&&btns[i].classList.remove('paused');restart();});
+  }
+
+  var vio=new IntersectionObserver(function(en){
+    en.forEach(function(e){
+      if(e.target===board)vBoard=e.isIntersecting;
+      if(e.target===chainEl)vChain=e.isIntersecting;
+    });
+    restart();
+  },{threshold:.2});
+  if(board)vio.observe(board);
+  if(chainEl)vio.observe(chainEl);
+
+  window.addEventListener('resize',placeChain);
+  window.addEventListener('load',placeChain);
+
+  if(reduce)cnodes.forEach(function(cn){cn.classList.add('done');});
+  show(0);
+})();
+</script>
+<script>
+(function(){
+  var f=document.getElementById('cform');
+  if(!f)return;
+  f.addEventListener('submit',function(e){
+    var bad=false;
+    f.querySelectorAll('[required]').forEach(function(el){
+      var ok=el.value.trim()&&(el.type!=='email'||/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value));
+      el.classList.toggle('bad',!ok);
+      if(!ok&&!bad){bad=true;el.focus();}
+    });
+    if(bad){e.preventDefault();return;}
+    if(location.protocol==='file:'||!f.dataset.live){
+      e.preventDefault();
+      f.classList.add('sent');
+    }
+  });
+  f.querySelectorAll('input,textarea').forEach(function(el){
+    el.addEventListener('input',function(){el.classList.remove('bad');});
+  });
+})();
+</script>
+<script>
+(function(){
+  var m=document.querySelector('.ftmark');
+  if(!m)return;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var txt=(m.textContent||'').trim();
+  m.textContent='';
+  txt.split('').forEach(function(ch,i){
+    var w=document.createElement('i'),b=document.createElement('b');
+    b.textContent=(ch===' '?'\u00A0':ch);
+    b.style.transitionDelay=(i*0.052).toFixed(3)+'s';
+    w.appendChild(b);m.appendChild(w);
+  });
+  if(reduce){m.classList.add('in');m.style.animation='none';return;}
+  new IntersectionObserver(function(en){
+    en.forEach(function(e){m.classList.toggle('in',e.isIntersecting);});
+  },{threshold:.3}).observe(m);
+  var ticking=false;
+  window.addEventListener('scroll',function(){
+    if(ticking)return;ticking=true;
+    requestAnimationFrame(function(){
+      var r=m.getBoundingClientRect(),vh=window.innerHeight;
+      if(r.top<vh&&r.bottom>0){
+        var p=1-Math.min(1,Math.max(0,r.top/vh));
+        m.style.setProperty('--ftpx',((p-.5)*46).toFixed(1)+'px');
+      }
+      ticking=false;
+    });
+  },{passive:true});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logins — ReviFlow Admin</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_admin.css">
+<style>
+tr.pending td{background:rgba(201,138,24,.055)}
+tr.pending:hover td{background:rgba(201,138,24,.1)}
+.ib.alert{border-color:rgba(201,138,24,.45);background:var(--amber-s);animation:pulseA 2.4s ease-in-out infinite}
+.ib.alert svg{stroke:var(--amber)}
+.ib.alert:hover{border-color:var(--amber);background:var(--amber);animation:none}
+.ib.alert:hover svg{stroke:#fff}
+@keyframes pulseA{0%,100%{box-shadow:0 0 0 0 rgba(201,138,24,.4)}60%{box-shadow:0 0 0 7px rgba(201,138,24,0)}}
+.nologin{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:6px;
+  background:var(--amber-s);color:#7A5507;font-size:9.6px;font-weight:700;letter-spacing:.03em}
+.nologin svg{width:10px;height:10px;stroke:var(--amber);fill:none;stroke-width:2.4}
+.ib.rmk{border-color:rgba(201,138,24,.4);background:var(--amber-s);position:relative}
+.ib.rmk svg{stroke:var(--amber)}
+.ib.rmk:hover{border-color:var(--amber);background:#F7E6C4}
+.ib.rmk .dot{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;
+  background:var(--amber);color:#fff;font-family:var(--mono);font-size:8px;font-weight:700;
+  display:grid;place-items:center;border:2px solid var(--paper)}
+.needlogin{display:inline-flex;align-items:center;gap:7px;padding:11px 14px;border-radius:11px;
+  background:var(--amber-s);border:1px solid rgba(201,138,24,.32);font-size:11.8px;font-weight:600;color:#7A5507;margin-bottom:11px}
+.needlogin svg{width:15px;height:15px;stroke:var(--amber);fill:none;stroke-width:2.2;flex:none}
+.needlogin b{font-weight:700}
+.needlogin .go2{margin-left:auto;padding:6px 12px;border-radius:8px;background:#fff;border:1px solid rgba(201,138,24,.4);
+  font-size:11.2px;font-weight:600;color:#7A5507;transition:all .3s var(--e)}
+.needlogin .go2:hover{background:var(--amber);color:#fff}
+.hist-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.hist-row:last-child{border-bottom:none}
+.hist-row .hd{width:32px;height:32px;flex:none;border-radius:10px;background:var(--amber-s);display:grid;place-items:center}
+.hist-row .hd svg{width:15px;height:15px;stroke:var(--amber);fill:none;stroke-width:2}
+.hist-row b{display:block;font-size:12.4px;font-weight:600;margin-bottom:3px}
+.hist-row p{font-size:11.6px;color:var(--muted);line-height:1.55}
+.hist-row p ins{text-decoration:none;color:var(--green-d);font-weight:600}
+.hist-row p del{color:var(--coral);opacity:.8}
+.hist-row small{display:block;font-family:var(--mono);font-size:9.4px;color:var(--dim);margin-top:5px}
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+</style>
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_notify.js"></script>
+<script src="../_session.js"></script>
+<link rel="stylesheet" href="../_session.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="mesh"></div><div class="aur a1"></div><div class="aur a2"></div><div class="aur a3"></div></div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <img class="mk" src="../assets/logo-64.png" alt="ReviFlow RCM">
+      <span>R&nbsp;e&nbsp;v&nbsp;i&nbsp;F&nbsp;l&nbsp;o&nbsp;w</span>
+    </div>
+    <span class="rolechip">ADMIN CONSOLE</span>
+    <span class="crumb"><a href="admin-dashboard.html">Administration</a> / <b>Logins</b></span>
+    <div class="hact">
+      <a class="hbtn" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <button class="hbtn out" id="logout">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ptop">
+    <div>
+      <h1>Logins</h1>
+      <p>Accounts created here are written to the database immediately and can sign in straight away. Passwords are hashed — nobody, including you, can read them back.</p>
+    </div>
+    <div class="cta">
+      <button class="btn pri" id="newBtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Create login</button>
+    </div>
+  </div>
+
+  <div class="tools">
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Search name or username…">
+    </label>
+    <select class="sel" id="fRole">
+      <option value="all">All roles</option><option value="admin">Admin</option>
+      <option value="supervisor">Supervisor</option><option value="provider">Provider</option>
+      <option value="scheduler">Scheduler</option><option value="employee">Employee</option>
+    </select>
+    <select class="sel" id="fStatus"><option value="all">All statuses</option><option value="active">Active</option><option value="disabled">Disabled</option></select>
+    <select class="sel" id="fOrgFilter"><option value="all">All facilities</option></select>
+    <span class="sp"></span>
+    <span class="cnt" id="cnt">—</span>
+  </div>
+
+  <div class="card" style="animation-delay:.16s">
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:22%">Account</th><th>Facility</th><th>Role</th><th>Scope</th>
+          <th>Two-step</th><th>Last sign-in</th><th>Status</th><th class="r" style="width:150px">Manage</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg><br>
+      No accounts match this filter.
+    </div>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<!-- CREATE / EDIT -->
+<div class="modal" id="mEdit" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></span>
+    <div><h3 id="mTitle">Create login</h3><p id="mSub">Stored in the database as soon as you save.</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <label class="f full" style="margin-bottom:4px"><span>Create login for <u>*</u></span>
+      <select id="fFor">
+        <option value="">Select account type</option>
+        <option value="provider">Provider</option>
+        <option value="employee">Employee</option>
+      </select>
+      <p style="font-size:10.6px;color:var(--dim);margin-top:6px" id="forHint">Providers see clinical screens. Employees work the billing and front-office queues.</p>
+    </label>
+
+    <label class="f full" style="margin-bottom:4px"><span>Select organization <u>*</u></span>
+      <select id="fOrg"><option value="">Select organization</option></select>
+      <p style="font-size:10.6px;color:var(--dim);margin-top:6px">Organizations come from the Organization dashboard.</p>
+    </label>
+
+    <label class="f full" id="linkWrap" style="margin-bottom:4px;display:none"><span>Link to provider record</span>
+      <select id="fLink"><option value="">Not linked</option></select>
+      <p style="font-size:10.6px;color:var(--dim);margin-top:6px">Pulls NPI, specialty and tax ID into eligibility and claims automatically.</p>
+    </label>
+
+    <div class="subhead">Person</div>
+    <div class="fgrid">
+      <label class="f"><span>Full name <u>*</u></span><input type="text" id="fName" placeholder="Bhavan Kalyan">
+        <p style="font-size:10.4px;color:var(--dim);margin-top:5px" id="nameSplit">First and last name are taken from the space.</p></label>
+      <label class="f"><span>Job title</span><input type="text" id="fTitle" placeholder="Family Medicine"></label>
+      <label class="f"><span>Email</span><input type="email" id="fEmail" placeholder="d.whitfield@northsidemed.com"></label>
+      <label class="f"><span>Mobile</span><input type="tel" id="fPhone" placeholder="(512) 555-0184"></label>
+    </div>
+
+    <div class="subhead">Access</div>
+    <div class="fgrid">
+      <label class="f"><span>Username <u>*</u></span><input type="text" id="fUser" placeholder="dr.whitfield" autocapitalize="none" spellcheck="false"></label>
+      <label class="f"><span>Role <u>*</u></span>
+        <select id="fRoleSel"><option value="">Select account type first</option></select></label>
+      <label class="f"><span>Data scope</span>
+        <select id="fScope">
+          <option value="self">Own data only</option>
+          <option value="facility">Whole facility</option>
+          <option value="all">Everything</option>
+        </select></label>
+      <label class="f" id="pidWrap"><span>Provider ID</span>
+        <input type="text" id="fPid" maxlength="4" placeholder="DW" style="text-transform:uppercase">
+        <p style="font-size:10.4px;color:var(--dim);margin-top:5px">Links this login to their schedule column.</p></label>
+      <label class="f full"><span>Temporary password</span>
+        <input type="text" id="fPw" placeholder="Leave blank to generate a strong one">
+        <p style="font-size:10.4px;color:var(--dim);margin-top:5px">Shown once after saving. The user is asked to change it at first sign-in.</p></label>
+    </div>
+
+    <label class="chk" style="margin-top:13px">
+      <input type="checkbox" id="fMfa"><span class="bx"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+      Require two-step verification
+    </label>
+
+    <div class="hint" style="margin-top:14px">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>The password is hashed with scrypt before it touches the database. It is never stored or transmitted in readable form.</span>
+    </div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="saveBtn"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Create login</button>
+  </div>
+</div>
+
+<!-- CREDENTIALS RESULT -->
+<div class="modal" id="mCred" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi" style="background:rgba(139,92,246,.16)"><svg viewBox="0 0 24 24" style="stroke:var(--violet)"><path d="M5 13l4 4L19 7"/></svg></span>
+    <div><h3 id="cTitle">Login created</h3><p>Share these once, through a channel the person already trusts.</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="cred">
+      <b>Credentials</b>
+      <div class="credrow"><small>Username</small><span id="cUser">—</span>
+        <button class="cpy" data-copy="cUser"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 012-2h10"/></svg></button></div>
+      <div class="credrow"><small>Password</small><span id="cPw">—</span>
+        <button class="cpy" data-copy="cPw"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 012-2h10"/></svg></button></div>
+      <div class="credrow" id="cUrlRow"><small>Sign in at</small><span id="cUrl">—</span>
+        <button class="cpy" data-copy="cUrl"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 012-2h10"/></svg></button></div>
+    </div>
+    <div id="mfaBlock" hidden>
+      <div class="subhead" style="margin-top:18px">Two-step setup</div>
+      <div style="text-align:center;padding:16px;border-radius:13px;background:rgba(255,255,255,.6);border:1px solid var(--line-2)">
+        <div id="cQr" style="display:inline-block;padding:10px;background:#fff;border-radius:10px;line-height:0"></div>
+        <div style="margin-top:12px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;word-break:break-all" id="cSecret">—</div>
+        <p style="font-size:11.2px;color:var(--muted);margin-top:9px;line-height:1.5">The user scans this at first sign-in, or types the key into their authenticator app.</p>
+      </div>
+    </div>
+    <div class="hint warn" style="margin-top:15px">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+      <span>This password will not be shown again. If it is lost, use <b>Reset password</b> to issue a new one.</span>
+    </div>
+  </div>
+  <div class="mfoot">
+    <span class="sp"></span>
+    <button class="btn pri" data-close><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Done</button>
+  </div>
+</div>
+
+<div class="modal" id="mRemark" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi" style="background:var(--amber-s)"><svg viewBox="0 0 24 24" style="stroke:var(--amber)"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>
+    <div><h3>Change history</h3><p id="rmSub">—</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody" id="rmBody"></div>
+  <div class="mfoot"><span class="sp"></span><button class="btn pri" data-close>Close</button></div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="tT">—</b><small id="tS"></small></span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var ACCOUNTS=[],ORGS=[],PROVS=[],editing=null,linkedProvider=null,filt={q:'',role:'all',status:'all',org:'all'};
+
+  var ROLES={
+    provider:[['provider','Provider — individual'],
+              ['supervisor','Supervisor / Practice Manager']],
+    employee:[['employee','Employee — billing / coding'],
+              ['scheduler','Scheduler / Front office'],
+              ['admin','Administrator']]
+  };
+
+  function toast(t,s){$('tT').textContent=t;$('tS').textContent=s||'';
+    $('toast').classList.add('on');clearTimeout(toast._t);
+    toast._t=setTimeout(function(){$('toast').classList.remove('on');},3600);}
+
+  (async function(){
+    await RFStore.ready();
+    var s=RFSession.require(['admin']);
+    if(!s)return;
+    await refresh();
+    var pid=new URLSearchParams(location.search).get('provider');
+    if(pid){
+      var pv=PROVS.filter(function(x){return String(x.id)===pid;})[0];
+      if(pv)fillFromProvider(pv);
+    }
+  })();
+
+  $('logout').addEventListener('click',function(){RFSession.signOut('manual');});
+
+  var REQS=[];
+  async function refresh(){
+    ACCOUNTS=await RFStore.list();
+    ORGS=await RFStore.orgs();
+    PROVS=await RFStore.providers();
+    try{ REQS=await RFStore.teamRequests(); }catch(e){ REQS=[]; }
+    var opts='<option value="">Select organization</option>'+
+      ORGS.map(function(o){return '<option value="'+o.id+'">'+o.name+'</option>';}).join('');
+    $('fOrg').innerHTML=opts;
+    var fo=$('fOrgFilter');
+    if(fo){fo.innerHTML='<option value="all">All facilities</option>'+
+      ORGS.map(function(o){return '<option value="'+o.id+'">'+o.name+'</option>';}).join('');
+      fo.value=filt.org;}
+    render();
+  }
+
+  var orgName=function(id){var o=ORGS.filter(function(x){return x.id===id;})[0];return o?o.name:'—';};
+
+
+  /* prefill the modal straight from a provider record */
+  function fillFromProvider(p){
+    blank();
+    linkedProvider=p.id;
+    $('fFor').value='provider';$('fFor').dispatchEvent(new Event('change'));
+    $('fRoleSel').value='provider';$('fRoleSel').dispatchEvent(new Event('change'));
+    $('fOrg').value=p.org_id||'';
+    $('fOrg').dispatchEvent(new Event('change'));
+    $('fLink').value=String(p.id);
+    $('linkWrap').style.display='';
+    $('fName').value=p.full_name||'';
+    $('fTitle').value=p.title||p.specialty||'';
+    $('fEmail').value=p.email||'';$('fPhone').value=p.phone||'';
+    $('fPid').value=p.code||'';
+    $('fName').dispatchEvent(new Event('input'));
+    $('mTitle').textContent='Create login for '+p.full_name;
+    $('mSub').textContent=(p.specialty||'Provider')+' · NPI '+(p.npi||'—')+' · '+orgName(p.org_id);
+    $('saveBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Create login';
+    $('fUser').disabled=false;$('fFor').disabled=false;
+    open('mEdit');
+  }
+
+  /* someone a practice manager added who has no provider record */
+  function fillFromRequest(r){
+    blank();
+    linkedProvider=null;
+    $('fFor').value='staff';$('fFor').dispatchEvent(new Event('change'));
+    $('fRoleSel').value=r.role||'employee';
+    $('fRoleSel').dispatchEvent(new Event('change'));
+    $('fOrg').value=r.org_id||'';
+    $('fOrg').dispatchEvent(new Event('change'));
+    $('fName').value=r.full_name||'';
+    $('fTitle').value=r.title||r.team||'';
+    $('fEmail').value=r.email||'';$('fPhone').value=r.phone||'';
+    if(r.suggested_username){
+      $('fUser').value=r.suggested_username;
+      $('fUser').dataset.touched='1';
+    }else{
+      $('fName').dispatchEvent(new Event('input'));
+    }
+    pendingReq=r.id;
+    $('mTitle').textContent='Create login for '+r.full_name;
+    $('mSub').textContent=(r.team||r.role)+' · requested by '+(r.requested_name||'a practice manager')+
+      ' · '+orgName(r.org_id);
+    $('saveBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Create login';
+    $('fUser').disabled=false;$('fFor').disabled=false;
+    open('mEdit');
+  }
+  var pendingReq=null;
+
+  var ROLEC={admin:'vio',supervisor:'info',provider:'ok',scheduler:'warn',employee:'off'};
+  var SCOPEL={all:'Everything',facility:'Facility',self:'Own data'};
+  function fmt(d){return d?new Date(d).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'Never';}
+
+  /* provider records that have no account yet, shown inline as pending rows */
+  function pendingRows(){
+    var linked=new Set(ACCOUNTS.map(function(a){return a.provider_ref;}).filter(Boolean));
+    var takenNames=new Set(ACCOUNTS.map(function(a){
+      return String(a.full_name||'').toLowerCase(); }));
+    var takenUsers=new Set(ACCOUNTS.map(function(a){return a.username;}));
+
+    /* providers without a login */
+    var out=PROVS.filter(function(p){return !linked.has(p.id);}).map(function(p){
+      var req=REQS.filter(function(r){return String(r.provider_ref)===String(p.id);})[0];
+      return {
+        _pending:true, id:'p'+p.id, provider_id_ref:p.id,
+        full_name:p.full_name+(p.title?', '+p.title:''),
+        username:(req&&req.suggested_username)||'—', email:p.email||'', role:'provider',
+        org_id:p.org_id, scope:'self', status:'no login',
+        mfa_enabled:false, last_login:null,
+        initials:p.initials||RFStore.initialsOf(p.full_name),
+        specialty:p.specialty,
+        _req:req||null, _fromTeam:!!(p.added_by_team||req)
+      };
+    });
+
+    /* front office and billing exist only as a team request, so add them here */
+    REQS.forEach(function(r){
+      if(r.provider_ref)return;                       /* already covered above */
+      if(takenUsers.has(r.issued_username))return;
+      if(takenNames.has(String(r.full_name||'').toLowerCase()))return;
+      out.push({
+        _pending:true, id:r.id, provider_id_ref:null,
+        full_name:r.full_name+(r.title?', '+r.title:''),
+        username:r.suggested_username||'—', email:r.email||'',
+        role:r.role||'employee', org_id:r.org_id, scope:'self', status:'no login',
+        mfa_enabled:false, last_login:null,
+        initials:RFStore.initialsOf(r.full_name),
+        specialty:r.team||'',
+        _req:r, _fromTeam:true
+      });
+    });
+    return out;
+  }
+
+  function render(){
+    var list=ACCOUNTS.concat(pendingRows()).filter(function(a){
+      if(filt.role!=='all'&&a.role!==filt.role)return false;
+      if(filt.status!=='all'&&a.status!==filt.status)return false;
+      if(filt.org!=='all'&&String(a.org_id)!==String(filt.org))return false;
+      if(filt.q){var h=(a.full_name+' '+a.username+' '+(a.email||'')).toLowerCase();
+        if(h.indexOf(filt.q)<0)return false;}
+      return true;
+    });
+    var pend=list.filter(function(x){return x._pending;}).length;
+    $('cnt').textContent=list.length+' shown'+(pend?' · '+pend+' awaiting a login':'');
+    $('empty').hidden=list.length>0;
+    $('rows').innerHTML=list.map(function(a,i){
+      if(a._pending){
+        return '<tr class="pending" style="animation-delay:'+Math.min(.4,i*.03)+'s">'+
+          '<td><div class="nm"><span class="av2" style="background:linear-gradient(140deg,#C98A18,#E5B658)">'+a.initials+'</span>'+
+            '<span><b>'+a.full_name+'</b><small>'+(a.specialty||a.role||'')+
+              (a.email?' · '+a.email:'')+
+              (a._req&&a._req.requested_name
+                ? ' · added by '+a._req.requested_name : '')+'</small></span></div></td>'+
+          '<td>'+(a.org_id?orgName(a.org_id):'—')+'</td>'+
+          '<td><span class="pill '+(a.role==='provider'?'ok':'info')+'">'+a.role+'</span></td>'+
+          '<td class="mono">Own data</td>'+
+          '<td><span class="pill off">—</span></td>'+
+          '<td class="mono" style="color:var(--dim)">Never</td>'+
+          '<td><span class="nologin"><svg viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>NO LOGIN</span></td>'+
+          '<td class="r"><div class="acts">'+
+            '<button class="ib alert" data-make="'+(a.provider_id_ref||'')+'" '+
+              'data-req="'+(a._req?a._req.id:'')+'" title="Create a login for this person">'+
+              '<svg viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></button>'+
+          '</div></td></tr>';
+      }
+      return '<tr style="animation-delay:'+Math.min(.4,i*.03)+'s">'+
+        '<td><div class="nm"><span class="av2" style="background:linear-gradient(140deg,#0E9D73,#3B6FF5)">'+(a.initials||'?')+'</span>'+
+          '<span><b>'+a.full_name+'</b><small>'+a.username+(a.email?' · '+a.email:'')+'</small></span></div></td>'+
+        '<td>'+(a.org_id?orgName(a.org_id):'<span style="color:var(--dim)">—</span>')+'</td>'+
+        '<td><span class="pill '+(ROLEC[a.role]||'off')+'">'+a.role+'</span></td>'+
+        '<td class="mono">'+(SCOPEL[a.scope]||a.scope||'—')+(a.provider_id?' · '+a.provider_id:'')+'</td>'+
+        '<td>'+(a.mfa_enabled?'<span class="pill ok">On</span>':'<span class="pill off">Off</span>')+'</td>'+
+        '<td class="mono">'+fmt(a.last_login)+'</td>'+
+        '<td><span class="pill '+(a.status==='active'?'ok':'bad')+'">'+a.status+'</span>'+
+          (a.must_change?' <span class="pill warn">temp pw</span>':'')+'</td>'+
+        '<td class="r"><div class="acts">'+
+          '<button class="ib" data-edit="'+a.id+'" title="Edit"><svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/></svg></button>'+
+          '<button class="ib key" data-pw="'+a.id+'" title="Reset password"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></button>'+
+          '<button class="ib" data-toggle="'+a.id+'" title="'+(a.status==='active'?'Disable':'Enable')+'"><svg viewBox="0 0 24 24">'+
+            (a.status==='active'?'<path d="M18.4 5.6a9 9 0 11-12.8 0"/><path d="M12 3v9"/>':'<path d="M5 13l4 4L19 7"/>')+'</svg></button>'+
+          (a.name_remarks&&a.name_remarks.length
+            ? '<button class="ib rmk" data-rmk="'+a.id+'" title="View change history">'+
+              '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>'+
+              '<span class="dot">'+a.name_remarks.length+'</span></button>'
+            : '')+
+          '<button class="ib del" data-del="'+a.id+'" title="Delete"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button>'+
+        '</div></td></tr>';
+    }).join('');
+  }
+
+  $('q').addEventListener('input',function(){filt.q=this.value.toLowerCase().trim();render();});
+  $('fRole').addEventListener('change',function(){filt.role=this.value;render();});
+  $('fStatus').addEventListener('change',function(){filt.status=this.value;render();});
+  $('fOrgFilter').addEventListener('change',function(){filt.org=this.value;render();});
+
+  var scrim=$('scrim');
+  function open(id){scrim.classList.add('on');$(id).classList.add('on');document.body.style.overflow='hidden';}
+  function closeAll(){scrim.classList.remove('on');
+    document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on');});
+    document.body.style.overflow='';}
+  window.closeAll=closeAll;
+  scrim.addEventListener('click',closeAll);
+  document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',closeAll);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll();});
+
+  /* account type drives the role list */
+  $('fFor').addEventListener('change',function(){
+    var t=this.value,sel=$('fRoleSel');
+    if(!t){sel.innerHTML='<option value="">Select account type first</option>';return;}
+    sel.innerHTML='<option value="">Select role</option>'+
+      ROLES[t].map(function(r){return '<option value="'+r[0]+'">'+r[1]+'</option>';}).join('');
+    sel.value=ROLES[t][0][0];
+    sel.dispatchEvent(new Event('change'));
+    $('forHint').textContent = t==='provider'
+      ? 'Signs in at Provider → provider-login.html and lands on the clinical workspace.'
+      : 'Signs in at Provider → provider-login.html and lands on the workspace for their role.';
+  });
+  $('fOrg').addEventListener('change',function(){
+    var oid=this.value?+this.value:null;
+    var pool=PROVS.filter(function(p){return !oid||p.org_id===oid;});
+    var linked=new Set(ACCOUNTS.map(function(a){return a.provider_ref;}).filter(Boolean));
+    $('fLink').innerHTML='<option value="">Not linked</option>'+
+      pool.map(function(p){
+        return '<option value="'+p.id+'"'+(linked.has(p.id)?' disabled':'')+'>'+
+          p.full_name+(p.title?', '+p.title:'')+(linked.has(p.id)?' — already has a login':'')+'</option>';
+      }).join('');
+  });
+  $('fLink').addEventListener('change',function(){
+    var p=PROVS.filter(function(x){return String(x.id)===this.value;}.bind(this))[0];
+    if(!p)return;
+    $('fName').value=p.full_name||'';$('fTitle').value=p.title||p.specialty||'';
+    $('fEmail').value=p.email||'';$('fPhone').value=p.phone||'';$('fPid').value=p.code||'';
+    $('fName').dispatchEvent(new Event('input'));
+  });
+  $('fRoleSel').addEventListener('change',function(){
+    var r=this.value;
+    $('fScope').value=r==='admin'?'all':r==='provider'?'self':'facility';
+    $('pidWrap').style.display=r==='provider'?'':'none';
+    $('linkWrap').style.display=r==='provider'?'':'none';
+    if(r==='admin')$('fMfa').checked=true;
+  });
+
+  function blank(){
+    ['fName','fTitle','fEmail','fPhone','fUser','fPid','fPw'].forEach(function(id){$(id).value='';});
+    $('fFor').value='';$('fRoleSel').innerHTML='<option value="">Select account type first</option>';
+    $('fOrg').value='';$('fLink').innerHTML='<option value="">Not linked</option>';
+    $('linkWrap').style.display='none';linkedProvider=null;
+    $('fScope').value='self';$('fMfa').checked=false;
+    $('pidWrap').style.display='none';
+    delete $('fUser').dataset.touched;
+  }
+  $('newBtn').addEventListener('click',function(){
+    editing=null;blank();
+    $('mTitle').textContent='Create login';
+    $('mSub').textContent='Saved to the database and usable straight away.';
+    $('saveBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Create login';
+    $('fUser').disabled=false;$('fFor').disabled=false;
+    open('mEdit');
+  });
+
+  $('fName').addEventListener('input',function(){
+    if(editing||$('fUser').dataset.touched)return;
+    var raw=this.value.trim(),isDr=/^dr\.?\s/i.test(raw);
+    var parts=raw.replace(/^Dr\.?\s+/i,'').split(/\s+/).filter(Boolean);
+    if(parts.length>=2){
+      var last=parts[parts.length-1].replace(/,.*$/,'');
+      $('fUser').value=((isDr?'dr.':parts[0][0].toLowerCase()+'.')+last)
+        .toLowerCase().replace(/[^a-z0-9._-]/g,'');
+    }
+  });
+  $('fUser').addEventListener('input',function(){this.dataset.touched='1';});
+  $('fName').addEventListener('input',function(){
+    var n=RFStore.splitName(this.value);
+    var sh=$('splitHint');
+    if(sh)sh.innerHTML=(n.first||n.last)
+      ? 'First name <b>'+(n.first||'—')+'</b> · Last name <b>'+(n.last||'—')+'</b>'+
+        (n.middle?' · Middle <b>'+n.middle+'</b>':'')
+      : 'First word becomes the first name, last word the surname.';
+  });
+
+  /* live preview of how the name will be stored */
+  $('fName').addEventListener('input',function(){
+    var n=RFStore.splitName(this.value);
+    $('nameSplit').innerHTML = (n.first||n.last)
+      ? 'First name <b>'+(n.first||'—')+'</b> · Last name <b>'+(n.last||'—')+'</b>'+
+        (n.prefix?' · prefix '+n.prefix:'')+(n.suffix?' · '+n.suffix:'')
+      : 'First and last name are taken from the space.';
+  });
+
+  document.addEventListener('click',async function(e){
+    var ed=e.target.closest('[data-edit]'),pw=e.target.closest('[data-pw]'),
+        tg=e.target.closest('[data-toggle]'),dl=e.target.closest('[data-del]'),
+        cp=e.target.closest('[data-copy]');
+
+    var mk=e.target.closest('[data-make]'),rk=e.target.closest('[data-rmk]');
+    if(mk){
+      editing=null;pendingReq=null;
+      var pv=mk.dataset.make?PROVS.filter(function(x){
+        return String(x.id)===mk.dataset.make;})[0]:null;
+      if(pv){
+        var rq0=REQS.filter(function(r){return String(r.provider_ref)===String(pv.id);})[0];
+        fillFromProvider(pv);
+        if(rq0){
+          pendingReq=rq0.id;
+          if(rq0.suggested_username){
+            $('fUser').value=rq0.suggested_username;$('fUser').dataset.touched='1';
+          }
+          $('mSub').textContent=($('mSub').textContent||'')+
+            ' · requested by '+(rq0.requested_name||'a practice manager');
+        }
+        return;
+      }
+      var rq=REQS.filter(function(r){return r.id===mk.dataset.req;})[0];
+      if(rq){fillFromRequest(rq);}
+      return;
+    }
+    if(rk){
+      var acc0=ACCOUNTS.filter(function(x){return String(x.id)===rk.dataset.rmk;})[0];
+      if(!acc0)return;
+      $('rmSub').textContent=acc0.full_name+' · '+acc0.username;
+      $('rmBody').innerHTML=(acc0.name_remarks||[]).map(function(r){
+        return '<div class="hist-row"><span class="hd"><svg viewBox="0 0 24 24">'+
+          '<path d="M4 20h4l10-10-4-4L4 16z"/></svg></span>'+
+          '<span><b>Name changed by the user</b>'+
+          '<p><del>'+r.from+'</del> &rarr; <ins>'+r.to+'</ins></p>'+
+          '<small>'+new Date(r.at).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'})+
+          ' · by '+(r.by||'user')+'</small></span></div>';
+      }).join('')||'<p style="color:var(--dim);font-size:12.4px">No changes recorded.</p>';
+      scrim.classList.add('on');$('mRemark').classList.add('on');document.body.style.overflow='hidden';
+      return;
+    }
+    if(cp){
+      try{await navigator.clipboard.writeText($(cp.dataset.copy).textContent);toast('Copied','Paste it somewhere safe');}
+      catch(x){toast('Copy failed','Select the text and copy manually');}
+      return;
+    }
+    if(ed){
+      var a=ACCOUNTS.filter(function(x){return String(x.id)===ed.dataset.edit;})[0];
+      if(!a)return;
+      editing=a.id;
+      var type=(a.role==='provider'||a.role==='supervisor')?'provider':'employee';
+      $('fFor').value=type;$('fFor').disabled=true;
+      $('fRoleSel').innerHTML=ROLES[type].map(function(r){return '<option value="'+r[0]+'">'+r[1]+'</option>';}).join('');
+      $('fRoleSel').value=a.role;
+      $('mTitle').textContent='Edit login';
+      $('mSub').textContent=a.username+' · created '+fmt(a.created_at);
+      $('fName').value=a.full_name||'';$('fTitle').value=a.title||'';
+      $('fEmail').value=a.email||'';$('fPhone').value=a.phone||'';
+      $('fUser').value=a.username;$('fUser').disabled=true;
+      $('fScope').value=a.scope||'self';$('fPid').value=a.provider_id||'';
+      $('fOrg').value=a.org_id||'';$('fOrg').dispatchEvent(new Event('change'));
+      $('fLink').value=a.provider_ref||'';
+      $('linkWrap').style.display=a.role==='provider'?'':'none';
+      $('fMfa').checked=!!a.mfa_enabled;$('fPw').value='';
+      $('pidWrap').style.display=a.role==='provider'?'':'none';
+      $('saveBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save changes';
+      open('mEdit');return;
+    }
+    if(pw){
+      var acc=ACCOUNTS.filter(function(x){return String(x.id)===pw.dataset.pw;})[0];
+      if(!confirm('Issue a new temporary password for '+acc.full_name+'?\nTheir current password stops working immediately.'))return;
+      var r=await RFStore.resetPassword(acc.id);
+      if(r.ok){showCreds(acc.username,r.tempPassword,null,'Password reset');refresh();}
+      else toast('Could not reset',r.error||'');
+      return;
+    }
+    if(tg){
+      var a2=ACCOUNTS.filter(function(x){return String(x.id)===tg.dataset.toggle;})[0];
+      var next=a2.status==='active'?'disabled':'active';
+      var r2=await RFStore.update(a2.id,{status:next});
+      if(r2.ok){toast('Account '+next,a2.username);refresh();}
+      else toast('Could not update',r2.error||'');
+      return;
+    }
+    if(dl){
+      var a3=ACCOUNTS.filter(function(x){return String(x.id)===dl.dataset.del;})[0];
+      if(!confirm('Delete the login for '+a3.full_name+'?\nThis cannot be undone.'))return;
+      var r3=await RFStore.remove(a3.id);
+      if(r3.ok){toast('Login deleted',a3.username);refresh();}
+      else toast('Could not delete',r3.error||'');
+      return;
+    }
+  });
+
+  function showCreds(user,pass,mfa,title){
+    $('cTitle').textContent=title||'Login created';
+    $('cUser').textContent=user;
+    $('cPw').textContent=pass||'(unchanged)';
+    $('cUrl').textContent=location.origin+location.pathname.replace(/Admin\/logins\.html$/,'Provider/provider-login.html');
+    $('mfaBlock').hidden=!mfa;
+    if(mfa){
+      $('cSecret').textContent=mfa.secret;
+      $('cQr').innerHTML='';
+      try{new QRCode($('cQr'),{text:mfa.otpauth,width:150,height:150,correctLevel:QRCode.CorrectLevel.M});}catch(e){}
+    }
+    closeAll();setTimeout(function(){open('mCred');},280);
+  }
+
+  $('saveBtn').addEventListener('click',async function(){
+    var name=$('fName').value.trim(),role=$('fRoleSel').value;
+    if(!$('fFor').value&&!editing){toast('Pick an account type','Choose Provider or Employee first');$('fFor').focus();return;}
+    if(!name){toast('Missing name','Enter the person\u2019s full name');$('fName').focus();return;}
+    if(!role){toast('Missing role','Choose a role');$('fRoleSel').focus();return;}
+
+    var patch={
+      full_name:name,title:$('fTitle').value.trim()||null,
+      email:$('fEmail').value.trim()||null,phone:$('fPhone').value.trim()||null,
+      role:role,scope:$('fScope').value,
+      org_id:$('fOrg').value?+$('fOrg').value:null,
+      provider_ref:($('fLink').value?+$('fLink').value:null)||linkedProvider,
+      provider_id:$('fPid').value.trim().toUpperCase()||null,
+      mfa_enabled:$('fMfa').checked
+    };
+
+    this.disabled=true;
+    if(editing){
+      var r=await RFStore.update(editing,patch);
+      this.disabled=false;
+      if(r.ok){toast('Login updated',$('fUser').value);closeAll();refresh();}
+      else toast('Could not save',r.error||'');
+      return;
+    }
+
+    if(!$('fOrg').value){this.disabled=false;toast('Select an organization','Every login belongs to a facility');$('fOrg').focus();return;}
+    patch.username=$('fUser').value.trim().toLowerCase();
+    if(!patch.username){this.disabled=false;toast('Missing username','Give the account a username');$('fUser').focus();return;}
+    if($('fPw').value.trim())patch.password=$('fPw').value.trim();
+
+    if(pendingReq){
+      var rq2=REQS.filter(function(r){return r.id===pendingReq;})[0];
+      if(rq2&&rq2.access)patch.access=rq2.access;
+    }
+    var res=await RFStore.create(patch);
+    this.disabled=false;
+    if(res.ok){
+      /* close the practice manager's request and tell them */
+      if(pendingReq){
+        try{
+          await RFStore.markTeamRequest(pendingReq,{
+            status:'active', issued_username:patch.username,
+            issued_at:new Date().toISOString()
+          });
+          var rq3=REQS.filter(function(r){return r.id===pendingReq;})[0];
+          if(rq3&&rq3.requested_by&&window.RFNotify){
+            RFNotify.send([rq3.requested_by],{
+              title:'Login created: '+rq3.full_name,
+              body:'An administrator issued a temporary password. Username '+patch.username+
+                '. They will be asked to change it on first sign-in.',
+              meta:'TEAM REQUEST', ttl:9000
+            });
+          }
+        }catch(e){}
+        pendingReq=null;
+      }
+      showCreds(patch.username,res.tempPassword||patch.password,res.mfa);
+      refresh();
+    }else{
+      toast('Could not create',res.error||'Check the details and try again');
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

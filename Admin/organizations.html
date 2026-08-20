@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Organizations — ReviFlow Admin</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_admin.css">
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_session.js"></script>
+<link rel="stylesheet" href="../_session.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="mesh"></div><div class="aur a1"></div><div class="aur a2"></div><div class="aur a3"></div></div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <img class="mk" src="../assets/logo-64.png" alt="ReviFlow RCM">
+      <span>R&nbsp;e&nbsp;v&nbsp;i&nbsp;F&nbsp;l&nbsp;o&nbsp;w</span>
+    </div>
+    <span class="rolechip">ADMIN CONSOLE</span>
+    <span class="crumb"><a href="admin-dashboard.html">Administration</a> / <b>Organizations</b></span>
+    <div class="hact">
+      <a class="hbtn" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <button class="hbtn out" id="logout">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ptop">
+    <div>
+      <h1>Organizations</h1>
+      <p>Group practice records. Providers, logins and claims all reference the organization set up here.</p>
+    </div>
+    <div class="cta">
+      <button class="btn pri" id="addBtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add organization</button>
+    </div>
+  </div>
+
+  <div class="tools">
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Search organization or NPI…">
+    </label>
+    <select class="sel" id="fState"><option value="all">All states</option></select>
+    <select class="sel" id="fSpec"><option value="all">All specialties</option></select>
+    <span class="sp"></span>
+    <span class="cnt" id="cnt">—</span>
+  </div>
+
+  <div class="card" style="animation-delay:.16s">
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:30%">Organization</th><th>Specialty</th><th>State</th>
+          <th class="r">Providers</th><th>Added on</th><th class="r" style="width:70px"></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M12 11v5M9.5 13.5h5"/></svg><br>
+      No organizations yet. Add the first one to get started.
+    </div>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="modal" id="mOrg" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M12 11v5M9.5 13.5h5"/></svg></span>
+    <div><h3 id="mTitle">Add organization</h3><p>Group practice details used on every claim.</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="subhead">Identity</div>
+    <div class="fgrid">
+      <label class="f"><span>Organization name <u>*</u></span><input type="text" id="oName" placeholder="Grateful Heart Counseling, PLLC"></label>
+      <label class="f"><span>Doing business as</span><input type="text" id="oDba" placeholder="Grateful Heart"></label>
+      <label class="f"><span>Practice MD name</span><input type="text" id="oMd" placeholder="Dr. Dana Whitfield"></label>
+      <label class="f"><span>Specialty</span>
+        <select id="oSpec">
+          <option value="">Select specialty</option>
+          <option>Family Medicine</option><option>Internal Medicine</option>
+          <option>Behavioral Health</option><option>Pediatrics</option>
+          <option>Cardiology</option><option>Endocrinology</option>
+          <option>Orthopedics</option><option>Obstetrics and Gynecology</option>
+          <option>Urgent Care</option><option>Multi-specialty</option>
+        </select></label>
+    </div>
+
+    <div class="subhead">Identifiers</div>
+    <div class="fgrid">
+      <label class="f"><span>Group NPI <u>*</u></span><input type="text" id="oNpi" inputmode="numeric" maxlength="10" placeholder="10 digits"></label>
+      <label class="f"><span>Tax ID / EIN</span><input type="text" id="oTax" maxlength="10" placeholder="9 digits"></label>
+      <label class="f full"><span>Taxonomy code</span><input type="text" id="oTaxo" placeholder="207Q00000X — Family Medicine"></label>
+    </div>
+
+    <div class="subhead">Contact</div>
+    <div class="fgrid">
+      <label class="f"><span>Phone</span><input type="tel" id="oPhone" placeholder="(512) 555-0100"></label>
+      <label class="f"><span>Billing phone</span><input type="tel" id="oBill" placeholder="(512) 555-0110"></label>
+      <label class="f full"><span>Appointment phone</span><input type="tel" id="oAppt" placeholder="(512) 555-0120"></label>
+    </div>
+
+    <div class="subhead">Addresses</div>
+    <div id="addrList"></div>
+    <button class="btn sec" id="addAddr" style="width:100%;justify-content:center;margin-top:10px">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add another address</button>
+
+    <div class="hint" style="margin-top:15px">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>The first address is treated as primary and appears in box 33 of the CMS-1500.</span>
+    </div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="saveBtn"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save organization</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="tT">—</b><small id="tS"></small></span></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var ORGS=[],COUNTS={},editing=null,filt={q:'',state:'all',spec:'all'};
+  var STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+
+  function toast(t,s){$('tT').textContent=t;$('tS').textContent=s||'';
+    $('toast').classList.add('on');clearTimeout(toast._t);
+    toast._t=setTimeout(function(){$('toast').classList.remove('on');},3400);}
+
+  (async function(){
+    await RFStore.ready();
+    var s=RFSession.require(['admin']);
+    if(!s)return;
+    refresh();
+  })();
+  $('logout').addEventListener('click',function(){RFSession.signOut('manual');});
+
+  async function refresh(){
+    ORGS=await RFStore.orgs();
+    var provs=await RFStore.providers();
+    COUNTS={};provs.forEach(function(p){COUNTS[p.org_id]=(COUNTS[p.org_id]||0)+1;});
+    var st=[...new Set(ORGS.map(function(o){return (o.addresses&&o.addresses[0]||{}).state;}).filter(Boolean))].sort();
+    $('fState').innerHTML='<option value="all">All states</option>'+st.map(function(x){return '<option>'+x+'</option>';}).join('');
+    var sp=[...new Set(ORGS.map(function(o){return o.specialty;}).filter(Boolean))].sort();
+    $('fSpec').innerHTML='<option value="all">All specialties</option>'+sp.map(function(x){return '<option>'+x+'</option>';}).join('');
+    render();
+  }
+
+  function fmt(d){return d?new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'—';}
+
+  function render(){
+    var list=ORGS.filter(function(o){
+      var a=(o.addresses&&o.addresses[0])||{};
+      if(filt.state!=='all'&&a.state!==filt.state)return false;
+      if(filt.spec!=='all'&&o.specialty!==filt.spec)return false;
+      if(filt.q){
+        var h=(o.name+' '+(o.dba||'')+' '+(o.npi||'')).toLowerCase();
+        if(h.indexOf(filt.q)<0)return false;
+      }
+      return true;
+    });
+    $('cnt').textContent=list.length+' of '+ORGS.length;
+    $('empty').hidden=list.length>0;
+    $('rows').innerHTML=list.map(function(o,i){
+      var a=(o.addresses&&o.addresses[0])||{},n=COUNTS[o.id]||0;
+      return '<tr style="animation-delay:'+Math.min(.4,i*.03)+'s">'+
+        '<td><div class="nm"><span class="av2" style="background:linear-gradient(140deg,#0E9D73,#3B6FF5)">'+
+          (o.name||'?').slice(0,2).toUpperCase()+'</span>'+
+          '<span><b><a href="providers.html?org='+o.id+'" style="color:var(--blue)">'+o.name+'</a></b>'+
+          '<small>'+(o.dba?o.dba+' · ':'')+'NPI '+(o.npi||'—')+'</small></span></div></td>'+
+        '<td>'+(o.specialty||'—')+'</td>'+
+        '<td class="mono">'+(a.state||'—')+'</td>'+
+        '<td class="r"><span class="pill '+(n?'ok':'warn')+'">'+n+'</span></td>'+
+        '<td class="mono">'+fmt(o.created_at)+'</td>'+
+        '<td class="r"><div class="acts">'+
+          '<button class="ib" data-edit="'+o.id+'" title="Edit"><svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/></svg></button>'+
+          '<button class="ib del" data-del="'+o.id+'" title="Delete"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button>'+
+        '</div></td></tr>';
+    }).join('');
+  }
+
+  $('q').addEventListener('input',function(){filt.q=this.value.toLowerCase().trim();render();});
+  $('fState').addEventListener('change',function(){filt.state=this.value;render();});
+  $('fSpec').addEventListener('change',function(){filt.spec=this.value;render();});
+
+  var scrim=$('scrim');
+  function open(){scrim.classList.add('on');$('mOrg').classList.add('on');document.body.style.overflow='hidden';}
+  function closeM(){scrim.classList.remove('on');$('mOrg').classList.remove('on');document.body.style.overflow='';}
+  scrim.addEventListener('click',closeM);
+  document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',closeM);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+
+  /* address rows */
+  function addrRow(a,i){
+    a=a||{};
+    return '<div class="addr" data-i="'+i+'" style="padding:14px;border:1px solid var(--line-2);border-radius:13px;background:rgba(255,255,255,.6);margin-bottom:9px">'+
+      '<div style="display:flex;align-items:center;gap:9px;margin-bottom:11px">'+
+        '<b style="font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:'+(i===0?'var(--green-d)':'var(--dim)')+'">'+
+          (i===0?'Primary address':'Address '+(i+1))+'</b>'+
+        (i>0?'<button type="button" class="ib del rmAddr" style="margin-left:auto" data-rm="'+i+'"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>':'')+
+      '</div>'+
+      '<div class="fgrid">'+
+        '<label class="f full"><span>Street</span><input type="text" class="aStreet" value="'+(a.street||'')+'" placeholder="211 W 5th St, Suite 210"></label>'+
+        '<label class="f"><span>City</span><input type="text" class="aCity" value="'+(a.city||'')+'" placeholder="Justin"></label>'+
+        '<label class="f"><span>State</span><select class="aState">'+
+          '<option value="">—</option>'+STATES.map(function(x){return '<option'+(a.state===x?' selected':'')+'>'+x+'</option>';}).join('')+
+        '</select></label>'+
+        '<label class="f"><span>ZIP</span><input type="text" class="aZip" maxlength="10" value="'+(a.zip||'')+'" placeholder="76247"></label>'+
+        '<label class="f"><span>Type</span><select class="aType">'+
+          ['Practice location','Billing address','Mailing address','Service facility'].map(function(x){
+            return '<option'+(a.type===x?' selected':'')+'>'+x+'</option>';}).join('')+
+        '</select></label>'+
+      '</div></div>';
+  }
+  function paintAddrs(list){
+    $('addrList').innerHTML=(list&&list.length?list:[{}]).map(addrRow).join('');
+  }
+  function readAddrs(){
+    return [].slice.call(document.querySelectorAll('#addrList .addr')).map(function(el){
+      return {street:el.querySelector('.aStreet').value.trim(),
+              city:el.querySelector('.aCity').value.trim(),
+              state:el.querySelector('.aState').value,
+              zip:el.querySelector('.aZip').value.trim(),
+              type:el.querySelector('.aType').value};
+    }).filter(function(a){return a.street||a.city;});
+  }
+  $('addAddr').addEventListener('click',function(){
+    var cur=readAddrs();cur.push({});paintAddrs(cur);
+  });
+  $('addrList').addEventListener('click',function(e){
+    var b=e.target.closest('[data-rm]');if(!b)return;
+    var cur=readAddrs();cur.splice(+b.dataset.rm,1);paintAddrs(cur);
+  });
+
+  ['oNpi','oTax'].forEach(function(id){
+    $(id).addEventListener('input',function(){this.value=this.value.replace(/\D/g,'');});
+  });
+
+  function blank(){
+    ['oName','oDba','oMd','oNpi','oTax','oTaxo','oPhone','oBill','oAppt'].forEach(function(i){$(i).value='';});
+    $('oSpec').value='';paintAddrs([{}]);
+  }
+  $('addBtn').addEventListener('click',function(){
+    editing=null;blank();
+    $('mTitle').textContent='Add organization';
+    $('saveBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save organization';
+    open();
+  });
+
+  document.addEventListener('click',async function(e){
+    var ed=e.target.closest('[data-edit]'),dl=e.target.closest('[data-del]');
+    if(ed){
+      var o=ORGS.filter(function(x){return String(x.id)===ed.dataset.edit;})[0];
+      if(!o)return;
+      editing=o.id;
+      $('mTitle').textContent='Edit organization';
+      $('oName').value=o.name||'';$('oDba').value=o.dba||'';$('oMd').value=o.md||'';
+      $('oSpec').value=o.specialty||'';$('oNpi').value=o.npi||'';$('oTax').value=o.tax_id||'';
+      $('oTaxo').value=o.taxonomy||'';$('oPhone').value=o.phone||'';
+      $('oBill').value=o.billing_phone||'';$('oAppt').value=o.appt_phone||'';
+      paintAddrs(o.addresses||[{}]);
+      $('saveBtn').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save changes';
+      open();return;
+    }
+    if(dl){
+      var org=ORGS.filter(function(x){return String(x.id)===dl.dataset.del;})[0];
+      if(!confirm('Delete '+org.name+'?\nThis cannot be undone.'))return;
+      var r=await RFStore.removeOrg(org.id);
+      if(r.ok){toast('Organization deleted',org.name);refresh();}
+      else toast('Cannot delete',r.error);
+      return;
+    }
+  });
+
+  $('saveBtn').addEventListener('click',async function(){
+    var name=$('oName').value.trim();
+    if(!name){toast('Missing name','Enter the organization name');$('oName').focus();return;}
+    if($('oNpi').value&&$('oNpi').value.length!==10){toast('Check the Group NPI','An NPI is exactly 10 digits');$('oNpi').focus();return;}
+    var rec={
+      name:name,dba:$('oDba').value.trim(),md:$('oMd').value.trim(),
+      specialty:$('oSpec').value,npi:$('oNpi').value.trim(),
+      tax_id:$('oTax').value.trim(),taxonomy:$('oTaxo').value.trim(),
+      phone:$('oPhone').value.trim(),billing_phone:$('oBill').value.trim(),
+      appt_phone:$('oAppt').value.trim(),addresses:readAddrs()
+    };
+    if(editing){var full=await RFStore.org(editing);rec=Object.assign({},full,rec,{id:editing});}
+    this.disabled=true;
+    try{
+      var r=await RFStore.saveOrg(rec);
+      if(r&&r.ok){toast(editing?'Organization updated':'Organization added',name);closeM();await refresh();}
+      else toast('Could not save',(r&&r.error)||'Unknown error');
+    }catch(err){
+      toast('Could not save',String(err&&err.message||err));
+      console.error('saveOrg failed',err);
+    }finally{ this.disabled=false; }
+  });
+
+  paintAddrs([{}]);
+})();
+</script>
+
+</body>
+</html>

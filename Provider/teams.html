@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teams — ReviFlow</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../_session.css">
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_session.js"></script>
+<script src="../_notify.js"></script>
+<style>
+
+:root{
+  --paper:#FBFAF6;--paper-2:#F3F1EA;--ink:#0D1A16;--muted:#5C6A66;--dim:#8A9A96;
+  --line:rgba(13,26,22,.085);--line-2:rgba(13,26,22,.15);
+  --navy:#12566F;--navy-d:#0B3B4D;--navy-s:#E4EFF4;
+  --green:#0E9D73;--green-d:#0A5C46;--green-s:#E3F5EE;
+  --blue:#3B6FF5;--blue-s:#E9EFFE;--amber:#C08616;--amber-s:#FBF2DC;
+  --coral:#CE5F3E;--coral-s:#FBEAE4;--violet:#8257F0;--violet-s:#F0EAFE;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --e:cubic-bezier(.22,1,.36,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font:inherit}
+:focus-visible{outline:2px solid var(--navy);outline-offset:2px;border-radius:7px}
+
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg .dots{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(13,26,22,.07) 1px,transparent 0);background-size:30px 30px;-webkit-mask-image:radial-gradient(120% 60% at 50% 0,#000,transparent 72%);mask-image:radial-gradient(120% 60% at 50% 0,#000,transparent 72%)}
+.bg .bloom{position:absolute;top:-32%;left:50%;transform:translateX(-50%);width:min(1100px,110vw);height:min(660px,70vw);border-radius:50%;filter:blur(92px);background:radial-gradient(circle,rgba(18,86,111,.13),transparent 68%);animation:breathe 15s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.8;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.06)}}
+
+/* ── header ── */
+.hdr{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;padding:12px clamp(14px,2.6vw,34px);border-bottom:1px solid var(--line);background:rgba(251,250,246,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:9px}
+.brand img{width:25px;height:25px;object-fit:contain}
+.brand span{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.035em}
+.brand em{font-style:normal;color:var(--green);font-weight:400;font-size:.9em;margin-left:3px}
+.crumb{margin-left:12px;padding-left:12px;border-left:1px solid var(--line-2);font-size:12.6px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.hact{margin-left:auto;display:flex;gap:8px;align-items:center}
+.hbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.72);font-size:12.6px;font-weight:600;white-space:nowrap;transition:all .3s var(--e)}
+.hbtn svg{width:14px;height:14px;stroke:var(--navy);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hbtn:hover{border-color:var(--navy);background:#fff;transform:translateY(-1px)}
+
+.wrap{position:relative;z-index:2;max-width:1340px;margin:0 auto;padding:clamp(16px,2.4vw,26px) clamp(14px,2.6vw,34px) clamp(40px,5vw,72px)}
+
+/* ── page head ── */
+.phead{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;padding:clamp(16px,2vw,22px) clamp(18px,2.2vw,26px);border-radius:19px;
+  background:linear-gradient(135deg,#fff,#FAFCFD);border:1px solid var(--line-2);
+  box-shadow:0 18px 44px -36px rgba(11,59,77,.5);margin-bottom:14px;
+  opacity:0;transform:translateY(16px);animation:rise .75s var(--e) .05s forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.phead .pi{width:46px;height:46px;flex:none;border-radius:14px;background:linear-gradient(140deg,var(--navy),#1E7E9E);display:grid;place-items:center;box-shadow:0 10px 22px -12px rgba(18,86,111,.9)}
+.phead .pi svg{width:23px;height:23px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.phead h1{font-family:'Sora',sans-serif;font-size:clamp(19px,2.2vw,25px);font-weight:600;letter-spacing:-.042em;line-height:1.14}
+.phead p{font-size:12.8px;color:var(--muted);margin-top:4px;max-width:60ch;line-height:1.55}
+.phead .stamp{margin-left:auto;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.stamp .when{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.05em;padding:7px 11px;border-radius:9px;background:var(--paper-2)}
+
+/* ── segmented tabs ── */
+.segs{display:inline-flex;gap:3px;padding:4px;border-radius:13px;background:var(--paper-2);border:1px solid var(--line);margin-bottom:14px;
+  opacity:0;animation:rise .75s var(--e) .12s forwards}
+.seg{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;font-size:12.6px;font-weight:600;color:var(--muted);transition:all .3s var(--e)}
+.seg svg{width:14px;height:14px;fill:none;stroke-width:2.1;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+.seg:hover{color:var(--ink);background:rgba(255,255,255,.65)}
+.seg.on{background:#fff;color:var(--navy-d);box-shadow:0 6px 16px -10px rgba(13,26,22,.45)}
+.seg .n{padding:1px 7px;border-radius:99px;background:var(--paper-2);font-family:var(--mono);font-size:9.4px;font-weight:700;color:var(--dim)}
+.seg.on .n{background:var(--navy-s);color:var(--navy)}
+
+/* ── bento stats ── */
+.bento{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.stat{position:relative;overflow:hidden;padding:16px 18px;border-radius:17px;background:#fff;border:1px solid var(--line-2);
+  box-shadow:0 14px 36px -34px rgba(11,59,77,.5);opacity:0;transform:translateY(18px) scale(.98);
+  animation:pop .7s var(--spring) forwards;transition:transform .4s var(--e),box-shadow .4s var(--e),border-color .4s var(--e)}
+@keyframes pop{to{opacity:1;transform:none}}
+.stat::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;transform:scaleX(0);transform-origin:left;transition:transform .55s var(--e)}
+.stat:hover{transform:translateY(-5px);box-shadow:0 26px 50px -30px rgba(11,59,77,.55);border-color:rgba(18,86,111,.34)}
+.stat:hover::after{transform:scaleX(1)}
+.stat.c-navy::after{background:linear-gradient(90deg,var(--navy),#3AA8C9)}
+.stat.c-green::after{background:linear-gradient(90deg,var(--green-d),#3ECFA0)}
+.stat.c-amber::after{background:linear-gradient(90deg,var(--amber),#E5B658)}
+.stat.c-coral::after{background:linear-gradient(90deg,var(--coral),#E89275)}
+.stat .top{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.stat .ic{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;transition:transform .45s var(--spring)}
+.stat:hover .ic{transform:rotate(-8deg) scale(1.12)}
+.stat .ic svg{width:15px;height:15px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stat h3{font-size:9.6px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+.stat b{display:block;font-family:'Sora',sans-serif;font-size:31px;font-weight:600;letter-spacing:-.045em;line-height:1}
+.stat .sub{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;font-family:var(--mono);font-size:9.6px;color:var(--muted)}
+.stat .sub span{display:inline-flex;align-items:center;gap:5px}
+.stat .sub i{width:6px;height:6px;border-radius:50%}
+.stat .foot{margin-top:11px;padding-top:9px;border-top:1px solid var(--line);font-size:10.4px;color:var(--dim)}
+
+/* ── grid ── */
+.cols{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);gap:12px;align-items:start}
+.card{background:#fff;border:1px solid var(--line-2);border-radius:17px;overflow:hidden;margin-bottom:12px;
+  box-shadow:0 14px 36px -34px rgba(11,59,77,.46);opacity:0;transform:translateY(16px);animation:rise .75s var(--e) forwards}
+.chead{display:flex;align-items:center;gap:11px;padding:14px 17px;border-bottom:1px solid var(--line)}
+.chead .ci{width:30px;height:30px;flex:none;border-radius:9px;background:var(--navy-s);display:grid;place-items:center}
+.chead .ci svg{width:15px;height:15px;stroke:var(--navy);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chead h2{font-family:'Sora',sans-serif;font-size:14.2px;font-weight:600;letter-spacing:-.03em}
+.chead p{font-size:11.2px;color:var(--muted);margin-top:1px}
+.chead .sub{margin-left:auto;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9.4px;color:var(--dim);letter-spacing:.07em}
+.cbody{padding:17px}
+
+/* ── roster ── */
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 17px;border-bottom:1px solid var(--line);background:var(--paper)}
+.search{position:relative;flex:1;min-width:180px;max-width:300px;display:flex;align-items:center}
+.search input{width:100%;padding:9px 12px 9px 33px;border-radius:10px;border:1px solid var(--line-2);background:#fff;font-size:12.4px}
+.search input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(18,86,111,.12)}
+.search svg{position:absolute;left:11px;width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none}
+.sel{padding:9px 28px 9px 12px;border-radius:10px;border:1px solid var(--line-2);background:#fff;font-size:12px;appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235C6A66' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center}
+.tools .sp{flex:1}
+
+.tw{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12.4px}
+.tbl th{text-align:left;padding:10px 16px;font-size:8.8px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700;background:var(--paper-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+.tbl th.r,.tbl td.r{text-align:right}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tbody tr{opacity:0;transform:translateX(-9px);animation:slide .5s var(--e) forwards;cursor:pointer;transition:background .22s}
+@keyframes slide{to{opacity:1;transform:none}}
+.tbl tbody tr:hover{background:linear-gradient(90deg,var(--navy-s),transparent)}
+.tbl tbody tr:last-child td{border-bottom:none}
+
+.who{display:flex;align-items:center;gap:11px}
+.av{width:34px;height:34px;flex:none;border-radius:11px;display:grid;place-items:center;color:#fff;
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.02em;
+  background:linear-gradient(140deg,var(--navy),#2E9BBE);transition:transform .4s var(--spring),box-shadow .4s var(--e)}
+tr:hover .av{transform:scale(1.1) rotate(-5deg);box-shadow:0 8px 18px -8px rgba(18,86,111,.9)}
+.who b{display:block;font-size:12.8px;font-weight:600;letter-spacing:-.016em;line-height:1.3}
+.who small{display:block;font-family:var(--mono);font-size:9.4px;color:var(--dim);margin-top:2px}
+
+/* ── progress stepper ── */
+.prog{display:flex;align-items:center;gap:0;min-width:132px}
+.pnode{position:relative;width:13px;height:13px;flex:none;border-radius:50%;border:2px solid var(--navy);background:#fff;z-index:2;transition:all .4s var(--spring)}
+.pnode.done{background:var(--navy);box-shadow:0 0 0 0 rgba(18,86,111,.4)}
+.pnode.cur{background:#fff;border-color:var(--navy);animation:pulseNode 2.1s ease-in-out infinite}
+@keyframes pulseNode{0%,100%{box-shadow:0 0 0 0 rgba(18,86,111,.42)}55%{box-shadow:0 0 0 7px rgba(18,86,111,0)}}
+.pnode.todo{border-color:#BDC9CD}
+.plink{flex:1;height:2.5px;background:#D6DFE2;position:relative;overflow:hidden;min-width:18px}
+.plink i{position:absolute;inset:0;width:0;background:var(--navy);transition:width .8s var(--e)}
+tr:hover .pnode.done{transform:scale(1.18)}
+.prog.warn .pnode.done,.prog.warn .plink i{background:var(--amber);border-color:var(--amber)}
+.prog.warn .pnode{border-color:var(--amber)}
+.prog.warn .pnode.todo{border-color:#E2D3AE}
+.prog.ok .pnode.done,.prog.ok .plink i{background:var(--green-d);border-color:var(--green-d)}
+.prog.ok .pnode{border-color:var(--green-d)}
+
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:7px;font-size:9.8px;font-weight:700;letter-spacing:.03em;white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%}
+.pill.ok{background:var(--green-s);color:var(--green-d)}.pill.ok i{background:var(--green)}
+.pill.info{background:var(--navy-s);color:var(--navy-d)}.pill.info i{background:var(--navy)}
+.pill.warn{background:var(--amber-s);color:#7A5507}.pill.warn i{background:var(--amber)}
+.pill.bad{background:var(--coral-s);color:#9B3F24}.pill.bad i{background:var(--coral)}
+.pill.vio{background:var(--violet-s);color:#5B32B8}.pill.vio i{background:var(--violet)}
+.pill.off{background:var(--paper-2);color:var(--dim)}.pill.off i{background:var(--dim)}
+.pill.blink i{animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.28}}
+
+/* ── hover card ── */
+.hovc{position:fixed;z-index:80;width:min(430px,calc(100vw - 24px));background:rgba(255,255,255,.82);
+  backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 34px 70px -26px rgba(11,59,77,.55);
+  opacity:0;visibility:hidden;transform:translateY(10px) scale(.97);transition:all .32s var(--e);pointer-events:none;overflow:hidden}
+.hovc.on{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.hovtop{display:flex;align-items:center;gap:12px;padding:15px 17px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(228,239,244,.7),transparent)}
+.hovtop .av{width:40px;height:40px;font-size:12.4px}
+.hovtop b{display:block;font-family:'Sora',sans-serif;font-size:14.6px;font-weight:600;letter-spacing:-.03em}
+.hovtop small{display:block;font-family:var(--mono);font-size:9.6px;color:var(--dim);margin-top:2px}
+.hovids{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}
+.hovids>div{background:rgba(255,255,255,.72);padding:11px 13px}
+.hovids dt{font-size:8.4px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.hovids dd{font-family:var(--mono);font-size:11.4px;font-weight:600;word-break:break-all}
+.hovbody{padding:13px 17px}
+.hovrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.hovrow:last-child{border-bottom:none}
+.hovrow .pn{font-size:12px;font-weight:600;min-width:74px}
+.hovrow .prog{min-width:96px}
+.hovfoot{padding:11px 17px;border-top:1px solid var(--line);background:rgba(243,241,234,.7);
+  display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:9.6px;color:var(--muted)}
+.hovfoot a{margin-left:auto;color:var(--navy);font-weight:700;letter-spacing:.05em}
+
+/* ── pipeline ── */
+.pipebar{display:flex;height:11px;border-radius:99px;overflow:hidden;background:var(--paper-2);margin-bottom:15px}
+.pipebar i{height:100%;width:0;transition:width 1s var(--e)}
+.pipelist{display:grid;gap:9px}
+.piperow{display:flex;align-items:center;gap:10px;font-size:12px;padding:5px 0;transition:transform .3s var(--e)}
+.piperow:hover{transform:translateX(4px)}
+.piperow .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.piperow .lbl{flex:1;min-width:0}
+.piperow .val{font-family:var(--mono);font-size:11px;font-weight:600}
+.piperow .pct{font-family:var(--mono);font-size:9.6px;color:var(--dim);min-width:44px;text-align:right}
+
+/* ── ring ── */
+.ringwrap{display:flex;align-items:center;gap:18px;padding:6px 0 14px}
+.ring{position:relative;width:104px;height:104px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .trk{stroke:var(--paper-2)}
+.ring .val{stroke:var(--green-d);stroke-linecap:round;transition:stroke-dashoffset 1.2s var(--e)}
+.ring .mid{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .mid b{display:block;font-family:'Sora',sans-serif;font-size:23px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.ring .mid small{display:block;font-family:var(--mono);font-size:8.4px;color:var(--dim);margin-top:3px;letter-spacing:.08em}
+.ringnote{font-size:12px;color:var(--muted);line-height:1.6}
+.ringnote b{color:var(--ink)}
+
+/* ── action items ── */
+.act{display:flex;align-items:center;gap:11px;padding:12px 17px;border-bottom:1px solid var(--line);
+  opacity:0;transform:translateX(-8px);animation:slide .5s var(--e) forwards;transition:background .25s}
+.act:last-child{border-bottom:none}
+.act:hover{background:var(--paper)}
+.act .bar{width:3px;align-self:stretch;border-radius:99px;flex:none}
+.act .ab{min-width:0;flex:1}
+.act .ab b{display:block;font-size:12.4px;font-weight:600;letter-spacing:-.014em}
+.act .ab small{display:block;font-family:var(--mono);font-size:9.4px;color:var(--dim);margin-top:2px}
+
+.empty{padding:46px 20px;text-align:center;color:var(--dim);font-size:12.6px;line-height:1.75}
+.empty svg{width:30px;height:30px;stroke:var(--dim);fill:none;stroke-width:1.6;margin-bottom:12px}
+.empty b{display:block;font-family:'Sora',sans-serif;font-size:15px;color:var(--ink);margin-bottom:5px}
+
+/* ── detail view ── */
+.idcard{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.idcard>div{background:#fff;padding:14px 17px;transition:background .3s var(--e)}
+.idcard>div:hover{background:var(--navy-s)}
+.idcard dt{font-size:8.6px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.idcard dd{font-family:var(--mono);font-size:12.2px;font-weight:600;word-break:break-all}
+.idcard dd.none{color:var(--dim);font-weight:400;font-family:'Manrope',sans-serif}
+
+.enr{border-bottom:1px solid var(--line);padding:14px 17px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  opacity:0;transform:translateY(9px);animation:rise .55s var(--e) forwards;transition:background .25s}
+.enr:last-child{border-bottom:none}
+.enr:hover{background:var(--paper)}
+.enr .pay{min-width:112px}
+.enr .pay b{display:block;font-size:13px;font-weight:600;letter-spacing:-.018em}
+.enr .pay small{display:block;font-family:var(--mono);font-size:9.2px;color:var(--dim);margin-top:2px}
+.enr .dates{display:flex;gap:16px;font-family:var(--mono);font-size:10.6px;min-width:190px}
+.enr .dates u{display:block;text-decoration:none;font-size:8.4px;letter-spacing:.09em;color:var(--dim);margin-bottom:2px}
+.enr .sp{flex:1}
+.steplab{display:flex;gap:0;margin-top:5px;min-width:132px;font-family:var(--mono);font-size:7.6px;color:var(--dim);letter-spacing:.05em}
+.steplab span{flex:1;text-align:center}
+.steplab span:first-child{text-align:left}.steplab span:last-child{text-align:right}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:11px;font-size:12.4px;font-weight:600;white-space:nowrap;transition:all .3s var(--e)}
+.btn svg{width:14px;height:14px;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.btn.pri{background:var(--navy-d);color:#EAF6FA;box-shadow:0 10px 22px -14px rgba(11,59,77,.95)}
+.btn.pri svg{stroke:#EAF6FA}
+.btn.pri:hover{background:var(--navy);transform:translateY(-2px)}
+.btn.sec{border:1px solid var(--line-2);background:#fff}
+.btn.sec svg{stroke:var(--navy)}
+.btn.sec:hover{border-color:var(--navy);transform:translateY(-2px)}
+.btn.sm{padding:7px 12px;font-size:11.6px}
+.ib{width:29px;height:29px;border-radius:9px;border:1px solid var(--line-2);background:#fff;display:inline-grid;place-items:center;transition:all .28s var(--e)}
+.ib svg{width:13px;height:13px;stroke:var(--muted);fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.ib:hover{transform:translateY(-2px);border-color:var(--navy);background:var(--navy-s)}
+.ib:hover svg{stroke:var(--navy)}
+
+/* ── modal ── */
+.scrim{position:fixed;inset:0;z-index:90;background:rgba(13,26,22,.36);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:all .3s var(--e)}
+.scrim.on{opacity:1;visibility:visible}
+.modal{position:fixed;z-index:91;left:50%;top:50%;width:min(600px,calc(100vw - 22px));max-height:calc(100vh - 44px);overflow:auto;
+  transform:translate(-50%,-46%) scale(.96);opacity:0;visibility:hidden;background:rgba(255,255,255,.7);
+  backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid rgba(255,255,255,.8);border-radius:19px;box-shadow:0 40px 88px -28px rgba(11,59,77,.6);transition:all .38s var(--e)}
+.modal.on{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+.mhead{display:flex;align-items:center;gap:11px;padding:16px 19px;border-bottom:1px solid rgba(13,26,22,.1)}
+.mhead .mi{width:32px;height:32px;flex:none;border-radius:10px;background:var(--navy-s);display:grid;place-items:center}
+.mhead .mi svg{width:16px;height:16px;stroke:var(--navy);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mhead h3{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.03em}
+.mhead p{font-size:11.2px;color:var(--muted);margin-top:1px}
+.mx{margin-left:auto;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:var(--muted);transition:all .3s var(--e)}
+.mx svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round}
+.mx:hover{background:rgba(255,255,255,.9);transform:rotate(90deg)}
+.mbody{padding:18px 19px}
+.mfoot{display:flex;gap:8px;padding:14px 19px;border-top:1px solid rgba(13,26,22,.1);background:rgba(255,255,255,.42)}
+.mfoot .sp{flex:1}
+.fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.f{display:block;min-width:0}.f.full{grid-column:1/-1}
+.f>span{display:flex;align-items:center;gap:5px;font-size:10.6px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.f>span u{color:var(--coral);text-decoration:none}
+.f input,.f select,.f textarea{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);font-size:12.6px;transition:all .24s var(--e)}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--navy);background:#fff;box-shadow:0 0 0 3px rgba(18,86,111,.12)}
+.f textarea{min-height:56px;resize:vertical}
+.subhead{display:flex;align-items:center;gap:9px;margin:17px 0 11px;font-size:9.4px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+.subhead:first-child{margin-top:0}
+.subhead::after{content:'';flex:1;height:1px;background:rgba(13,26,22,.11)}
+.stepsel{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stepsel button{padding:10px 6px;border-radius:10px;border:1px solid var(--line-2);background:rgba(255,255,255,.75);
+  font-size:11px;font-weight:600;color:var(--muted);transition:all .28s var(--e);text-align:center;line-height:1.3}
+.stepsel button:hover{border-color:var(--navy)}
+.stepsel button.on{background:var(--navy-d);border-color:var(--navy-d);color:#EAF6FA}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,18px);z-index:95;display:flex;align-items:center;gap:11px;
+  padding:13px 18px;border-radius:13px;background:var(--navy-d);color:#EAF6FA;box-shadow:0 22px 44px -20px rgba(11,59,77,.9);
+  opacity:0;pointer-events:none;transition:all .42s var(--e);max-width:calc(100vw - 28px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast svg{width:16px;height:16px;stroke:#7FD8F0;fill:none;stroke-width:2.4;flex:none}
+.toast b{display:block;font-size:12.8px;font-weight:600}
+.toast small{display:block;font-size:10.8px;opacity:.76;margin-top:1px}
+
+@media (max-width:1150px){
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cols{grid-template-columns:minmax(0,1fr)}
+  .idcard{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:700px){
+  .bento{grid-template-columns:minmax(0,1fr)}
+  .idcard{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .crumb{display:none}
+  .tbl{min-width:700px}
+  .fg{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .stat,.card,.phead,.segs{opacity:1;transform:none}}
+
+
+/* teams */
+.rolegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:4px}
+.rolegrid button{padding:13px 14px;border-radius:13px;border:1px solid var(--line-2);
+  background:rgba(255,255,255,.7);text-align:left;cursor:pointer;transition:all .3s var(--e)}
+.rolegrid button:hover{border-color:var(--navy);transform:translateY(-2px)}
+.rolegrid button.on{border-color:var(--navy);background:var(--navy-s);
+  box-shadow:0 0 0 2px rgba(18,86,111,.15)}
+.rolegrid .ri{width:28px;height:28px;border-radius:9px;background:var(--paper-2);
+  display:grid;place-items:center;margin-bottom:9px;transition:all .3s var(--e)}
+.rolegrid .ri svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rolegrid button.on .ri{background:#fff}
+.rolegrid button.on .ri svg{stroke:var(--navy)}
+.rolegrid b{display:block;font-size:12.8px;font-weight:600;letter-spacing:-.018em}
+.rolegrid button.on b{color:var(--navy-d)}
+.rolegrid small{display:block;font-size:10.8px;color:var(--muted);margin-top:3px;line-height:1.45}
+.fnote{font-size:10.4px;color:var(--dim);margin-top:5px}
+.who2{display:flex;align-items:center;gap:11px}
+.who2 b{display:block;font-size:12.8px;font-weight:600;letter-spacing:-.016em;line-height:1.3}
+.who2 small{display:block;font-family:var(--mono);font-size:9.2px;color:var(--dim);margin-top:2px}
+.stat .foot{margin-top:11px;padding-top:9px;border-top:1px solid var(--line);font-size:10.4px;color:var(--dim)}
+@media (max-width:640px){.rolegrid{grid-template-columns:minmax(0,1fr)}}
+
+.rolegrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.rolegrid .ri{width:26px;height:26px;border-radius:8px;margin-bottom:8px}
+.rolegrid .ri svg{width:13px;height:13px;stroke-width:1.9}
+.rolegrid .ri.c-green{background:var(--green-s)}
+.rolegrid .ri.c-green svg{stroke:var(--green-d)}
+.rolegrid .ri.c-blue{background:var(--blue-s)}
+.rolegrid .ri.c-blue svg{stroke:var(--blue)}
+.rolegrid .ri.c-violet{background:var(--violet-s)}
+.rolegrid .ri.c-violet svg{stroke:var(--violet)}
+.rolegrid button.on .ri{background:#fff}
+
+.reqd{margin-left:auto;font-family:var(--mono);font-size:8.2px;letter-spacing:.09em;
+  padding:2px 7px;border-radius:5px;background:var(--coral-s);color:#9B3F24;text-transform:none}
+.subhead:has(.reqd)::after{display:none}
+.accnote{font-size:11.2px;color:var(--muted);margin:-4px 0 11px;line-height:1.5}
+.accgrid{display:grid;gap:6px}
+.accrow{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:11px;
+  border:1px solid var(--line-2);background:rgba(255,255,255,.7);transition:all .26s var(--e)}
+.accrow:hover{border-color:rgba(18,86,111,.34);background:#fff}
+.accrow .an{min-width:0;flex:1}
+.accrow .an b{display:block;font-size:12.4px;font-weight:600;letter-spacing:-.016em}
+.accrow .an small{display:block;font-size:10.4px;color:var(--dim);margin-top:1px}
+.accseg{display:flex;gap:3px;padding:3px;border-radius:9px;background:var(--paper-2);border:1px solid var(--line);flex:none}
+.accseg button{width:34px;height:28px;border-radius:7px;display:grid;place-items:center;
+  color:var(--dim);transition:all .24s var(--e)}
+.accseg button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.accseg button:hover{background:rgba(255,255,255,.85);color:var(--muted)}
+.accseg button.on{background:#fff;box-shadow:0 4px 10px -6px rgba(13,26,22,.5)}
+.accseg button.on[data-a="none"]{color:var(--coral)}
+.accseg button.on[data-a="view"]{color:var(--blue)}
+.accseg button.on[data-a="edit"]{color:var(--green-d)}
+.accbulk{display:flex;align-items:center;gap:7px;margin-top:11px;flex-wrap:wrap;
+  font-size:11.2px;color:var(--muted)}
+.accbulk .bulk{padding:6px 11px;border-radius:8px;border:1px solid var(--line-2);
+  background:rgba(255,255,255,.75);font-size:11.2px;font-weight:600;transition:all .24s var(--e)}
+.accbulk .bulk:hover{border-color:var(--navy);background:#fff}
+.accsummary{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.accsummary span{font-family:var(--mono);font-size:8.8px;letter-spacing:.05em;
+  padding:2px 7px;border-radius:5px}
+.accsummary .e{background:var(--green-s);color:var(--green-d)}
+.accsummary .v{background:var(--blue-s);color:#25489E}
+@media (max-width:640px){
+  .rolegrid{grid-template-columns:minmax(0,1fr)}
+  .accrow{flex-wrap:wrap}
+  .accseg{width:100%;justify-content:space-between}
+  .accseg button{flex:1}
+}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="dots"></div><div class="bloom"></div></div>
+
+<header class="hdr">
+  <div class="brand">
+    <img src="../assets/logo-64.png" alt="ReviFlow RCM">
+    <span>ReviFlow<em>RCM</em></span>
+  </div>
+  <span class="crumb">Provider workspace / <b>Teams</b></span>
+  <div class="hact">
+    <span id="rfWho"></span>
+    <a href="provider-dashboard.html" class="hbtn"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+    <button class="hbtn out" data-logout>Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="phead">
+    <span class="pi"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.6"/><path d="M2 21c0-3.9 3.2-6.4 7-6.4s7 2.5 7 6.4"/><circle cx="18" cy="7" r="2.8"/><path d="M17 21c0-2.9 1.3-5 4-5"/></svg></span>
+    <div>
+      <h1 id="headTitle">Teams</h1>
+      <p id="headSub">Add people to your practice. An administrator issues the password once the record is in.</p>
+    </div>
+    <div class="stamp">
+      <button class="btn pri" id="addBtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add team member</button>
+    </div>
+  </div>
+
+  <div class="bento" id="bento"></div>
+
+  <div class="card" style="animation-delay:.22s">
+    <div class="chead">
+      <span class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+      <div><h2>Your team</h2><p>Everyone at this practice, and where their login has got to.</p></div>
+      <span class="sub" id="cnt">—</span>
+    </div>
+    <div class="tools">
+      <label class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="search" id="q" placeholder="Search name or email…">
+      </label>
+      <select class="sel" id="fRole">
+        <option value="all">All roles</option>
+        <option value="provider">Providers</option>
+        <option value="supervisor">Practice managers</option>
+        <option value="scheduler">Schedulers</option>
+        <option value="employee">Employees</option>
+      </select>
+      <select class="sel" id="fState">
+        <option value="all">All states</option>
+        <option value="active">Login active</option>
+        <option value="pending">Awaiting a login</option>
+      </select>
+      <span class="sp"></span>
+    </div>
+    <div class="tw">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:22%">Name</th><th>Role</th><th>Team</th>
+          <th style="width:18%">Access</th><th>Login</th><th class="r" style="width:96px"></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><br>
+      <b>No team members yet</b><span id="emptyMsg">Add the first person and an administrator will issue their password.</span>
+    </div>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="modal" id="mAdd" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/><path d="M19 8v6M22 11h-6"/></svg></span>
+    <div><h3>Add team member</h3><p id="addSub">—</p></div>
+    <button class="mx" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="subhead">What they do</div>
+    <div class="rolegrid" id="roleGrid">
+      <button type="button" data-r="provider" data-t="Clinical">
+        <span class="ri c-green"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg></span>
+        <b>Provider</b><small>Own schedule, charts and claims</small></button>
+      <button type="button" data-r="scheduler" data-t="Front office">
+        <span class="ri c-blue"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="15" rx="2.6"/><path d="M3.5 10h17M8 3.5v4M16 3.5v4"/></svg></span>
+        <b>Front office</b><small>Books appointments, checks patients in</small></button>
+      <button type="button" data-r="employee" data-t="Billing">
+        <span class="ri c-violet"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="2.6"/><path d="M2.5 10h19M6 15h4"/></svg></span>
+        <b>Billing</b><small>Claims, payments and denials</small></button>
+    </div>
+
+    <div class="subhead">Person</div>
+    <div class="fg">
+      <label class="f"><span>Full name <u>*</u></span><input type="text" id="t_name" placeholder="Bhavan Kalyan">
+        <p class="fnote" id="t_hint">The username is suggested from this.</p></label>
+      <label class="f"><span>Suggested username</span><input type="text" id="t_user" placeholder="b.kalyan"></label>
+      <label class="f"><span>Job title</span><input type="text" id="t_title" placeholder="MD"></label>
+      <label class="f"><span>Email</span><input type="email" id="t_email"></label>
+      <label class="f"><span>Phone</span><input type="tel" id="t_phone"></label>
+      <label class="f"><span>Team or department</span><input type="text" id="t_team" placeholder="Front office"></label>
+    </div>
+
+    <div id="clinBlock">
+      <div class="subhead">Clinical details</div>
+      <div class="fg">
+        <label class="f"><span>Specialty</span>
+          <select id="t_spec">
+            <option value="">—</option><option>Family Medicine</option><option>Internal Medicine</option>
+            <option>Behavioral Health</option><option>Pediatrics</option><option>Cardiology</option>
+            <option>Endocrinology</option><option>Orthopedics</option>
+            <option>Obstetrics and Gynecology</option><option>Urgent Care</option><option>Primary Care</option>
+          </select></label>
+        <label class="f"><span>Individual NPI</span><input type="text" id="t_npi" maxlength="10" placeholder="10 digits"></label>
+        <label class="f"><span>Taxonomy</span><input type="text" id="t_tax"></label>
+        <label class="f"><span>License · state</span><input type="text" id="t_lic" placeholder="J8842190"></label>
+      </div>
+    </div>
+
+    <div id="accBlock" style="display:none">
+      <div class="subhead">Section access <span class="reqd">Required</span></div>
+      <p class="accnote">Everything starts at no access. Grant only what this person needs.</p>
+      <div class="accgrid" id="accGrid"></div>
+      <div class="accbulk">
+        <span>Set everything to</span>
+        <button type="button" class="bulk" data-bulk="none">No access</button>
+        <button type="button" class="bulk" data-bulk="view">View only</button>
+        <button type="button" class="bulk" data-bulk="edit">Edit</button>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:15px">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span id="flowNote">Adding a provider puts them straight into the admin console under your organisation.
+        An administrator then issues a temporary password.</span>
+    </div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="addSave"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Add and request a login</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="tT">—</b><small id="tS"></small></span></div>
+
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var ME=null, ORG=null, PROVS=[], REQS=[], ACCTS=[], ROLE='provider';
+  var filt={q:'',role:'all',state:'all'};
+
+  var ROLEL={provider:'Provider',supervisor:'Practice manager',
+             scheduler:'Scheduler · front office',employee:'Billing',admin:'Administrator'};
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function initials(n){return String(n||'').replace(/^Dr\.?\s+/i,'')
+    .split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase()||'??';}
+  function fmtTS(d){return d?new Date(d).toLocaleDateString(undefined,
+    {month:'short',day:'numeric',year:'numeric'}):'—';}
+  function toast(t,s){$('tT').textContent=t;$('tS').textContent=s||'';
+    $('toast').classList.add('on');clearTimeout(toast._t);
+    toast._t=setTimeout(function(){$('toast').classList.remove('on');},3800);}
+
+  var scrim=$('scrim');
+  function openM(id){scrim.classList.add('on');$(id).classList.add('on');document.body.style.overflow='hidden';}
+  function closeM(){scrim.classList.remove('on');
+    document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on');});
+    document.body.style.overflow='';}
+  scrim.addEventListener('click',closeM);
+  document.addEventListener('click',function(e){if(e.target.closest('[data-close]'))closeM();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+
+  (async function(){
+    await RFStore.ready();
+    ME=(window.RFSession?RFSession.require(['supervisor','scheduler','admin']):RFStore.getSession());
+    if(!ME)return;
+
+    var orgs=await RFStore.orgs(), all=await RFStore.providers();
+    var mine=all.filter(function(x){return x.id===ME.provider_ref;})[0]
+           ||all.filter(function(x){return (x.full_name||'')===ME.name;})[0]||null;
+    var myOrg=(mine&&mine.org_id)||ME.org_id||null;
+    ORG=orgs.filter(function(o){return o.id===myOrg;})[0]||null;
+
+    if(!ORG){
+      document.querySelector('.wrap').innerHTML='<div class="card" style="opacity:1;transform:none">'+
+        '<div class="empty"><svg viewBox="0 0 24 24" stroke-linecap="round">'+
+        '<path d="M4 21V8l8-5 8 5v13"/></svg><br><b>No organisation linked</b>'+
+        'Your account is not attached to a practice, so there is no team to manage. '+
+        'Ask an administrator to set the organisation on your login.</div></div>';
+      return;
+    }
+    $('headSub').textContent=ORG.name+' · add people to your practice. '+
+      'An administrator issues the password once the record is in.';
+    await refresh();
+  })();
+
+  async function refresh(){
+    PROVS=(await RFStore.providers()).filter(function(p){return p.org_id===ORG.id;});
+    REQS=await RFStore.teamRequests(ORG.id);
+    try{ ACCTS=await RFStore.list(); }catch(e){ ACCTS=[]; }
+    paintStats();render();
+  }
+
+  /* one row per person: a provider record, a pending request, or both */
+  function people(){
+    var out=[], seen={};
+    PROVS.forEach(function(p){
+      var req=REQS.filter(function(r){return String(r.provider_ref)===String(p.id);})[0];
+      var acct=ACCTS.filter(function(a){return a.provider_ref===p.id;})[0];
+      seen[String(p.id)]=true;
+      out.push({
+        key:'p'+p.id, name:p.full_name, role:(req&&req.role)||'provider',
+        team:(req&&req.team)||'Clinical', title:p.title||p.specialty||'',
+        email:p.email||'', phone:p.phone||'',
+        provider_ref:p.id, account:acct||null, req:req||null,
+        access:(acct&&acct.access)||(req&&req.access)||null,
+        username:(acct&&acct.username)||(req&&req.suggested_username)||'',
+        added:(req&&req.requested_at)||p.created_at
+      });
+    });
+    /* accounts an administrator created directly still belong to this team */
+    ACCTS.forEach(function(a){
+      if(String(a.org_id)!==String(ORG.id))return;
+      if(a.role==='admin')return;
+      if(a.provider_ref&&seen[String(a.provider_ref)])return;
+      if(REQS.some(function(r){return r.issued_username===a.username||
+                                      r.suggested_username===a.username;}))return;
+      out.push({
+        key:'a'+a.username, name:a.full_name, role:a.role, team:a.title||'',
+        title:a.title||'', email:a.email||'', phone:a.phone||'',
+        provider_ref:a.provider_ref||null, account:a, req:null,
+        access:a.access||null, username:a.username,
+        added:a.created_at, fromAdmin:true
+      });
+    });
+
+    REQS.forEach(function(r){
+      if(r.provider_ref&&seen[String(r.provider_ref)])return;
+      var acct=ACCTS.filter(function(a){
+        return a.username===r.issued_username||
+          (a.full_name||'').toLowerCase()===String(r.full_name||'').toLowerCase();})[0];
+      out.push({
+        key:r.id, name:r.full_name, role:r.role, team:r.team||'',
+        title:r.title||'', email:r.email||'', phone:r.phone||'',
+        provider_ref:null, account:acct||null, req:r,
+        access:(acct&&acct.access)||r.access||null,
+        username:(acct&&acct.username)||r.suggested_username||'',
+        added:r.requested_at
+      });
+    });
+    return out.sort(function(a,b){return String(a.name).localeCompare(String(b.name));});
+  }
+
+  function paintStats(){
+    var list=people();
+    var withLogin=list.filter(function(x){return x.account;}).length;
+    var pending=list.length-withLogin;
+    var cards=[
+      ['Team members',list.length,'var(--navy-s,#E4EFF4)','var(--navy,#12566F)','across this practice'],
+      ['Logins active',withLogin,'var(--green-s)','var(--green-d)','able to sign in'],
+      ['Awaiting a login',pending,'var(--amber-s)','var(--amber)','with the administrator'],
+      ['Providers',list.filter(function(x){return x.role==='provider'||x.role==='supervisor';}).length,
+        'var(--violet-s)','var(--violet)','clinical staff']
+    ];
+    $('bento').innerHTML=cards.map(function(c,i){
+      return '<div class="stat" style="animation-delay:'+(0.08+i*0.06)+'s">'+
+        '<div class="top"><span class="ic" style="background:'+c[2]+'">'+
+        '<svg viewBox="0 0 24 24" style="stroke:'+c[3]+'"><circle cx="12" cy="8" r="4"/>'+
+        '<path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span><h3>'+c[0]+'</h3></div>'+
+        '<b data-count="'+c[1]+'">0</b><div class="foot">'+c[4]+'</div></div>';
+    }).join('');
+    document.querySelectorAll('#bento [data-count]').forEach(function(el){
+      var target=+el.dataset.count,start=performance.now();
+      if(!target){el.textContent='0';return;}
+      (function tick(now){
+        var t=Math.min(1,(now-start)/800);
+        el.textContent=Math.round(target*(1-Math.pow(1-t,3)));
+        if(t<1)requestAnimationFrame(tick);
+      })(start);
+    });
+  }
+
+  function render(){
+    var list=people().filter(function(x){
+      if(filt.role!=='all'&&x.role!==filt.role)return false;
+      if(filt.state==='active'&&!x.account)return false;
+      if(filt.state==='pending'&&x.account)return false;
+      if(filt.q){
+        var h=(x.name+' '+(x.email||'')).toLowerCase();
+        if(h.indexOf(filt.q)<0)return false;
+      }
+      return true;
+    });
+    $('cnt').textContent=list.length+' OF '+people().length;
+    $('empty').hidden=list.length>0;
+    if(!list.length){
+      $('rows').innerHTML='';
+      $('emptyMsg').textContent=people().length
+        ? 'Nobody matches this filter.'
+        : 'Add the first person and an administrator will issue their password.';
+      return;
+    }
+    $('rows').innerHTML=list.map(function(x,i){
+      return '<tr style="animation-delay:'+Math.min(.4,i*.04)+'s">'+
+        '<td><div class="who2"><span class="av">'+initials(x.name)+'</span>'+
+          '<span><b>'+esc(x.name)+(x.title?', '+esc(x.title):'')+'</b>'+
+          '<small>ADDED '+fmtTS(x.added).toUpperCase()+'</small></span></div></td>'+
+        '<td><span class="pill '+(x.role==='provider'?'ok':x.role==='supervisor'?'vio':'info')+'">'+
+          esc(ROLEL[x.role]||x.role)+'</span></td>'+
+        '<td>'+esc(x.team||'—')+'</td>'+
+        '<td>'+(x.role==='provider'||x.role==='supervisor'
+          ? '<span class="pill off">By role</span>'
+          : accessSummary(x.access))+'</td>'+
+        '<td>'+(x.account
+          ? '<span class="pill ok"><i></i>'+esc(x.account.username)+'</span>'+
+            (x.account.must_change?'<div style="margin-top:3px"><span class="pill warn">temp password</span></div>':'')
+          : '<span class="pill warn blink"><i></i>Awaiting administrator</span>')+'</td>'+
+        '<td class="r"><span class="acts">'+
+          (x.role!=='provider'&&x.role!=='supervisor'
+            ? '<button class="ib" data-access="'+esc(x.key)+'" title="Change section access">'+
+              '<svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2.5"/>'+
+              '<path d="M8 10V7a4 4 0 018 0v3"/></svg></button>' : '')+
+          (x.account?'':
+            '<button class="ib" data-nudge="'+esc(x.key)+'" title="Remind the administrator">'+
+            '<svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>'+
+            '<path d="M10 21h4"/></svg></button>')+
+        '</span></td></tr>';
+    }).join('');
+  }
+
+  $('q').addEventListener('input',function(){filt.q=this.value.toLowerCase().trim();render();});
+  $('fRole').addEventListener('change',function(){filt.role=this.value;render();});
+  $('fState').addEventListener('change',function(){filt.state=this.value;render();});
+
+
+  /* ── section access ── */
+  var ACCESS={};
+  var LEVELS=[
+    {k:'view',label:'View only',ic:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.6"/>'},
+    {k:'edit',label:'Edit',ic:'<path d="M4 20h4l10-10-4-4L4 16z"/>'},
+    {k:'none',label:'No access',ic:'<circle cx="12" cy="12" r="8.5"/><path d="M6.5 6.5l11 11"/>'}
+  ];
+
+  function paintAccess(){
+    var secs=RFStore.SECTIONS||[];
+    $('accGrid').innerHTML=secs.map(function(sec){
+      var cur=ACCESS[sec.key]||'none';
+      return '<div class="accrow" data-sec="'+sec.key+'">'+
+        '<span class="an"><b>'+esc(sec.label)+'</b><small>'+esc(sec.note)+'</small></span>'+
+        '<span class="accseg">'+
+          LEVELS.map(function(l){
+            return '<button type="button" data-a="'+l.k+'"'+(cur===l.k?' class="on"':'')+
+              ' title="'+l.label+'" aria-label="'+esc(sec.label)+' — '+l.label+'">'+
+              '<svg viewBox="0 0 24 24">'+l.ic+'</svg></button>';
+          }).join('')+
+        '</span></div>';
+    }).join('');
+  }
+
+  $('accGrid').addEventListener('click',function(e){
+    var b=e.target.closest('[data-a]');if(!b)return;
+    var row=b.closest('.accrow');
+    ACCESS[row.dataset.sec]=b.dataset.a;
+    row.querySelectorAll('[data-a]').forEach(function(x){x.classList.toggle('on',x===b);});
+  });
+  document.querySelector('.accbulk').addEventListener('click',function(e){
+    var b=e.target.closest('[data-bulk]');if(!b)return;
+    (RFStore.SECTIONS||[]).forEach(function(sec){ACCESS[sec.key]=b.dataset.bulk;});
+    paintAccess();
+  });
+
+  function accessSummary(a){
+    if(!a)return '';
+    var e=Object.keys(a).filter(function(k){return a[k]==='edit';}).length;
+    var v=Object.keys(a).filter(function(k){return a[k]==='view';}).length;
+    if(!e&&!v)return '<span class="accsummary"><span style="background:var(--paper-2);color:var(--dim)">NO ACCESS</span></span>';
+    return '<span class="accsummary">'+
+      (e?'<span class="e">'+e+' EDIT</span>':'')+
+      (v?'<span class="v">'+v+' VIEW</span>':'')+'</span>';
+  }
+
+  /* ── add ── */
+  $('roleGrid').addEventListener('click',function(e){
+    var b=e.target.closest('[data-r]');if(!b)return;
+    this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+    ROLE=b.dataset.r;
+    $('t_team').value=b.dataset.t||'';
+    var clinical=(ROLE==='provider');
+    $('clinBlock').style.display=clinical?'':'none';
+    $('accBlock').style.display=clinical?'none':'';
+    if(!clinical){ ACCESS=RFStore.defaultAccess(); paintAccess(); }
+    $('flowNote').textContent=clinical
+      ? 'Adding a provider puts them straight into the admin console under '+(ORG?ORG.name:'your organisation')+
+        '. An administrator then issues a temporary password. Providers get their clinical sections automatically.'
+      : 'Choose what this person can reach in each section. An administrator issues the password, '+
+        'and you can change access here at any time.';
+  });
+
+  $('t_name').addEventListener('input',function(){
+    if($('t_user').dataset.touched)return;
+    $('t_user').value=RFStore.suggestUsername?RFStore.suggestUsername(this.value):'';
+  });
+  $('t_user').addEventListener('input',function(){this.dataset.touched='1';});
+
+  $('addBtn').addEventListener('click',function(){
+    ROLE='provider';EDIT_USER=null;
+    $('roleGrid').querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('on',b.dataset.r==='provider');});
+    $('roleGrid').style.display='';
+    $('accBlock').style.display='none';
+    ACCESS=RFStore.defaultAccess();
+    ['t_name','t_user','t_title','t_email','t_phone','t_npi','t_tax','t_lic'].forEach(function(i){$(i).value='';});
+    $('t_spec').value='';$('t_team').value='Clinical';
+    delete $('t_user').dataset.touched;
+    $('clinBlock').style.display='';
+    $('addSub').textContent=ORG?ORG.name:'';
+    $('addSave').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Add and request a login';
+    $('flowNote').textContent='Adding a provider puts them straight into the admin console. '+
+      'An administrator then issues a temporary password.';
+    openM('mAdd');
+  });
+
+  $('addSave').addEventListener('click',async function(){
+    /* editing an existing person only writes the grant */
+    if(EDIT_USER){
+      if(!EDIT_USER.username){
+        toast('No username yet','Access can be set once the administrator issues the login');
+        return;
+      }
+      this.disabled=true;
+      var ra=await RFStore.setAccess(EDIT_USER.username,ACCESS);
+      this.disabled=false;
+      if(!ra.ok){toast('Could not save',ra.error||'');return;}
+      closeM();await refresh();
+      toast('Access updated',EDIT_USER.name);
+      EDIT_USER=null;
+      $('addSave').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Add and request a login';
+      return;
+    }
+
+    var name=$('t_name').value.trim();
+    if(!name){toast('A name is required','');$('t_name').focus();return;}
+    if((ROLE==='provider'||ROLE==='supervisor')&&$('t_npi').value&&
+       !/^\d{10}$/.test($('t_npi').value.trim())){
+      toast('Check the NPI','An individual NPI is exactly 10 digits');$('t_npi').focus();return;
+    }
+    this.disabled=true;
+    if(ROLE!=='provider'){
+      var granted=Object.keys(ACCESS).filter(function(k){return ACCESS[k]!=='none';}).length;
+      if(!granted){
+        this.disabled=false;
+        toast('Set section access','Grant at least one section, or this person cannot do anything');
+        $('accBlock').scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+    }
+    var r=await RFStore.addTeamMember({
+      full_name:name, role:ROLE, team:$('t_team').value.trim(),
+      access: ROLE==='provider'?RFStore.providerAccess():ACCESS,
+      title:$('t_title').value.trim(), email:$('t_email').value.trim(),
+      phone:$('t_phone').value.trim(), specialty:$('t_spec').value,
+      npi:$('t_npi').value.trim(), taxonomy:$('t_tax').value.trim(),
+      license:$('t_lic').value.trim(), username:$('t_user').value.trim(),
+      org_id:ORG.id
+    });
+    this.disabled=false;
+    if(!r.ok){toast('Could not add',r.error||'');return;}
+    closeM();await refresh();
+    toast(name+' added','An administrator will issue the password · suggested username '+r.username);
+  });
+
+  var EDIT_USER=null;
+  document.addEventListener('click',async function(e){
+    var ac=e.target.closest('[data-access]');
+    if(ac){
+      var px=people().filter(function(x){return x.key===ac.dataset.access;})[0];
+      if(!px)return;
+      EDIT_USER=px;
+      ROLE=px.role;
+      ACCESS=px.access||RFStore.defaultAccess();
+      $('t_name').value=px.name;$('t_user').value=px.username||'';
+      $('t_title').value=px.title||'';$('t_email').value=px.email||'';
+      $('t_phone').value=px.phone||'';$('t_team').value=px.team||'';
+      $('roleGrid').style.display='none';
+      $('clinBlock').style.display='none';
+      $('accBlock').style.display='';
+      paintAccess();
+      $('addSub').textContent='Section access · '+px.name;
+      $('flowNote').textContent='Changes apply the next time '+px.name.split(' ')[0]+' loads a page.';
+      $('addSave').innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save access';
+      openM('mAdd');
+      return;
+    }
+
+    var n=e.target.closest('[data-nudge]');if(!n)return;
+    var p=people().filter(function(x){return x.key===n.dataset.nudge;})[0];
+    if(!p)return;
+    if(window.RFNotify){
+      var admins=ACCTS.filter(function(a){return a.role==='admin'&&a.status==='active';})
+        .map(function(a){return a.username;});
+      if(admins.length){
+        RFNotify.send(admins,{
+          title:'Login needed: '+p.name,
+          body:(ME.name||ME.username)+' at '+ORG.name+' is waiting on a password for '+
+            p.name+' ('+(ROLEL[p.role]||p.role)+').',
+          meta:'TEAM REQUEST', ttl:9000
+        });
+        toast('Administrator notified',p.name);
+        return;
+      }
+    }
+    toast('No administrator online','The request is already in their queue');
+  });
+
+})();
+</script>
+
+
+<script>
+/* Section access: a grant, not just a role. Shows a notice rather than
+   signing anyone out. */
+(function(){
+  var SECTION='teams';
+  document.addEventListener('DOMContentLoaded',async function(){
+    try{
+      if(typeof RFStore==='undefined'||!RFStore.can)return;
+      await RFStore.ready();
+      var lvl=await RFStore.can(SECTION);
+      if(lvl==='none'){
+        if(window.RFSession&&RFSession.denied)
+          RFSession.denied({section:'teams'});
+        return;
+      }
+      if(lvl==='view'){
+        /* read only: the page still loads, but nothing that writes is usable */
+        document.body.classList.add('rf-viewonly');
+        var css=document.createElement('style');
+        css.textContent=
+          '.rf-viewonly [data-write],.rf-viewonly .ib.del{opacity:.4;pointer-events:none}'+
+          '.rf-viewonly .rf-ro{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);'+
+            'z-index:900;display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:11px;'+
+            'background:#0D1A16;color:#F2FBF7;font:600 12px Manrope,system-ui,sans-serif;'+
+            'box-shadow:0 18px 40px -18px rgba(13,26,22,.8)}';
+        document.head.appendChild(css);
+        var note=document.createElement('div');
+        note.className='rf-ro';
+        note.textContent='View only — contact your practice manager to make changes';
+        document.body.appendChild(note);
+        setTimeout(function(){ note.style.display='none'; },6000);
+      }
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

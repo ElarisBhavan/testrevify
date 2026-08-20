@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track hours — ReviFlow Admin</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_admin.css">
+<link rel="stylesheet" href="../_session.css">
+<style>
+/* shared additions for the payer and master data consoles */
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 17px;border-bottom:1px solid var(--line);background:var(--paper)}
+.search{position:relative;flex:1;min-width:190px;max-width:320px;display:flex;align-items:center}
+.search input{width:100%;padding:9px 12px 9px 33px;border-radius:10px;border:1px solid var(--line-2);background:#fff;font-size:12.4px}
+.search input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(14,157,115,.12)}
+.search svg{position:absolute;left:11px;width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none}
+.tools .sp{flex:1}
+.cnt{font-family:var(--mono);font-size:10.2px;color:var(--muted);padding:8px 12px;border-radius:99px;background:#fff;border:1px solid var(--line-2)}
+
+.setsegs{display:flex;gap:3px;padding:4px;border-radius:13px;background:var(--paper-2);border:1px solid var(--line);
+  margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
+.setsegs::-webkit-scrollbar{display:none}
+.setseg{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:10px;font-size:12.4px;
+  font-weight:600;color:var(--muted);white-space:nowrap;transition:all .3s var(--e)}
+.setseg:hover{color:var(--ink);background:rgba(255,255,255,.65)}
+.setseg.on{background:#fff;color:var(--green-d);box-shadow:0 6px 16px -10px rgba(13,26,22,.45)}
+.setseg .n{padding:1px 7px;border-radius:99px;background:var(--paper-2);font-family:var(--mono);font-size:9.2px;font-weight:700;color:var(--dim)}
+.setseg.on .n{background:var(--green-s);color:var(--green-d)}
+
+.imphint{display:flex;gap:10px;padding:12px 14px;border-radius:11px;background:var(--blue-s);
+  border:1px solid rgba(59,111,245,.2);font-size:11.6px;line-height:1.6;color:#25489E}
+.imphint svg{width:15px;height:15px;stroke:var(--blue);fill:none;stroke-width:2;flex:none;margin-top:1px}
+.impdrop{padding:26px 18px;border-radius:14px;border:2px dashed rgba(13,26,22,.17);background:var(--paper-2);
+  text-align:center;cursor:pointer;transition:all .3s var(--e)}
+.impdrop:hover,.impdrop.over{border-color:var(--green);background:var(--green-s)}
+.impdrop.has{border-style:solid;border-color:var(--green);background:var(--green-s)}
+.impdrop .di{width:38px;height:38px;margin:0 auto 10px;border-radius:12px;background:var(--green-s);display:grid;place-items:center;transition:transform .38s var(--e)}
+.impdrop:hover .di{transform:translateY(-3px) scale(1.06)}
+.impdrop .di svg{width:19px;height:19px;stroke:var(--green-d);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.impdrop b{display:block;font-size:13px;font-weight:600;margin-bottom:3px;word-break:break-all}
+.impdrop small{font-size:11px;color:var(--muted)}
+.impsub{margin:16px 0 9px;font-size:9.4px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+.imptw{overflow-x:auto;border:1px solid var(--line-2);border-radius:11px}
+.imptbl{width:100%;border-collapse:collapse;font-size:11.2px}
+.imptbl th{text-align:left;padding:8px 10px;font-size:8.6px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);background:var(--paper-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+.imptbl td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.imptbl tr:last-child td{border-bottom:none}
+.impnote{font-family:var(--mono);font-size:9.6px;color:var(--dim);margin-top:8px}
+.imperr{margin-top:12px;padding:11px 13px;border-radius:11px;background:var(--coral-s);
+  border:1px solid rgba(206,95,62,.28);font-size:11.6px;line-height:1.55;color:#9B3F24}
+
+.usedby{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.usedby span{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;
+  background:var(--paper-2);font-size:10.6px;color:var(--muted)}
+.usedby svg{width:11px;height:11px;stroke:var(--green-d);fill:none;stroke-width:2.4}
+
+.rangebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 17px}
+.presets{display:flex;gap:4px;padding:4px;border-radius:11px;background:var(--paper-2);border:1px solid var(--line);flex-wrap:wrap}
+.presets button{padding:8px 13px;border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);transition:all .28s var(--e)}
+.presets button:hover{background:rgba(255,255,255,.7);color:var(--ink)}
+.presets button.on{background:#fff;color:var(--green-d);box-shadow:0 5px 14px -9px rgba(13,26,22,.5)}
+.rangebar .sp{flex:1}
+.dt{display:flex;align-items:center;gap:8px}
+.dt span{font-size:10.6px;font-weight:600;color:var(--muted);letter-spacing:.03em}
+.dt input{padding:9px 11px;border-radius:10px;border:1px solid var(--line-2);background:#fff;font-size:12.4px}
+.dt input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(14,157,115,.12)}
+.rangechip{font-family:var(--mono);font-size:9.6px;letter-spacing:.08em;color:var(--dim);
+  padding:8px 12px;border-radius:99px;background:var(--paper-2);border:1px solid var(--line)}
+.pill.blink i{animation:blinkDot 1.6s ease-in-out infinite}
+@keyframes blinkDot{0%,100%{opacity:1}50%{opacity:.3}}
+
+</style>
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_datepicker.js"></script>
+<script src="../_session.js"></script>
+<link rel="stylesheet" href="../_datepicker.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="mesh"></div><div class="aur a1"></div><div class="aur a2"></div><div class="aur a3"></div></div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <img class="mk" src="../assets/logo-64.png" alt="ReviFlow RCM">
+      <span>ReviFlow<em>RCM</em></span>
+    </div>
+    <span class="rolechip">ADMIN CONSOLE</span>
+    <span class="crumb"><a href="admin-dashboard.html">Administration</a> / <b>Track hours</b></span>
+    <div class="hact">
+      <span class="who"><span class="av" data-me-initials>--</span><span><b data-me-name>—</b><small data-me-role>—</small></span></span>
+      <a class="hbtn" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <button class="hbtn out" data-logout>Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ptop">
+    <div>
+      <h1>Track hours</h1>
+      <p>Sign-in and sign-out times for every provider and employee, taken from the session log.</p>
+    </div>
+    <div class="cta">
+      <button class="btn sec" id="csvBtn"><svg viewBox="0 0 24 24"><path d="M12 3v13M7 12l5 5 5-5"/><path d="M4 20h16"/></svg>Export CSV</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:13px">
+    <div class="rangebar">
+      <div class="presets" id="presets">
+        <button data-p="today">Today</button>
+        <button data-p="yesterday">Yesterday</button>
+        <button data-p="7" class="on">Last 7 days</button>
+        <button data-p="30">Last 30 days</button>
+        <button data-p="month">This month</button>
+        <button data-p="last">Last month</button>
+      </div>
+      <span class="sp"></span>
+      <label class="dt"><span>From</span><input type="date" id="from" min="1900-01-01" max="2100-12-31"></label>
+      <label class="dt"><span>To</span><input type="date" id="to" min="1900-01-01" max="2100-12-31"></label>
+      <span class="rangechip" id="rangeChip">—</span>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <div class="chead">
+      <span class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+      <div><h2>By person</h2><p>Total time on the system across the selected dates.</p></div>
+      <span class="sub" id="peopleCount">—</span>
+    </div>
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:24%">Person</th><th>Role</th><th class="r">Sessions</th>
+          <th class="r">Total hours</th><th class="r">Average</th>
+          <th>First in</th><th>Last out</th>
+        </tr></thead>
+        <tbody id="sumRows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="sumEmpty" hidden>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><br>
+      <b>Nothing recorded in these dates</b><span>Hours appear as people sign in and out.</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:13px">
+    <div class="chead">
+      <span class="ci"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+      <div><h2>Session detail</h2><p>Every sign-in, with how long it lasted.</p></div>
+      <span class="sub">
+        <select class="sel" id="fUser" style="min-width:170px"><option value="all">Everyone</option></select>
+        <span class="cnt" id="detailCount">—</span>
+      </span>
+    </div>
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:22%">Person</th><th>Date</th><th>Signed in</th>
+          <th>Signed out</th><th class="r">Duration</th><th>Device</th>
+        </tr></thead>
+        <tbody id="detRows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="detEmpty" hidden>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><br>
+      <b>No sessions in this range</b><span>Widen the dates, or clear the person filter.</span>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="tT">—</b><small id="tS"></small></span></div>
+
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var SESS=[], ACCTS=[], EVENTS=[], filtUser='all';
+
+  var ROLEL={admin:'Administrator',supervisor:'Practice manager',provider:'Provider',
+             scheduler:'Scheduler',employee:'Employee'};
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+
+    '-'+String(d.getDate()).padStart(2,'0');}
+  function parseDay(s){var p=String(s||'').split('-');
+    return new Date(+p[0],(+p[1]||1)-1,+p[2]||1,12,0,0);}
+  function fmtDay(s){return s?parseDay(s).toLocaleDateString(undefined,
+    {weekday:'short',month:'short',day:'numeric'}):'—';}
+  function fmtTime(d){return d?new Date(d).toLocaleTimeString(undefined,
+    {hour:'2-digit',minute:'2-digit'}):'—';}
+  function hours(sec){
+    if(sec==null)return '—';
+    var h=Math.floor(sec/3600), m=Math.round((sec%3600)/60);
+    if(h&&m)return h+'h '+m+'m';
+    if(h)return h+'h';
+    return m+'m';
+  }
+  function decimal(sec){return sec?(sec/3600).toFixed(2):'0.00';}
+  function initials(n){return String(n||'').replace(/^Dr\.?\s+/i,'')
+    .split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase()||'??';}
+  function toast(t,s){$('tT').textContent=t;$('tS').textContent=s||'';
+    $('toast').classList.add('on');clearTimeout(toast._t);
+    toast._t=setTimeout(function(){$('toast').classList.remove('on');},3400);}
+
+  (async function(){
+    await RFStore.ready();
+    var s=(window.RFSession?RFSession.require(['admin']):RFStore.getSession());
+    if(!s)return;
+    ACCTS=await RFStore.list();
+    setPreset('7');
+    await load();
+  })();
+
+  /* ── range ── */
+  function setPreset(p){
+    var now=new Date(), from=new Date(), to=new Date();
+    if(p==='today'){ }
+    else if(p==='yesterday'){ from.setDate(now.getDate()-1); to.setDate(now.getDate()-1); }
+    else if(p==='7'){ from.setDate(now.getDate()-6); }
+    else if(p==='30'){ from.setDate(now.getDate()-29); }
+    else if(p==='month'){ from=new Date(now.getFullYear(),now.getMonth(),1); }
+    else if(p==='last'){
+      from=new Date(now.getFullYear(),now.getMonth()-1,1);
+      to=new Date(now.getFullYear(),now.getMonth(),0);
+    }
+    $('from').value=iso(from);
+    $('to').value=iso(to);
+  }
+  $('presets').addEventListener('click',async function(e){
+    var b=e.target.closest('button');if(!b)return;
+    this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+    setPreset(b.dataset.p);
+    await load();
+  });
+  ['from','to'].forEach(function(id){
+    $(id).addEventListener('change',async function(){
+      $('presets').querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      if($('from').value&&$('to').value&&$('from').value>$('to').value){
+        var t=$('from').value;$('from').value=$('to').value;$('to').value=t;
+        toast('Dates swapped','The start date was after the end date');
+      }
+      await load();
+    });
+  });
+
+  async function load(){
+    var from=$('from').value, to=$('to').value;
+    SESS=await RFStore.sessionsReport({ from:from, to:to });
+    EVENTS=await RFStore.loginEvents({ from:from, to:to });
+
+    var days=Math.round((parseDay(to)-parseDay(from))/86400000)+1;
+    $('rangeChip').textContent=days+' DAY'+(days===1?'':'S');
+
+    var names=[...new Set(SESS.map(function(x){return x.username;}))].sort();
+    $('fUser').innerHTML='<option value="all">Everyone</option>'+
+      names.map(function(u){
+        var a=ACCTS.filter(function(x){return x.username===u;})[0];
+        return '<option value="'+esc(u)+'">'+esc((a&&a.full_name)||u)+'</option>';
+      }).join('');
+    $('fUser').value=filtUser;
+
+    paintKpis();paintSummary();paintDetail();
+  }
+  $('fUser').addEventListener('change',function(){filtUser=this.value;paintDetail();});
+
+  function nameOf(u){
+    var a=ACCTS.filter(function(x){return x.username===u;})[0];
+    return (a&&a.full_name)||u;
+  }
+  function roleOf(u){
+    var a=ACCTS.filter(function(x){return x.username===u;})[0];
+    return a?(ROLEL[a.role]||a.role):'—';
+  }
+
+  function paintKpis(){
+    var done=SESS.filter(function(s){return s.seconds!=null;});
+    var total=done.reduce(function(x,s){return x+s.seconds;},0);
+    var people=[...new Set(SESS.map(function(s){return s.username;}))].length;
+    var failed=EVENTS.filter(function(e){return e.event==='failed';}).length;
+
+    var cards=[
+      ['People signed in',people,'var(--blue-s)','var(--blue)','distinct accounts'],
+      ['Sessions',SESS.length,'var(--green-s)','var(--green-d)',
+        SESS.filter(function(s){return s.incomplete;}).length+' still open'],
+      ['Total hours',hours(total),'var(--violet-s)','var(--violet)',decimal(total)+' decimal'],
+      ['Failed attempts',failed,'var(--coral-s)','var(--coral)',failed?'worth a look':'none in range']
+    ];
+    $('kpis').innerHTML=cards.map(function(c,i){
+      return '<div class="card kpi" style="animation-delay:'+(0.06+i*0.05)+'s">'+
+        '<div class="top"><span class="ic" style="background:'+c[2]+'">'+
+        '<svg viewBox="0 0 24 24" style="stroke:'+c[3]+'"><circle cx="12" cy="12" r="9"/>'+
+        '<path d="M12 7v5l3 2"/></svg></span><h3>'+c[0]+'</h3></div>'+
+        '<b>'+c[1]+'</b><small>'+c[4]+'</small></div>';
+    }).join('');
+  }
+
+  function byPerson(){
+    var map={};
+    SESS.forEach(function(s){
+      var m=map[s.username]=map[s.username]||{u:s.username,n:0,sec:0,first:null,last:null,open:0};
+      m.n++;
+      if(s.seconds!=null)m.sec+=s.seconds; else m.open++;
+      if(!m.first||new Date(s.in_at)<new Date(m.first))m.first=s.in_at;
+      if(s.out_at&&(!m.last||new Date(s.out_at)>new Date(m.last)))m.last=s.out_at;
+    });
+    return Object.keys(map).map(function(k){return map[k];})
+      .sort(function(a,b){return b.sec-a.sec;});
+  }
+
+  function paintSummary(){
+    var rows=byPerson();
+    $('peopleCount').textContent=rows.length+' PEOPLE';
+    $('sumEmpty').hidden=rows.length>0;
+    $('sumRows').innerHTML=rows.map(function(r,i){
+      return '<tr style="animation-delay:'+Math.min(.4,i*.04)+'s">'+
+        '<td><div class="nm"><span class="av2" style="background:linear-gradient(140deg,#0E9D73,#3B6FF5)">'+
+          initials(nameOf(r.u))+'</span>'+
+          '<span><b>'+esc(nameOf(r.u))+'</b><small>'+esc(r.u)+'</small></span></div></td>'+
+        '<td>'+esc(roleOf(r.u))+'</td>'+
+        '<td class="r mono">'+r.n+(r.open?' <span class="pill warn">'+r.open+' open</span>':'')+'</td>'+
+        '<td class="r mono" style="font-weight:600">'+hours(r.sec)+'</td>'+
+        '<td class="r mono">'+(r.n?hours(r.sec/Math.max(1,r.n-r.open)):'—')+'</td>'+
+        '<td class="mono">'+fmtTime(r.first)+'</td>'+
+        '<td class="mono">'+(r.last?fmtTime(r.last):'<span style="color:var(--dim)">still in</span>')+'</td></tr>';
+    }).join('');
+  }
+
+  function paintDetail(){
+    var rows=SESS.filter(function(s){return filtUser==='all'||s.username===filtUser;});
+    $('detailCount').textContent=rows.length+' SESSIONS';
+    $('detEmpty').hidden=rows.length>0;
+    $('detRows').innerHTML=rows.slice(0,300).map(function(s,i){
+      var day=String(s.in_at).slice(0,10);
+      return '<tr style="animation-delay:'+Math.min(.4,i*.02)+'s">'+
+        '<td><div class="nm"><span class="av2" style="background:linear-gradient(140deg,#0E9D73,#3B6FF5)">'+
+          initials(nameOf(s.username))+'</span>'+
+          '<span><b>'+esc(nameOf(s.username))+'</b><small>'+esc(roleOf(s.username))+'</small></span></div></td>'+
+        '<td>'+fmtDay(day)+'</td>'+
+        '<td class="mono">'+fmtTime(s.in_at)+'</td>'+
+        '<td class="mono">'+(s.out_at?fmtTime(s.out_at):
+          '<span class="pill info blink"><i></i>Open</span>')+'</td>'+
+        '<td class="r mono" style="font-weight:600">'+hours(s.seconds)+'</td>'+
+        '<td class="mono" style="font-size:10.4px;color:var(--muted)">'+
+          esc((s.account&&s.account.last_device)||'—')+'</td></tr>';
+    }).join('');
+  }
+
+  $('csvBtn').addEventListener('click',function(){
+    var rows=SESS.filter(function(s){return filtUser==='all'||s.username===filtUser;});
+    if(!rows.length){toast('Nothing to export','No sessions in this range');return;}
+    var head=['Name','Username','Role','Date','Signed in','Signed out','Duration','Decimal hours'];
+    var lines=[head.join(',')].concat(rows.map(function(s){
+      return [nameOf(s.username),s.username,roleOf(s.username),
+        String(s.in_at).slice(0,10),
+        new Date(s.in_at).toLocaleTimeString(),
+        s.out_at?new Date(s.out_at).toLocaleTimeString():'still signed in',
+        hours(s.seconds), decimal(s.seconds)]
+        .map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}).join(',');
+    }));
+    var blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='reviflow-hours-'+$('from').value+'-to-'+$('to').value+'.csv';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    toast('Exported',rows.length+' sessions');
+  });
+
+})();
+</script>
+
+</body>
+</html>

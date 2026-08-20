@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check eligibility — ReviFlow</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<meta name="description" content="Run a real-time eligibility and benefits check in ReviFlow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#606E6A;--dim:#8A9A97;
+  --line:rgba(14,26,23,.09);--line-2:rgba(14,26,23,.16);
+  --accent:#0E9D73;--accent-soft:#E4F5EE;--accent-deep:#0B3D31;
+  --indigo:#5A6CFF;--danger:#C4573B;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+
+/* ── animated backdrop ── */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg .dots{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(14,26,23,.10) 1px,transparent 0);background-size:28px 28px;-webkit-mask-image:radial-gradient(110% 74% at 50% 0%,#000,transparent 70%);mask-image:radial-gradient(110% 74% at 50% 0%,#000,transparent 70%)}
+.bg .bloom{position:absolute;top:-28%;left:50%;transform:translateX(-50%);width:min(1040px,104vw);height:min(700px,74vw);border-radius:50%;filter:blur(84px);background:radial-gradient(circle,rgba(14,157,115,.16),rgba(14,157,115,.05) 46%,transparent 70%);animation:breathe 13s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.85;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.05)}}
+.bg .bloom2{position:absolute;bottom:-34%;right:-13%;width:min(560px,64vw);height:min(560px,64vw);border-radius:50%;filter:blur(64px);background:radial-gradient(circle,rgba(90,108,255,.10),transparent 68%)}
+.bg svg{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.bg path{fill:none;stroke:rgba(14,157,115,.3);stroke-width:1;stroke-dasharray:4 12;animation:flow 5s linear infinite}
+.bg path:nth-child(2){animation-duration:6.6s;stroke:rgba(14,26,23,.12)}
+.bg path:nth-child(3){animation-duration:8s}
+@keyframes flow{to{stroke-dashoffset:-160}}
+
+/* ── header ── */
+.hdr{position:relative;z-index:3;display:flex;align-items:center;gap:14px;padding:clamp(14px,2vw,22px) clamp(16px,3.2vw,42px);border-bottom:1px solid var(--line);background:rgba(251,250,246,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:9px}
+.brand svg{width:24px;height:24px}
+.brand span{font-family:'Sora',sans-serif;font-size:15.5px;font-weight:600;letter-spacing:-.035em}
+.brand em{font-style:normal;color:var(--accent);font-weight:400;font-size:.9em;margin-left:4px}
+.crumb{margin-left:14px;padding-left:14px;border-left:1px solid var(--line-2);font-size:13px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.hactions{margin-left:auto;display:flex;gap:9px}
+.hbtn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.66);font-size:13px;font-weight:600;transition:all .35s var(--ease)}
+.hbtn svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s var(--ease)}
+.hbtn:hover{border-color:var(--accent);background:#fff;transform:translateX(-2px)}
+.hbtn:hover svg{transform:translateX(-3px)}
+.hbtn.out:hover{border-color:var(--danger);background:rgba(196,87,59,.07);color:#9E4029;transform:none}
+.hbtn.out:hover svg{stroke:var(--danger);transform:translateX(3px)}
+
+/* ── page ── */
+.wrap{position:relative;z-index:2;flex:1;width:100%;max-width:1080px;margin:0 auto;padding:clamp(20px,3vw,38px) clamp(16px,3.2vw,42px) clamp(34px,4vw,58px)}
+.ptop{margin-bottom:clamp(20px,2.6vw,32px);opacity:0;transform:translateY(16px);animation:up .8s var(--ease) .08s forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.kick{display:inline-flex;align-items:center;gap:8px;padding:5px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
+.kick i{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:blip 2.2s infinite}
+@keyframes blip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}
+.ptop h1{font-family:'Sora',sans-serif;font-size:clamp(24px,3.2vw,38px);line-height:1.08;font-weight:600;letter-spacing:-.04em;margin-bottom:9px}
+.ptop h1 em{font-style:normal;color:var(--accent)}
+.ptop p{font-size:13.8px;line-height:1.62;color:var(--muted);max-width:56ch}
+
+/* ── section cards ── */
+.sec{background:#fff;border:1px solid var(--line-2);border-radius:18px;padding:clamp(18px,2.2vw,28px);margin-bottom:clamp(14px,1.8vw,20px);box-shadow:0 16px 40px -34px rgba(11,61,49,.4);opacity:0;transform:translateY(22px);animation:up .8s var(--ease) forwards}
+.sec:nth-of-type(1){animation-delay:.2s}
+.sec:nth-of-type(2){animation-delay:.3s}
+.sec:nth-of-type(3){animation-delay:.4s}
+.sechead{display:flex;align-items:center;gap:13px;padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.secno{width:34px;height:34px;flex:none;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent-deep);transition:background .4s var(--ease)}
+.sec:hover .secno{background:#D6EFE5}
+.sechead h2{font-family:'Sora',sans-serif;font-size:clamp(16px,1.5vw,19px);font-weight:600;letter-spacing:-.03em;line-height:1.2}
+.sechead p{font-size:12.4px;color:var(--muted);margin-top:2px}
+.sechead .cnt{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em}
+
+/* ── grid + fields ── */
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.f{display:block}
+.c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}
+.c5{grid-column:span 5}.c6{grid-column:span 6}.c8{grid-column:span 8}.c12{grid-column:span 12}
+.f>span{display:flex;align-items:center;gap:5px;font-size:11.6px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.f>span u{color:var(--danger);text-decoration:none}
+.ctrl{position:relative;display:flex;align-items:center}
+.ctrl input,.ctrl select{width:100%;padding:11px 13px;background:var(--paper);border:1px solid var(--line-2);border-radius:10px;font-size:13.6px;color:var(--ink);transition:border-color .28s ease,box-shadow .28s ease,background .28s ease}
+.ctrl input::placeholder{color:#A6B0AD}
+.ctrl input:hover,.ctrl select:hover{border-color:#B7C0BD}
+.ctrl input:focus,.ctrl select:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,157,115,.13)}
+.ctrl input.bad,.ctrl select.bad{border-color:var(--danger);box-shadow:0 0 0 3px rgba(196,87,59,.11)}
+.ctrl select{appearance:none;cursor:pointer;padding-right:34px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606E6A' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat;background-position:right 12px center}
+.ctrl input[type="date"]{cursor:pointer;padding-right:38px}
+.ctrl input[type="date"]::-webkit-calendar-picker-indicator{position:absolute;right:10px;width:18px;height:18px;opacity:0;cursor:pointer}
+.calico{position:absolute;right:12px;width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;transition:stroke .3s ease}
+.ctrl:focus-within .calico{stroke:var(--accent)}
+.hint{font-size:11px;color:var(--dim);margin-top:5px}
+.err{display:none;font-size:11.3px;color:var(--danger);margin-top:5px}
+.err.show{display:block}
+
+/* ── action bar ── */
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:11px;padding-top:4px;opacity:0;transform:translateY(18px);animation:up .8s var(--ease) .5s forwards}
+.run{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 26px;border-radius:12px;background:var(--accent-deep);color:#F2FBF7;font-size:14.5px;font-weight:600;transition:background .35s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease)}
+.run::after{content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);transition:left .8s var(--ease)}
+.run:hover{background:var(--accent);transform:translateY(-2px);box-shadow:0 14px 30px -14px rgba(14,157,115,.7)}
+.run:hover::after{left:150%}
+.run svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s var(--ease)}
+.run:hover svg{transform:translateX(3px)}
+.run .spin{width:15px;height:15px;border:2px solid rgba(242,251,247,.35);border-top-color:#F2FBF7;border-radius:50%;animation:sp .7s linear infinite;display:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.run.busy .lbl,.run.busy svg{display:none}
+.run.busy .spin{display:block}
+.ghost{padding:14px 22px;border-radius:12px;border:1px solid var(--line-2);background:rgba(255,255,255,.66);font-size:14px;font-weight:600;transition:all .3s var(--ease)}
+.ghost:hover{border-color:var(--ink);background:#fff;transform:translateY(-2px)}
+.note{margin-left:auto;font-size:15.8px;color:var(--dim);display:flex;align-items:center;gap:7px}
+.note svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2;flex:none}
+
+/* ── result ── */
+.result{margin-top:clamp(16px,2vw,22px);background:#fff;border:1px solid var(--line-2);border-radius:18px;overflow:hidden;box-shadow:0 20px 44px -36px rgba(11,61,49,.44);display:none}
+.result.show{display:block;animation:up .6s var(--ease) both}
+.rhead{display:flex;align-items:center;gap:11px;padding:15px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:99px;background:var(--accent-soft);color:var(--accent-deep);font-size:12px;font-weight:700}
+.pill i{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.rhead .who{font-size:13.4px;font-weight:600}
+.namelink{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:9px;border:1px solid var(--line-2);background:var(--paper);transition:all .32s var(--ease)}
+.namelink svg{width:12px;height:12px;stroke:var(--muted);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .32s var(--ease),stroke .32s ease}
+.namelink:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-deep)}
+.namelink:hover svg{stroke:var(--accent);transform:translate(2px,-2px)}
+.rhint{padding:11px 20px;border-top:1px solid var(--line);background:var(--paper);font-size:11.8px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.rhint svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;flex:none}
+.rhead .tid{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+.rgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
+.rgrid>div{background:#fff;padding:14px 18px}
+.rgrid dt{font-size:10.6px;color:var(--dim);margin-bottom:4px;letter-spacing:.04em}
+.rgrid dd{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.028em}
+
+@media (max-width:900px){
+  .c2,.c3,.c4,.c5{grid-column:span 6}
+  .c6,.c8{grid-column:span 12}
+  .rgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .crumb{display:none}
+}
+@media (max-width:560px){
+  .grid{gap:12px}
+  .c2,.c3,.c4,.c5,.c6,.c8{grid-column:span 12}
+  .rgrid{grid-template-columns:minmax(0,1fr)}
+  .actions .run,.actions .ghost{flex:1 1 100%}
+  .note{margin-left:0;width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .sec,.ptop,.actions{opacity:1!important;transform:none!important}
+}
+/* history */
+.hist{margin-top:clamp(16px,2vw,22px);background:#fff;border:1px solid var(--line-2);border-radius:18px;overflow:hidden;box-shadow:0 16px 40px -34px rgba(11,61,49,.4)}
+.hhead{display:flex;align-items:center;gap:10px;padding:15px 20px;border-bottom:1px solid var(--line)}
+.hhead h2{font-family:'Sora',sans-serif;font-size:14.2px;font-weight:600;letter-spacing:-.03em}
+.hhead .sub{margin-left:auto;font-family:var(--mono);font-size:9.6px;color:var(--dim);letter-spacing:.08em}
+.hbody{padding:15px 20px;display:flex;flex-wrap:wrap;gap:9px}
+.hitem{display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:12px;border:1px solid var(--line-2);
+  background:var(--paper);transition:all .32s var(--ease);cursor:pointer}
+.hitem:hover{border-color:var(--accent);background:#fff;transform:translateY(-2px);box-shadow:0 14px 28px -20px rgba(11,61,49,.5)}
+.hitem .hav{width:30px;height:30px;flex:none;border-radius:9px;background:var(--accent-soft);display:grid;place-items:center;
+  font-family:var(--mono);font-size:10.4px;font-weight:600;color:var(--accent-deep)}
+.hitem b{display:block;font-size:12.8px;font-weight:600;letter-spacing:-.018em;line-height:1.3}
+.hitem small{display:block;font-family:var(--mono);font-size:9.8px;color:var(--dim);margin-top:2px}
+.hempty{padding:26px 20px;text-align:center;color:var(--dim);font-size:12.4px;width:100%}
+
+/* even field rhythm + baseline alignment */
+.grid{align-items:start}
+.f{display:flex;flex-direction:column}
+.f>span{min-height:17px;align-items:flex-start}
+.ctrl{margin-top:auto}
+.ctrl input,.ctrl select{height:42px}
+.hint,.err{min-height:0}
+.f .hint{margin-top:5px}
+/* member row: first / last / suffix / DOB all line up */
+.rowA .c4{grid-column:span 4}
+.rowA .c3{grid-column:span 3}
+.rowA .c2{grid-column:span 2}
+
+.hbtn.batch svg{stroke:var(--indigo)}
+.hbtn.batch:hover{border-color:var(--indigo);background:#EEF0FF}
+.hbtn.batch svg{stroke:var(--indigo)}
+.hbtn.batch:hover{border-color:var(--indigo);background:#EEF0FF;transform:none}
+.hbtn.batch:hover svg{transform:none}
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+.hitem{text-decoration:none}
+.hst{margin-left:auto;padding:3px 9px;border-radius:6px;font-size:9.4px;font-weight:700;letter-spacing:.03em}
+.hst.ok{background:var(--accent-soft);color:var(--accent-deep)}
+.hst.bad{background:var(--danger-soft);color:var(--danger)}
+.note.top{display:inline-flex;align-items:center;gap:8px;margin-top:13px;padding:7px 13px;border-radius:99px;
+  border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-size:11.8px;color:var(--muted)}
+.note.top svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;flex:none}
+.hint.setup{color:var(--amber,#C08616);margin-top:6px;line-height:1.5}
+.hint.setup b{color:inherit}
+select:disabled{opacity:.6;cursor:not-allowed}
+</style>
+<link rel="stylesheet" href="_prefs.css">
+<script src="_prefs.js"></script>
+<script src="../_notify.js"></script>
+<link rel="stylesheet" href="../_session.css">
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_datepicker.js"></script>
+<script src="../_codes.js"></script>
+<script src="../_session.js"></script>
+<link rel="stylesheet" href="../_datepicker.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="dots"></div><div class="bloom"></div><div class="bloom2"></div>
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="none">
+    <path d="M-60 210 C 320 210, 440 430, 780 430 C 1120 430, 1220 210, 1520 210"/>
+    <path d="M-60 620 C 340 620, 460 430, 780 430 C 1100 430, 1200 620, 1520 620"/>
+    <path d="M-60 420 C 360 420, 480 470, 780 470 C 1080 470, 1180 420, 1520 420"/>
+  </svg>
+</div>
+
+<header class="hdr">
+  <div class="brand">
+    <img class="brandmark" src="../assets/logo-64.png" alt="ReviFlow RCM">
+    <span>R&nbsp;e&nbsp;v&nbsp;i&nbsp;F&nbsp;l&nbsp;o&nbsp;w</span>
+  </div>
+  <span class="crumb">Provider workspace / <b>Check eligibility</b></span>
+  <div class="hactions">
+  <span class="rf-who" id="rfWho"></span>
+    <a href="eligibility-batch.html" class="hbtn batch">
+      <svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h9"/><path d="M15 17l3 3 3-3M18 20v-6"/></svg>Batch check
+    </a>
+    <a href="provider-dashboard.html" class="hbtn">
+      <svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back
+    </a>
+    <a href="provider-login.html" class="hbtn out">Log out
+      <svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg>
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="ptop">
+    <span class="kick" id="modeChip"><i></i>Real-time 270 / 271</span>
+    <h1>Check <em>eligibility and benefits</em></h1>
+    <p>Fill in the provider, member and service details below. Most payers respond in under a second.</p>
+    <span class="note top">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg>
+      Every check is logged against your account and kept for 24 hours
+    </span>
+  </div>
+
+  <form id="elig" novalidate>
+
+    <!-- ═══ 1 · PROVIDER / FACILITY ═══ -->
+    <section class="sec">
+      <div class="sechead">
+        <span class="secno">01</span>
+        <div>
+          <h2>Provider / facility information</h2>
+          <p>Who is rendering the service.</p>
+        </div>
+        <span class="cnt">5 FIELDS</span>
+      </div>
+
+      <div class="grid">
+        <label class="f c6">
+          <span>Select payer <u>*</u></span>
+          <div class="ctrl">
+            <select id="payer" required>
+              <option value="">Loading payers…</option>
+            </select>
+          </div>
+          <p class="err" id="e-payer">Select a payer.</p>
+        </label>
+
+        <label class="f c6">
+          <span>Choose facility <u>*</u></span>
+          <div class="ctrl">
+            <select id="facility" required>
+              <option value="">Select a facility</option>
+              <option>Northside Medical Group — Austin, TX</option>
+              <option>Northside Family Clinic — Round Rock, TX</option>
+              <option>Northside Specialty Center — Cedar Park, TX</option>
+              <option>Revify Health Partners — Dallas, TX</option>
+            </select>
+          </div>
+          <p class="err" id="e-facility">Select a facility.</p>
+        </label>
+
+        <label class="f c12">
+          <span>List of provider <u>*</u></span>
+          <div class="ctrl">
+            <select id="provider" required>
+              <option value="">Select a provider</option>
+              <option>Whitfield, Dana — MD, Family Medicine</option>
+              <option>Reyes, Alan — MD, Internal Medicine</option>
+              <option>Okafor, Ngozi — DO, Endocrinology</option>
+              <option>Lindqvist, Sara — NP, Primary Care</option>
+            </select>
+          </div>
+          <p class="err" id="e-provider">Select a provider.</p>
+        </label>
+
+        <label class="f c4">
+          <span>Claim type <u>*</u></span>
+          <div class="ctrl">
+            <select id="claimtype" required>
+              <option value="">Select claim type</option>
+              <option>Professional</option>
+              <option>Institutional</option>
+              <option>Dental</option>
+              <option>Vision</option>
+            </select>
+          </div>
+          <p class="err" id="e-claimtype">Select a claim type.</p>
+        </label>
+
+        <label class="f c4">
+          <span>NPI <u>*</u></span>
+          <div class="ctrl">
+            <input type="text" id="npi" inputmode="numeric" maxlength="10" placeholder="10 digits" required>
+          </div>
+          <p class="hint">National Provider Identifier</p>
+          <p class="err" id="e-npi">An NPI is exactly 10 digits.</p>
+        </label>
+
+        <label class="f c4">
+          <span>Tax ID</span>
+          <div class="ctrl">
+            <input type="text" id="taxid" maxlength="10" placeholder="9 digits">
+          </div>
+          <p class="hint">EIN or SSN, digits only</p>
+        </label>
+      </div>
+    </section>
+
+    <!-- ═══ 2 · MEMBER ═══ -->
+    <section class="sec">
+      <div class="sechead">
+        <span class="secno">02</span>
+        <div>
+          <h2>Member information</h2>
+          <p>The patient as they appear on the payer's file.</p>
+        </div>
+        <span class="cnt">8 FIELDS</span>
+      </div>
+
+      <div class="grid">
+        <label class="f c3">
+          <span>Member ID <u>*</u></span>
+          <div class="ctrl"><input type="text" id="memberid" placeholder="1AA2CC3DD45" required></div>
+          <p class="err" id="e-memberid">Enter the member ID exactly as printed on the card.</p>
+        </label>
+
+        <label class="f c3">
+          <span>Member first name <u>*</u></span>
+          <div class="ctrl"><input type="text" id="mfirst" placeholder="Jane" required></div>
+          <p class="err" id="e-mfirst">Enter the member's first name.</p>
+        </label>
+
+        <label class="f c3">
+          <span>Member last name <u>*</u></span>
+          <div class="ctrl"><input type="text" id="mlast" placeholder="Doe" required></div>
+          <p class="err" id="e-mlast">Enter the member's last name.</p>
+        </label>
+
+        <label class="f c3">
+          <span>Suffix</span>
+          <div class="ctrl"><input type="text" id="suffix" maxlength="6" placeholder="Jr"></div>
+        </label>
+
+        <label class="f c4">
+          <span>Date of birth <u>*</u></span>
+          <div class="ctrl">
+            <input type="date" id="dob" min="1900-01-01" max="2100-12-31" required>
+            <svg class="calico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          </div>
+          <p class="err" id="e-dob">Select a date of birth.</p>
+        </label>
+
+        <label class="f c4">
+          <span>Gender</span>
+          <div class="ctrl">
+            <select id="gender">
+              <option value="">Select</option>
+              <option>Female</option><option>Male</option>
+              <option>Other</option><option>Unknown</option>
+            </select>
+          </div>
+        </label>
+
+        <label class="f c4">
+          <span>Relationship to subscriber <u>*</u></span>
+          <div class="ctrl">
+            <select id="relationship" required>
+              <option>Self</option><option>Spouse</option>
+              <option>Child</option><option>Other dependent</option>
+            </select>
+          </div>
+          <p class="err" id="e-relationship">Select a relationship.</p>
+        </label>
+
+        <label class="f c6">
+          <span>Subscriber first name</span>
+          <div class="ctrl"><input type="text" id="sfirst" placeholder="Same as member if self"></div>
+        </label>
+
+        <label class="f c6">
+          <span>Subscriber last name</span>
+          <div class="ctrl"><input type="text" id="slast" placeholder="Same as member if self"></div>
+        </label>
+      </div>
+    </section>
+
+    <!-- ═══ 3 · ELIGIBILITY FOR ═══ -->
+    <section class="sec">
+      <div class="sechead">
+        <span class="secno">03</span>
+        <div>
+          <h2>Eligibility for</h2>
+          <p>What you are checking coverage against.</p>
+        </div>
+        <span class="cnt">5 FIELDS</span>
+      </div>
+
+      <div class="grid">
+        <label class="f c4">
+          <span>Date of service <u>*</u></span>
+          <div class="ctrl">
+            <input type="date" id="dos" min="1900-01-01" max="2100-12-31" required>
+            <svg class="calico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          </div>
+          <p class="hint">Defaults to today</p>
+          <p class="err" id="e-dos">Select a date of service.</p>
+        </label>
+
+        <label class="f c4">
+          <span>Place of service <u>*</u></span>
+          <div class="ctrl">
+            <select id="pos" required>
+              <option value="">Select place of service</option>
+              <option>11 — Office</option>
+              <option>19 — Off campus outpatient hospital</option>
+              <option>21 — Inpatient hospital</option>
+              <option>22 — On campus outpatient hospital</option>
+              <option>23 — Emergency room</option>
+              <option>02 — Telehealth</option>
+              <option>12 — Home</option>
+              <option>81 — Independent laboratory</option>
+            </select>
+          </div>
+          <p class="err" id="e-pos">Select a place of service.</p>
+        </label>
+
+        <label class="f c4">
+          <span>Category <u>*</u></span>
+          <div class="ctrl">
+            <select id="category" required>
+              <option value="">Loading categories…</option>
+            </select>
+          </div>
+          <p class="err" id="e-category">Select a category.</p>
+        </label>
+
+        <label class="f c6">
+          <span>Specialty</span>
+          <div class="ctrl">
+            <select id="specialty">
+              <option value="">Select specialty</option>
+              <option>Family medicine</option><option>Internal medicine</option>
+              <option>Cardiology</option><option>Endocrinology</option>
+              <option>Orthopedics</option><option>Obstetrics and gynecology</option>
+              <option>Pediatrics</option><option>Behavioral health</option>
+            </select>
+          </div>
+        </label>
+
+        <label class="f c6">
+          <span>CPT code</span>
+          <div class="ctrl"><input type="text" id="cpt" maxlength="5" placeholder="99213"></div>
+          <p class="hint" id="cptHint">Optional — narrows the response to one procedure.
+            Not every payer supports this; if the check fails, clear it and try again.</p>
+        </label>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="run" id="run">
+        <span class="lbl">Check eligibility</span>
+        <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        <span class="spin"></span>
+      </button>
+      <button type="button" class="ghost" id="reset">Clear form</button>
+      <span class="note">
+        <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg>
+        Every check is logged against your account
+      </span>
+    </div>
+  </form>
+
+  <div class="result" id="result">
+    <div class="rhead">
+      <span class="pill" id="rPill"><i></i>—</span>
+      <a class="who namelink" id="rwho" href="eligibility-result.html">—<svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+      <span class="tid" id="rtid">—</span>
+    </div>
+    <dl class="rgrid" id="rGrid"></dl>
+    <p class="rhint" id="rHint">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      Select the member's name above to open the full benefits breakdown.
+    </p>
+  </div>
+
+
+  <section class="hist" id="histCard">
+    <div class="hhead">
+      <h2>Recent checks</h2>
+      <span class="sub" id="histSub">LAST 24 HOURS</span>
+    </div>
+    <div class="hbody" id="histBody"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var form=document.getElementById('elig'),
+      run=document.getElementById('run'),
+      reset=document.getElementById('reset'),
+      result=document.getElementById('result');
+
+  // default date of service to today
+  var dos=document.getElementById('dos');
+  dos.value=(function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})();
+
+  // digits only
+  ['npi','taxid','cpt'].forEach(function(id){
+    var el=document.getElementById(id);
+    el.addEventListener('input',function(){el.value=el.value.replace(/\D/g,'');});
+  });
+  document.getElementById('memberid').addEventListener('input',function(e){
+    e.target.value=e.target.value.toUpperCase();
+  });
+
+  // mirror member name into subscriber when relationship is Self
+  var rel=document.getElementById('relationship'),
+      mf=document.getElementById('mfirst'),ml=document.getElementById('mlast'),
+      sf=document.getElementById('sfirst'),sl=document.getElementById('slast');
+  function sync(){
+    if(rel.value==='Self'){sf.value=mf.value;sl.value=ml.value;}
+  }
+  rel.addEventListener('change',sync);
+  if(rel.value==='Self')sync();
+  mf.addEventListener('input',sync);
+  ml.addEventListener('input',sync);
+
+  var REQ=['payer','facility','provider','claimtype','npi','memberid','mfirst','mlast','dob','relationship','dos','pos','category'];
+  REQ.forEach(function(id){
+    var el=document.getElementById(id);
+    el.addEventListener('input',function(){clear(id);});
+    el.addEventListener('change',function(){clear(id);});
+  });
+  function clear(id){
+    document.getElementById(id).classList.remove('bad');
+    var e=document.getElementById('e-'+id); if(e)e.classList.remove('show');
+  }
+  function fail(id){
+    var el=document.getElementById(id);
+    el.classList.add('bad');
+    var e=document.getElementById('e-'+id); if(e)e.classList.add('show');
+    return el;
+  }
+
+  /* ── 24-hour history, scoped to the signed-in user ── */
+  async function renderHist(){
+    var box=document.getElementById('histBody');
+    if(!box)return;
+    var list=[];
+    try{ await RFStore.ready(); list=await RFStore.eligHistory(); }catch(e){}
+    var sub=document.getElementById('histSub');
+    if(sub)sub.textContent=list.length?(list.length+' IN LAST 24 HOURS'):'LAST 24 HOURS';
+    if(!list.length){
+      box.innerHTML='<p class="hempty">No checks run in the last 24 hours. '+
+        'Only your own checks appear here, and they clear automatically after 24 hours.</p>';
+      return;
+    }
+    box.innerHTML=list.map(function(r){
+      var parts=String(r.n||'').split(', ');
+      var ini=((parts[1]||' ')[0]||'')+((parts[0]||' ')[0]||'');
+      var d=r.d?new Date(r.d+'T12:00:00').toLocaleDateString(undefined,
+             {month:'short',day:'numeric',year:'numeric'}):'—';
+      var when=r.t?new Date(r.t).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):'';
+      var st=(r.meta&&r.meta.status)||'';
+      return '<a class="hitem" href="eligibility-result.html?e='+encodeURIComponent(r.id||'')+'">'+
+        '<span class="hav">'+ini.toUpperCase()+'</span>'+
+        '<span><b>'+r.n+'</b><small>DOB '+d+(when?' · '+when:'')+'</small></span>'+
+        (st?'<span class="hst '+(/active/i.test(st)?'ok':'bad')+'">'+st+'</span>':'')+
+      '</a>';
+    }).join('');
+  }
+  async function pushHist(name,dob,payload,meta){
+    try{
+      await RFStore.ready();
+      var r=await RFStore.pushElig({n:name,d:dob,res:payload||null,meta:meta||{}});
+      LAST_ID=r&&r.id||null;
+      await renderHist();
+      return LAST_ID;
+    }catch(e){ return null; }
+  }
+  var LAST_ID=null;
+  renderHist();
+  setInterval(renderHist,60000);
+
+
+  /* ══ facility and provider are scoped to the signed-in account ══ */
+  (async function(){
+    try{
+      await RFStore.ready();
+      var sess=RFStore.getSession();
+      if(!sess)return;
+
+      if(window.RFCodes&&RFCodes.sync)await RFCodes.sync();
+
+      /* payers, as "Payer ID — Name" */
+      var payers=RFCodes.payers();
+      var pel=document.getElementById('payer');
+      if(pel&&!payers.length){
+        pel.innerHTML='<option value="">No payers set up yet</option>';
+        pel.disabled=true;
+        var ph=pel.closest('label');
+        if(ph&&!ph.querySelector('.setup')){
+          var n=document.createElement('p');
+          n.className='hint setup';
+          n.innerHTML='Payers are maintained in <b>Admin → Payers</b>. '+
+            'Ask an administrator to add them before running a check.';
+          ph.appendChild(n);
+        }
+      }
+      if(pel&&payers.length){
+        pel.disabled=false;
+        var keepP=pel.value;
+        pel.innerHTML='<option value="">Select a payer</option>'+
+          payers.map(function(x){
+            return '<option value="'+String(x.payer_id||x.name).replace(/"/g,'&quot;')+'">'+
+              RFCodes.payerLabel(x).replace(/</g,'&lt;')+'</option>';
+          }).join('');
+        if(keepP)pel.value=keepP;
+      }
+
+      /* place of service */
+      var posEl=document.getElementById('pos');
+      var posList=(RFCodes._admin&&RFCodes._admin.pos)||[];
+      if(posEl&&!posList.length){
+        posEl.innerHTML='<option value="">No place of service codes yet</option>';
+      }
+      if(posEl&&posList&&posList.length){
+        var keepPos=posEl.value;
+        posEl.innerHTML='<option value="">Select place of service</option>'+
+          posList.map(function(x){
+            return '<option value="'+x.code+'">'+x.code+' — '+String(x.desc).replace(/</g,'&lt;')+'</option>';
+          }).join('');
+        if(keepPos)posEl.value=keepPos;
+      }
+
+      /* service type category, as "MH — Mental Health" */
+      var catEl=document.getElementById('category');
+      var stcList=(RFCodes._admin&&RFCodes._admin.servicetype)||[];
+      if(catEl&&!stcList.length){
+        catEl.innerHTML='<option value="">No service types set up yet</option>';
+        catEl.disabled=true;
+        var ch=catEl.closest('label');
+        if(ch&&!ch.querySelector('.setup')){
+          var n2=document.createElement('p');
+          n2.className='hint setup';
+          n2.innerHTML='Service types come from <b>Admin → Master data → Service type</b>, '+
+            'entered as a code and description such as MH and Mental health.';
+          ch.appendChild(n2);
+        }
+      }
+      if(catEl&&stcList&&stcList.length){
+        catEl.disabled=false;
+        var keepC=catEl.value;
+        catEl.innerHTML='<option value="">Select category</option>'+
+          stcList.map(function(x){
+            return '<option value="'+x.code+'">'+x.code+' — '+String(x.desc).replace(/</g,'&lt;')+'</option>';
+          }).join('');
+        if(keepC)catEl.value=keepC;
+      }
+
+      var orgs=await RFStore.orgs(), provs=await RFStore.providers();
+      var CFG=await RFStore.settings();
+      var fac=document.getElementById('facility'),
+          sel=document.getElementById('provider');
+
+      /* find this user's own provider record, if they have one */
+      var mine=provs.filter(function(p){return p.id===sess.provider_ref;})[0]
+             ||provs.filter(function(p){return (p.full_name||'')===sess.name;})[0]
+             ||provs.filter(function(p){return p.code&&p.code===sess.pid;})[0];
+
+      /* which organization does this account belong to?
+         provider record wins, then the org stamped on the login itself */
+      var myOrg = (mine&&mine.org_id) || sess.org_id || null;
+
+      /* an account with no organization at all sees nothing rather than everything */
+      var myOrgs = myOrg ? orgs.filter(function(o){return o.id===myOrg;}) : [];
+
+      if(fac){
+        if(myOrgs.length){
+          fac.innerHTML=myOrgs.map(function(o){
+            var ad=(o.addresses&&o.addresses[0])||{};
+            return '<option value="'+o.id+'">'+o.name+(ad.city?' — '+ad.city+', '+(ad.state||''):'')+'</option>';
+          }).join('');
+          fac.value=myOrgs[0].id;
+          /* one facility means there is nothing to choose */
+          if(myOrgs.length===1){
+            fac.setAttribute('data-locked','1');
+            fac.style.background='var(--paper-2)';
+            fac.style.cursor='default';
+            fac.addEventListener('mousedown',function(e){e.preventDefault();});
+            fac.addEventListener('keydown',function(e){
+              if(['ArrowDown','ArrowUp',' ','Enter'].indexOf(e.key)>-1)e.preventDefault();});
+            var lbl=fac.closest('.f')&&fac.closest('.f').querySelector('span');
+            if(lbl&&!lbl.querySelector('.lk')){
+              var t=document.createElement('span');
+              t.className='lk';
+              t.style.cssText='margin-left:auto;font-family:var(--mono);font-size:8.6px;letter-spacing:.08em;'+
+                'padding:2px 7px;border-radius:5px;background:var(--accent-soft);color:var(--accent-deep);font-weight:700';
+              t.textContent='YOUR FACILITY';
+              lbl.appendChild(t);
+            }
+          }
+        }else{
+          fac.innerHTML='<option value="">No facility linked to this account</option>';
+        }
+      }
+
+      /* Rendering providers only: same facility, and someone who can actually
+         render a service. Administrators, schedulers and billing staff hold
+         accounts but never appear on a 270, so they are excluded. */
+      var accts=[];
+      try{ accts=await RFStore.list(); }catch(e){}
+      var nonClinical={};
+      accts.forEach(function(a){
+        if(a.provider_ref && ['admin','scheduler','employee'].indexOf(a.role)>-1)
+          nonClinical[String(a.provider_ref)]=true;
+      });
+
+      var pool=provs.filter(function(p){
+        if(myOrg ? p.org_id!==myOrg : true) return false;
+        if(nonClinical[String(p.id)]) return false;
+        if(p.status==='inactive') return false;
+        /* a rendering provider needs an NPI — the payer rejects the request without one */
+        return !!String(p.npi||'').trim();
+      });
+
+      /* nobody has an NPI yet: show the clinical roster so the page still works,
+         and say what is missing */
+      var missingNpi=[];
+      if(!pool.length){
+        pool=provs.filter(function(p){
+          return (myOrg ? p.org_id===myOrg : false) && !nonClinical[String(p.id)];
+        });
+        missingNpi=pool.filter(function(p){return !String(p.npi||'').trim();});
+      }
+
+      if(sess.role==='provider') pool = mine ? [mine] : [];
+
+      if(sel){
+        if(pool.length){
+          sel.innerHTML=(pool.length>1?'<option value="">Select a provider</option>':'')+
+            pool.map(function(p){
+              return '<option value="'+p.id+'">'+p.full_name+(p.title?' — '+p.title:'')+
+                (p.specialty?', '+p.specialty:'')+'</option>';
+            }).join('');
+        }else{
+          sel.innerHTML='<option value="">No providers in this facility yet</option>';
+        }
+        if(missingNpi.length){
+          var lbl2=sel.closest('label')||sel.parentNode;
+          if(lbl2&&!lbl2.querySelector('.npihint')){
+            var h=document.createElement('p');
+            h.className='hint npihint';
+            h.style.color='var(--amber)';
+            h.innerHTML='Some providers have no NPI on file. A payer rejects an '+
+              'eligibility request without one — add it under '+
+              '<b>Admin → Organizations → Providers</b>.';
+            lbl2.appendChild(h);
+          }
+        }
+      }
+
+      function applyProvider(p){
+        if(!p)return;
+        var org=orgs.filter(function(o){return o.id===p.org_id;})[0];
+        if(fac&&org)fac.value=org.id;
+        var npi=document.getElementById('npi');
+        if(npi)npi.value=(p.npi||'').replace(/\D/g,'');
+        var tax=document.getElementById('taxid');
+        if(tax)tax.value=String(p.tax_id||(org&&org.tax_id)||'').replace(/\D/g,'');
+        var spec=document.getElementById('specialty');
+        if(spec&&p.specialty){
+          [].slice.call(spec.options).forEach(function(o){
+            if(o.textContent.trim().toLowerCase()===p.specialty.trim().toLowerCase())spec.value=o.value;});
+        }
+        var cpt=document.getElementById('cpt');
+        if(cpt){
+          var set=(CFG.cptSet||p.favourite_cpt||'');
+          var codes=String(set).split(',').map(function(x){return x.trim();}).filter(Boolean);
+          if(codes.length){
+            var first=codes[0].replace(/\D/g,'').slice(0,5);
+            if(first&&!cpt.value)cpt.value=first;
+            /* offer the rest as quick picks */
+            var host=cpt.closest('.f');
+            if(host&&!host.querySelector('.cptquick')&&codes.length>1){
+              var bar=document.createElement('div');
+              bar.className='cptquick';
+              bar.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-top:8px';
+              bar.innerHTML=codes.map(function(c){
+                var v=c.replace(/\D/g,'').slice(0,5);
+                return v?'<button type="button" data-cpt="'+v+'" style="padding:4px 10px;border-radius:7px;'+
+                  'border:1px solid var(--line-2);background:var(--paper);font-family:var(--mono);'+
+                  'font-size:10.4px;font-weight:600;cursor:pointer">'+v+'</button>':'';
+              }).join('');
+              bar.addEventListener('click',function(e){
+                var b=e.target.closest('[data-cpt]');if(!b)return;
+                cpt.value=b.dataset.cpt;
+                bar.querySelectorAll('button').forEach(function(x){
+                  x.style.borderColor=x===b?'var(--accent)':'var(--line-2)';
+                  x.style.background=x===b?'var(--accent-soft)':'var(--paper)';});
+              });
+              host.appendChild(bar);
+            }
+          }
+        }
+        var ct=document.getElementById('claimtype');
+        if(ct&&!ct.value)ct.value='Professional';
+      }
+
+      if(sel){
+        sel.addEventListener('change',function(){
+          applyProvider(pool.filter(function(x){return String(x.id)===sel.value;})[0]);
+        });
+      }
+
+      /* land on the signed-in provider, or the only one available */
+      var qs=new URLSearchParams(location.search);
+      var wanted=qs.get('prov');
+      var start = (wanted && pool.filter(function(x){return String(x.id)===wanted;})[0])
+                || mine || (pool.length===1 ? pool[0] : null);
+      if(start){
+        if(sel)sel.value=start.id;
+        applyProvider(start);
+      }
+
+      /* patient details carried over from the schedule */
+      if(qs.get('last')||qs.get('member')){
+        var setv=function(id,v){var el=document.getElementById(id);if(el&&v)el.value=v;};
+        setv('mlast',(qs.get('last')||'').toUpperCase());
+        setv('mfirst',(qs.get('first')||'').toUpperCase());
+        setv('memberid',(qs.get('member')||'').toUpperCase());
+        setv('dob',qs.get('dob')||'');
+        setv('dos',qs.get('dos')||'');
+        setv('cpt',(qs.get('cpt')||'').replace(/\D/g,'').slice(0,5));
+
+        /* an explicit payer id from the chart wins over a loose name match */
+        var pid=qs.get('payerid'),pel0=document.getElementById('payer');
+        if(pid&&pel0){
+          var exact=[].slice.call(pel0.options).filter(function(o){return o.value===pid;})[0];
+          if(exact)pel0.value=pid;
+        }
+        var payer=qs.get('payer'),pel=document.getElementById('payer');
+        if(payer&&pel){
+          var want=payer.toLowerCase();
+          [].slice.call(pel.options).forEach(function(o){
+            var t=o.textContent.toLowerCase();
+            if(!pel.value&&(t.indexOf(want)>-1||want.indexOf(t.split('—')[1]||'~')>-1))pel.value=o.value;
+          });
+        }
+
+        var rel=document.getElementById('relationship');
+        if(rel&&!rel.value)rel.value='Self';
+        if(typeof sync==='function')sync();
+
+        /* tell the user where this came from */
+        var kick=document.querySelector('.kick');
+        if(kick){
+          kick.innerHTML='<i></i>From '+(qs.get('from')==='chart'?'chart':'schedule')+' · '+
+            (qs.get('last')||'')+', '+(qs.get('first')||'');
+          kick.style.borderColor='rgba(14,157,115,.4)';
+          kick.style.background='var(--accent-soft)';
+          kick.style.color='var(--accent-deep)';
+        }
+        var back=document.querySelector('.hbtn');
+        if(back&&back.getAttribute('href')==='provider-dashboard.html'){
+          if(qs.get('from')==='chart'&&qs.get('ref')){
+            back.setAttribute('href','../Patient/patient-record.html?ref='+encodeURIComponent(qs.get('ref')));
+            back.lastChild.textContent='Back to chart';
+          }else{
+            back.setAttribute('href','schedule.html');
+            back.lastChild.textContent='Back to schedule';
+          }
+        }
+      }
+    }catch(e){ console.warn('eligibility scope skipped',e); }
+  })();
+
+  /* ══════════ SUBMIT — live Stedi call via the Netlify function ══════════ */
+  var API='/api/eligibility';
+
+  /* map the payer dropdown to the Stedi trading partner service ID */
+  var PAYER_IDS={
+    'BCBSTX':'84980','CMS':'CMS','60054':'60054','87726':'87726',
+    '62308':'62308','SX155':'SX155','MCDTX':'MCDTX','87815':'87815'
+  };
+  function payerId(){
+    var v=document.getElementById('payer').value||'';
+    /* admin-managed options carry the id as the value */
+    if(/^[A-Z0-9]{2,10}$/i.test(v))return v;
+    var m=v.match(/\(([^)]+)\)\s*$/);
+    if(m)return m[1];
+    m=v.match(/^([A-Z0-9]+)\s*—/);
+    if(m)return m[1];
+    return v.split(' ')[0];
+  }
+  function ymd(v){return (v||'').replace(/-/g,'');}
+  function stcOf(){
+    var v=document.getElementById('category').value||'30';
+    if(/^[A-Z0-9]{1,2}$/i.test(v))return v.toUpperCase();
+    var m=v.match(/^([A-Z0-9]{1,2})\s*—/);
+    return m?m[1]:'30';
+  }
+  function posOf(){
+    var v=document.getElementById('pos').value||'';
+    if(/^\d{2}$/.test(v))return v;
+    var m=v.match(/^(\d{2})/);return m?m[1]:'11';
+  }
+
+  function buildRequest(){
+    var req={
+      controlNumber:String(Math.floor(100000000+Math.random()*899999999)),
+      tradingPartnerServiceId:payerId(),
+      provider:{
+        organizationName:(document.getElementById('facility').value||'Northside Medical Group').split(' —')[0],
+        npi:document.getElementById('npi').value.trim()
+      },
+      subscriber:{
+        firstName:document.getElementById('mfirst').value.trim(),
+        lastName:document.getElementById('mlast').value.trim(),
+        dateOfBirth:ymd(document.getElementById('dob').value),
+        memberId:document.getElementById('memberid').value.trim()
+      },
+      encounter:{
+        serviceTypeCodes:[stcOf()],
+        dateOfService:ymd(document.getElementById('dos').value)
+      }
+    };
+    var tax=document.getElementById('taxid').value.trim();
+    if(tax)req.provider.taxId=tax;
+    var cpt=document.getElementById('cpt').value.trim();
+    if(cpt){
+      req.encounter.procedureCode=cpt;
+      /* Stedi rejects a procedureCode without its qualifier — HC is HCPCS/CPT */
+      req.encounter.productOrServiceIDQualifier='HC';
+    }
+    var rel=document.getElementById('relationship').value;
+    if(rel&&rel!=='Self'){
+      req.dependents=[{
+        firstName:document.getElementById('mfirst').value.trim(),
+        lastName:document.getElementById('mlast').value.trim(),
+        dateOfBirth:ymd(document.getElementById('dob').value),
+        relationshipToSubscriber:({Spouse:'01',Child:'19','Other dependent':'34'})[rel]||'34'
+      }];
+      var sf=document.getElementById('sfirst').value.trim(),
+          sl=document.getElementById('slast').value.trim();
+      if(sf)req.subscriber.firstName=sf;
+      if(sl)req.subscriber.lastName=sl;
+    }
+    return req;
+  }
+
+  /* ── render whatever Stedi returns ── */
+  function pickBenefit(list,code,stc){
+    return (list||[]).filter(function(b){
+      if(b.code!==code)return false;
+      if(!stc)return true;
+      return !b.serviceTypeCodes||b.serviceTypeCodes.indexOf(stc)>-1;
+    })[0];
+  }
+  function amt(b){
+    if(!b)return null;
+    if(b.benefitAmount!=null)return '$'+Number(b.benefitAmount).toFixed(2);
+    if(b.benefitPercent!=null)return Math.round(Number(b.benefitPercent)*100)+'%';
+    return null;
+  }
+
+  function renderResult(data,ms){
+    var res=document.getElementById('result');
+    var errs=data.errors||(data.subscriber&&data.subscriber.aaaErrors)||null;
+    var status=(data.planStatus&&data.planStatus[0])||null;
+    var bens=data.benefitsInformation||[];
+    var name=[(data.subscriber&&data.subscriber.firstName)||document.getElementById('mfirst').value,
+              (data.subscriber&&data.subscriber.lastName)||document.getElementById('mlast').value]
+              .filter(Boolean).join(' ').trim().toUpperCase();
+
+    document.getElementById('rwho').childNodes[0].nodeValue=name||'Member';
+    document.getElementById('rtid').textContent=(data.meta&&data.meta.traceId)||data.controlNumber||'—';
+
+    var pill=document.getElementById('rPill'),grid=document.getElementById('rGrid'),hint=document.getElementById('rHint');
+
+    if(errs&&errs.length){
+      var e=errs[0];
+      pill.className='pill bad';
+      pill.innerHTML='<i></i>'+(e.description||'Rejected by payer');
+      grid.innerHTML=
+        '<div><dt>AAA CODE</dt><dd>'+(e.code||'—')+'</dd></div>'+
+        '<div><dt>FIELD</dt><dd>'+(e.field||e.location||'—')+'</dd></div>'+
+        '<div><dt>FOLLOW-UP</dt><dd>'+(e.followupAction||'Correct and resubmit')+'</dd></div>'+
+        '<div><dt>RESPONSE TIME</dt><dd>'+ms+' ms</dd></div>';
+      hint.style.display='none';
+    }else{
+      var active=status&&/active/i.test(status.status||'');
+      pill.className='pill'+(active?'':' warn');
+      pill.innerHTML='<i></i>'+((status&&status.status)||'Coverage returned');
+      var ded=pickBenefit(bens,'C'),
+          dedRem=(bens||[]).filter(function(b){return b.code==='C'&&/remain/i.test(b.timeQualifier||'');})[0],
+          copay=pickBenefit(bens,'B',stcOf()),
+          coins=pickBenefit(bens,'A',stcOf());
+      grid.innerHTML=
+        '<div><dt>PLAN</dt><dd>'+((status&&(status.planDetails||status.planCoverage))||(bens[0]&&bens[0].planCoverage)||'—')+'</dd></div>'+
+        '<div><dt>DEDUCTIBLE '+(dedRem?'REMAINING':'')+'</dt><dd>'+(amt(dedRem||ded)||'—')+'</dd></div>'+
+        '<div><dt>COPAY / COINSURANCE</dt><dd>'+(amt(copay)||amt(coins)||'—')+'</dd></div>'+
+        '<div><dt>RESPONSE TIME</dt><dd>'+ms+' ms</dd></div>';
+      hint.style.display='';
+    }
+
+    try{sessionStorage.setItem('rf_last_271',JSON.stringify(data));}catch(e){}
+    pushHist(name||'Member', document.getElementById('dob').value, data,
+      {status:(status&&status.status)||(errs&&errs.length?'Rejected':'Returned'),
+       payer:document.getElementById('payer').value,
+       dos:document.getElementById('dos').value,
+       ms:ms}).then(function(id){
+      var link=document.getElementById('rwho');
+      if(link&&id)link.setAttribute('href','eligibility-result.html?e='+encodeURIComponent(id));
+    });
+    res.classList.add('show');
+    res.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var first=null;
+    REQ.forEach(function(id){
+      var el=document.getElementById(id),ok=!!el.value.trim();
+      if(id==='npi')ok=/^\d{10}$/.test(el.value);
+      if(!ok){var bad=fail(id); if(!first)first=bad;}
+    });
+    if(first){first.focus();first.scrollIntoView({behavior:'smooth',block:'center'});return;}
+
+    run.classList.add('busy');
+    document.getElementById('result').classList.remove('show');
+    var t0=Date.now(),req=buildRequest();
+
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(req)})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,status:r.status,body:j};});})
+      .then(function(out){
+        run.classList.remove('busy');
+        var ms=(out.body._meta&&out.body._meta.ms)||(Date.now()-t0);
+        if(!out.ok&&out.body.error){
+          var pill=document.getElementById('rPill');
+          pill.className='pill bad';
+          pill.innerHTML='<i></i>'+out.body.error;
+          document.getElementById('rGrid').innerHTML=
+            '<div style="grid-column:1/-1"><dt>DETAIL</dt><dd style="font-size:13px;font-weight:500">'+
+            (out.body.hint||out.body.detail||'The eligibility service returned an error.')+'</dd></div>';
+          document.getElementById('rHint').style.display='none';
+          document.getElementById('result').classList.add('show');
+          return;
+        }
+        renderResult(out.body,ms);
+
+      })
+      .catch(function(err){
+        run.classList.remove('busy');
+        var pill=document.getElementById('rPill');
+        pill.className='pill bad';
+        pill.innerHTML='<i></i>Could not reach the eligibility service';
+        document.getElementById('rGrid').innerHTML=
+          '<div style="grid-column:1/-1"><dt>DETAIL</dt><dd style="font-size:13px;font-weight:500">'+
+          String(err.message||err)+'. If you are opening this file directly, run it through Netlify so /api/eligibility exists.</dd></div>';
+        document.getElementById('rHint').style.display='none';
+        document.getElementById('result').classList.add('show');
+      });
+  });
+
+  /* live vs offline badge */
+  fetch(API,{method:'OPTIONS'}).then(function(r){
+    var chip=document.getElementById('modeChip');
+    if(r.ok||r.status===204){chip.innerHTML='<i></i>Live · ReviFlow connected';}
+    else{chip.innerHTML='<i></i>Offline · /api/eligibility not reachable';chip.style.color='var(--danger)';}
+  }).catch(function(){
+    var chip=document.getElementById('modeChip');
+    chip.innerHTML='<i></i>Offline · deploy to Netlify for live results';
+    chip.style.borderColor='rgba(196,87,59,.4)';
+  });
+
+  /* ── CLEAR FORM — delegated so binding can never be missed ── */
+  var FIELDS=['payer','facility','provider','claimtype','npi','taxid',
+              'memberid','mfirst','mlast','suffix','dob','gender','relationship','sfirst','slast',
+              'dos','pos','category','specialty','cpt'];
+
+  function clearForm(){
+    FIELDS.forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el)return;
+      if(el.tagName==='SELECT'){el.selectedIndex=0;}
+      else{el.value='';}
+      el.classList.remove('bad');
+      var err=document.getElementById('e-'+id);
+      if(err)err.classList.remove('show');
+    });
+    // date of service goes back to today
+    var d=document.getElementById('dos');
+    if(d)d.value=(function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})();
+    // wipe any lingering error / result state
+    document.querySelectorAll('#elig .bad').forEach(function(el){el.classList.remove('bad');});
+    document.querySelectorAll('#elig .err').forEach(function(el){el.classList.remove('show');});
+    var r=document.getElementById('result');
+    if(r)r.classList.remove('show');
+    var pay=document.getElementById('payer');
+    if(pay)pay.focus();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  document.addEventListener('click',function(ev){
+    var b=ev.target.closest && ev.target.closest('#reset');
+    if(!b)return;
+    ev.preventDefault();
+    clearForm();
+  });
+
+})();
+</script>
+
+<script>
+/* Section access: a grant, not just a role. Shows a notice rather than
+   signing anyone out. */
+(function(){
+  var SECTION='eligibility';
+  document.addEventListener('DOMContentLoaded',async function(){
+    try{
+      if(typeof RFStore==='undefined'||!RFStore.can)return;
+      await RFStore.ready();
+      var lvl=await RFStore.can(SECTION);
+      if(lvl==='none'){
+        if(window.RFSession&&RFSession.denied)
+          RFSession.denied({section:'eligibility'});
+        return;
+      }
+      if(lvl==='view'){
+        /* read only: the page still loads, but nothing that writes is usable */
+        document.body.classList.add('rf-viewonly');
+        var css=document.createElement('style');
+        css.textContent=
+          '.rf-viewonly [data-write],.rf-viewonly .ib.del{opacity:.4;pointer-events:none}'+
+          '.rf-viewonly .rf-ro{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);'+
+            'z-index:900;display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:11px;'+
+            'background:#0D1A16;color:#F2FBF7;font:600 12px Manrope,system-ui,sans-serif;'+
+            'box-shadow:0 18px 40px -18px rgba(13,26,22,.8)}';
+        document.head.appendChild(css);
+        var note=document.createElement('div');
+        note.className='rf-ro';
+        note.textContent='View only — contact your practice manager to make changes';
+        document.body.appendChild(note);
+        setTimeout(function(){ note.style.display='none'; },6000);
+      }
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

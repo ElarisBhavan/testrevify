@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eligibility and benefits — ReviFlow</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_prefs.css">
+<script src="_prefs.js"></script>
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_session.js"></script>
+<script src="../_notify.js"></script>
+<style>
+
+:root{
+  --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#606E6A;--dim:#8A9A97;
+  --line:rgba(14,26,23,.09);--line-2:rgba(14,26,23,.16);
+  --accent:#0E9D73;--accent-soft:#E4F5EE;--accent-deep:#0B3D31;
+  --indigo:#5A6CFF;--indigo-soft:#EDEFFF;--amber:#B8791A;--amber-soft:#FBF0DC;
+  --danger:#C4573B;--danger-soft:#FBEAE5;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+section[id]{scroll-margin-top:104px}
+#contact{scroll-margin-top:104px}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+
+/* backdrop */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg .dots{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(14,26,23,.09) 1px,transparent 0);background-size:28px 28px;-webkit-mask-image:radial-gradient(110% 60% at 50% 0%,#000,transparent 70%);mask-image:radial-gradient(110% 60% at 50% 0%,#000,transparent 70%)}
+.bg .bloom{position:absolute;top:-26%;left:50%;transform:translateX(-50%);width:min(1000px,100vw);height:min(620px,66vw);border-radius:50%;filter:blur(84px);background:radial-gradient(circle,rgba(14,157,115,.13),transparent 68%);animation:breathe 14s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.8;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.05)}}
+
+/* ── top strip ── */
+.strip{position:relative;z-index:3;background:var(--accent-deep);color:#CFE9DF;font-family:var(--mono);font-size:10.6px;letter-spacing:.03em}
+.strip .in{max-width:1180px;margin:0 auto;padding:8px clamp(16px,3vw,40px);display:flex;flex-wrap:wrap;gap:6px 26px;align-items:center}
+.strip b{color:#fff;font-weight:500}
+.strip .sp{margin-left:auto;display:flex;gap:22px;flex-wrap:wrap}
+
+/* ── header ── */
+.hdr{position:sticky;top:0;z-index:20;background:rgba(251,250,246,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.hin{max-width:1180px;margin:0 auto;padding:11px clamp(16px,3vw,40px);display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:9px}
+.brand svg{width:23px;height:23px}
+.brand span{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.035em}
+.brand em{font-style:normal;color:var(--accent);font-weight:400;font-size:.9em;margin-left:3px}
+.crumb{margin-left:12px;padding-left:12px;border-left:1px solid var(--line-2);font-size:12.6px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.hact{margin-left:auto;display:flex;gap:8px}
+.hbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-size:12.6px;font-weight:600;transition:all .32s var(--ease)}
+.hbtn svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .32s var(--ease)}
+.hbtn:hover{border-color:var(--accent);background:#fff}
+.hbtn.back:hover{transform:translateX(-2px)}
+.hbtn.back:hover svg{transform:translateX(-3px)}
+
+/* ── section nav ── */
+.snav{position:sticky;top:47px;z-index:19;background:rgba(251,250,246,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.snin{max-width:1180px;margin:0 auto;padding:0 clamp(16px,3vw,40px);display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.snin::-webkit-scrollbar{display:none}
+.snin a{position:relative;padding:12px 14px;font-size:12.8px;font-weight:600;color:var(--muted);white-space:nowrap;transition:color .3s ease}
+.snin a::after{content:'';position:absolute;left:14px;right:14px;bottom:0;height:2px;background:var(--accent);transform:scaleX(0);transition:transform .4s var(--ease)}
+.snin a:hover{color:var(--ink)}
+.snin a.on{color:var(--accent-deep)}
+.snin a.on::after{transform:scaleX(1)}
+
+/* ── layout ── */
+.wrap{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:clamp(20px,3vw,34px) clamp(16px,3vw,40px) clamp(50px,6vw,80px)}
+.rv{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.card{background:#fff;border:1px solid var(--line-2);border-radius:18px;margin-bottom:clamp(12px,1.6vw,18px);box-shadow:0 16px 40px -36px rgba(11,61,49,.4);overflow:hidden}
+.chead{display:flex;align-items:center;gap:12px;padding:16px clamp(16px,2vw,24px);border-bottom:1px solid var(--line)}
+.chead h2{font-family:'Sora',sans-serif;font-size:clamp(15px,1.4vw,18px);font-weight:600;letter-spacing:-.03em}
+.chead .ico{width:32px;height:32px;flex:none;border-radius:9px;background:var(--accent-soft);display:grid;place-items:center}
+.chead .ico svg{width:17px;height:17px;stroke:var(--accent-deep);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.cbody{padding:clamp(16px,2vw,24px)}
+
+/* ── member banner ── */
+.member{position:relative;background:#fff;border:1px solid var(--line-2);border-radius:18px;overflow:hidden;margin-bottom:clamp(12px,1.6vw,18px);box-shadow:0 20px 46px -36px rgba(11,61,49,.44)}
+.member::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--accent),var(--indigo))}
+.mtop{padding:clamp(18px,2.2vw,26px) clamp(20px,2.4vw,30px) clamp(16px,2vw,22px);display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.mname h1{font-family:'Sora',sans-serif;font-size:clamp(23px,2.8vw,34px);line-height:1.06;font-weight:600;letter-spacing:-.04em;margin-bottom:7px}
+.mname address{font-style:normal;font-size:13px;line-height:1.55;color:var(--muted)}
+.mbadges{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:99px;font-size:12.4px;font-weight:700;letter-spacing:.01em}
+.badge.ok{background:var(--accent-soft);color:var(--accent-deep)}
+.badge.ok i{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:blip 2.2s infinite}
+@keyframes blip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.32;transform:scale(.75)}}
+.payerchip{display:inline-flex;align-items:center;gap:9px;padding:7px 13px;border-radius:11px;border:1px solid var(--line-2);background:var(--paper)}
+.payerchip .sq{width:26px;height:26px;border-radius:7px;background:var(--indigo-soft);display:grid;place-items:center;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--indigo)}
+.payerchip b{font-size:12.6px;font-weight:600;display:block;line-height:1.2}
+.payerchip small{font-family:var(--mono);font-size:9.6px;color:var(--dim)}
+
+.mfacts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.mfacts>div{background:#fff;padding:13px clamp(16px,2vw,22px)}
+.mfacts dt{font-size:10.2px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.mfacts dd{font-size:13.4px;font-weight:600;letter-spacing:-.015em}
+.mids{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.mids>div{background:var(--paper);padding:13px clamp(16px,2vw,22px)}
+.mids dt{font-size:10.2px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.mids dd{font-family:var(--mono);font-size:12.6px;font-weight:500}
+
+/* ── provider grid ── */
+.pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 24px}
+.pgrid dt{font-size:10.2px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.pgrid dd{font-size:13.4px;font-weight:500;line-height:1.5}
+.pgrid dd.mono{font-family:var(--mono);font-size:12.6px}
+
+/* ── network filter ── */
+.filter{margin-left:auto;display:flex;gap:4px;padding:3px;border-radius:99px;background:var(--paper-2);border:1px solid var(--line)}
+.filter button{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;color:var(--muted);transition:all .32s var(--ease)}
+.filter button.on{background:var(--accent-deep);color:#F2FBF7}
+
+/* ── accumulators ── */
+.plan-meta{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:0 clamp(16px,2vw,24px) 16px;margin-top:-4px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:7px;font-size:11.2px;font-weight:700;letter-spacing:.02em}
+.tag.net{background:var(--indigo-soft);color:var(--indigo)}
+.tag.auth{background:var(--danger-soft);color:var(--danger)}
+.tag.cov{background:var(--accent-soft);color:var(--accent-deep)}
+.plan-meta .kv{font-size:12.6px;color:var(--muted)}
+.plan-meta .kv b{color:var(--ink);font-weight:600}
+
+.accs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,1.6vw,18px)}
+.acc{border:1px solid var(--line-2);border-radius:14px;overflow:hidden;background:var(--paper);transition:border-color .35s var(--ease),transform .35s var(--ease)}
+.acc:hover{border-color:rgba(14,157,115,.4);transform:translateY(-2px)}
+.acchead{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);background:#fff}
+.acchead h3{font-family:'Sora',sans-serif;font-size:14.4px;font-weight:600;letter-spacing:-.026em}
+.acchead .lvl{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--dim);text-transform:uppercase}
+.accbody{padding:16px}
+.accrow+.accrow{margin-top:16px;padding-top:16px;border-top:1px dashed var(--line-2)}
+.accrow .lab{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:9px}
+.accrow .lab span{font-size:11.6px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.accrow .lab b{font-family:'Sora',sans-serif;font-size:clamp(17px,1.8vw,21px);font-weight:600;letter-spacing:-.032em;color:var(--accent-deep)}
+.accrow .lab b.zero{color:var(--muted)}
+.track{position:relative;height:9px;border-radius:99px;background:#E5EAE8;overflow:hidden}
+.track i{position:absolute;inset:0;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),#2FBF93);transition:width 1.3s var(--ease)}
+.track i.full{background:linear-gradient(90deg,var(--accent-deep),var(--accent))}
+.track i.warn{background:linear-gradient(90deg,#D79A2B,var(--amber))}
+.accrow .foot{display:flex;justify-content:space-between;gap:12px;margin-top:8px;font-family:var(--mono);font-size:10.6px;color:var(--dim)}
+.accrow .foot b{color:var(--muted);font-weight:500}
+.accnote{display:none;padding:10px 16px;border-top:1px solid var(--line);background:#fff;font-size:11.6px;color:var(--muted)}
+.acc.na .accnote{display:block}
+.na-dash{font-family:'Sora',sans-serif;font-size:20px;color:var(--dim)}
+
+/* ── covered services ── */
+.svc{margin-top:clamp(14px,1.8vw,20px);border:1px solid var(--line-2);border-radius:14px;background:var(--paper);overflow:hidden}
+.svchead{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:12.4px;font-weight:600;border-bottom:1px solid var(--line);background:#fff}
+.svchead .n{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim)}
+.svchead svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s var(--ease)}
+.svc.open .svchead svg{transform:rotate(180deg)}
+.svclist{display:none;flex-wrap:wrap;gap:7px;padding:14px 16px}
+.svc.open .svclist{display:flex}
+.svclist span{padding:6px 11px;border-radius:8px;background:#fff;border:1px solid var(--line);font-size:11.8px;color:var(--muted);line-height:1.35}
+
+/* ── benefit table ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl thead th{text-align:left;padding:11px 16px;font-size:10.2px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);font-weight:700;background:var(--paper);border-bottom:1px solid var(--line-2);white-space:nowrap}
+.tbl thead th:not(:first-child){text-align:center}
+.tbl td{padding:15px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl td:not(:first-child){text-align:center}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--paper)}
+.tbl .svcname{font-weight:600;letter-spacing:-.015em;margin-bottom:6px;display:block}
+.tbl .sub{font-size:11.6px;color:var(--muted);line-height:1.5}
+.tbl .tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.big{font-family:'Sora',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.03em;color:var(--accent-deep);display:block}
+.per{font-family:var(--mono);font-size:10px;color:var(--dim);display:block;margin-top:3px}
+.dash{color:var(--dim);font-size:15px}
+.refer{font-size:11.6px;color:var(--indigo);font-weight:600;line-height:1.4}
+.authreq{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:7px;background:var(--danger-soft);color:var(--danger);font-size:11.2px;font-weight:700}
+
+/* ── contact ── */
+.contact{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 24px}
+.contact dt{font-size:10.2px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.contact dd{font-size:13.2px;font-weight:500;line-height:1.5}
+.tel{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;border:1px solid var(--line-2);background:var(--paper);font-family:var(--mono);font-size:13px;font-weight:500;transition:all .32s var(--ease)}
+.tel svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;flex:none}
+.tel:hover{border-color:var(--accent);background:var(--accent-soft)}
+
+/* ── disclaimer ── */
+.disc{border:1px solid var(--line-2);border-radius:14px;background:var(--paper-2);padding:16px 18px;font-size:11.8px;line-height:1.7;color:var(--muted)}
+.disc b{display:block;color:var(--ink);font-size:11.2px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;font-weight:700}
+
+@media print{
+  .strip,.hdr,.snav,.bg{display:none}
+  .card,.member{break-inside:avoid;box-shadow:none}
+  .rv{opacity:1;transform:none}
+  .svclist{display:flex!important}
+}
+@media (max-width:1000px){
+  .mfacts{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mids{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .accs{grid-template-columns:minmax(0,1fr)}
+  .contact{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .crumb{display:none}
+}
+@media (max-width:680px){
+  .mfacts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pgrid,.contact{grid-template-columns:minmax(0,1fr)}
+  .mbadges{margin-left:0;align-items:flex-start}
+  .tblwrap{overflow-x:auto}
+  .tbl{min-width:620px}
+  .snav{top:43px}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}.rv{opacity:1;transform:none}}
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+
+/* ── live-result additions ── */
+.hin{max-width:1180px;margin:0 auto;padding:11px clamp(16px,3vw,40px);display:flex;align-items:center;gap:12px}
+.brand img{width:23px;height:23px;object-fit:contain}
+.hact{margin-left:auto;display:flex;gap:8px}
+.loadbox{padding:80px 20px;text-align:center;color:var(--muted)}
+.loadbox b{display:block;font-family:'Sora',sans-serif;font-size:15px;color:var(--ink);margin-top:14px}
+.loadbox .spin{display:inline-block;width:26px;height:26px;border:2.5px solid rgba(14,157,115,.25);
+  border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.nodata{padding:80px 24px;text-align:center;color:var(--muted);line-height:1.7}
+.nodata svg{width:34px;height:34px;stroke:var(--dim);fill:none;stroke-width:1.6;margin-bottom:14px}
+.nodata b{display:block;font-family:'Sora',sans-serif;font-size:17px;color:var(--ink);margin-bottom:7px}
+.nodata span{display:block;font-size:13px;max-width:44ch;margin:0 auto 20px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:12px;font-size:13.2px;font-weight:600}
+.btn.pri{background:var(--accent-deep);color:#F2FBF7}
+.btn.pri:hover{background:var(--accent)}
+.none{color:var(--dim);font-weight:400}
+.badge.no{background:var(--danger-soft);color:var(--danger)}
+.badge.no i{background:var(--danger);animation:none}
+.card.err{border-color:rgba(196,87,59,.4)}
+.chead .ico.bad{background:var(--danger-soft)}
+.chead .ico.bad svg{stroke:var(--danger)}
+.chead .cnt{margin-left:auto;font-family:var(--mono);font-size:9.6px;color:var(--dim);letter-spacing:.08em}
+.tblwrap{overflow-x:auto}
+.tbl tbody tr{opacity:0;transform:translateX(-6px);animation:sl .45s var(--ease) forwards}
+@keyframes sl{to{opacity:1;transform:none}}
+.tbl .sub{font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px}
+.svcs{display:flex;flex-wrap:wrap;gap:4px}
+.svcs span{padding:3px 8px;border-radius:6px;background:var(--paper-2);font-size:10.4px;color:var(--muted)}
+.svcs .more{background:transparent;color:var(--dim);font-family:var(--mono);font-size:9.6px}
+.tag.out{background:var(--amber-soft);color:var(--amber)}
+.pgrid dd .none{font-weight:400}
+.csep{border:none;border-top:1px solid var(--line);margin:16px 0}
+.scrim{position:fixed;inset:0;z-index:90;background:rgba(14,26,23,.36);backdrop-filter:blur(6px);
+  opacity:0;visibility:hidden;transition:all .3s var(--ease)}
+.scrim.on{opacity:1;visibility:visible}
+.modal{position:fixed;z-index:91;left:50%;top:50%;width:min(760px,calc(100vw - 22px));
+  max-height:calc(100vh - 44px);display:flex;flex-direction:column;
+  transform:translate(-50%,-46%) scale(.96);opacity:0;visibility:hidden;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(26px) saturate(180%);
+  border:1px solid rgba(255,255,255,.7);border-radius:19px;
+  box-shadow:0 40px 90px -30px rgba(14,26,23,.55);transition:all .36s var(--ease)}
+.modal.on{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+.mhead{display:flex;align-items:center;gap:11px;padding:16px 19px;border-bottom:1px solid rgba(14,26,23,.1)}
+.mhead .mi{width:32px;height:32px;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center;flex:none}
+.mhead .mi svg{width:16px;height:16px;stroke:var(--accent-deep);fill:none;stroke-width:2;stroke-linecap:round}
+.mhead h3{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.03em}
+.mhead p{font-size:11.2px;color:var(--muted);margin-top:1px}
+.mx{margin-left:auto;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:var(--muted)}
+.mx svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round}
+.mx:hover{background:rgba(255,255,255,.85);transform:rotate(90deg)}
+.mbody{padding:0;overflow:auto;flex:1}
+.mbody pre{margin:0;padding:18px;font-family:var(--mono);font-size:11px;line-height:1.6;
+  white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.mfoot{display:flex;gap:8px;padding:14px 19px;border-top:1px solid rgba(14,26,23,.1);background:rgba(255,255,255,.4)}
+.mfoot .sp{flex:1}
+.hbtn svg{transition:none}
+.hbtn:hover{transform:none}
+@media (max-width:1000px){.tbl{min-width:760px}}
+
+/* ══════════ PRINT ══════════ */
+.printhead,.printfoot{display:none}
+@media print{
+  @page{size:letter portrait;margin:14mm 12mm 16mm}
+  html,body{background:#fff!important;color:#111!important;font-size:9.6pt}
+  .bg,.strip,.hdr,.snav,.scrim,.modal,.filter,#rawBtn,.loadbox{display:none!important}
+  .wrap{max-width:none;margin:0;padding:0}
+
+  .printhead{display:block;margin-bottom:9pt}
+  .ph-top{display:flex;align-items:flex-start;gap:14pt}
+  .ph-brand{display:flex;align-items:center;gap:8pt}
+  .ph-brand img{width:26pt;height:26pt;object-fit:contain}
+  .ph-brand b{display:block;font-family:'Sora',sans-serif;font-size:13pt;font-weight:600;letter-spacing:-.03em;color:#0B3D31}
+  .ph-brand em{font-style:normal;color:#0E9D73;font-size:.86em;margin-left:2pt}
+  .ph-brand small{display:block;font-size:7.4pt;color:#555;letter-spacing:.06em;text-transform:uppercase;margin-top:1pt}
+  .ph-meta{margin-left:auto;display:flex;gap:14pt;text-align:right}
+  .ph-meta u{display:block;font-size:6.2pt;letter-spacing:.09em;text-transform:uppercase;color:#777;text-decoration:none}
+  .ph-meta span{display:block;font-family:var(--mono);font-size:8.2pt;font-weight:600;color:#111;margin-top:1pt}
+  .ph-rule{height:1.6pt;background:#0B3D31;margin-top:7pt}
+
+  .rv{opacity:1!important;transform:none!important;transition:none!important}
+  .member,.card{border:1px solid #999!important;border-radius:4pt!important;box-shadow:none!important;
+    margin-bottom:7pt!important;break-inside:avoid;page-break-inside:avoid}
+  .member::before{display:none}
+  .mtop{padding:8pt 10pt 6pt!important}
+  .mname h1{font-size:15pt!important;letter-spacing:-.03em}
+  .mname address{font-size:8.4pt!important;color:#444!important}
+  .badge{border:1px solid #0A5C46;background:#fff!important;color:#0A5C46!important;
+    font-size:7.6pt!important;padding:2pt 7pt!important}
+  .badge.no{border-color:#A33F22;color:#A33F22!important}
+  .badge i{display:none}
+  .payerchip{border:1px solid #bbb!important;background:#fff!important;padding:4pt 7pt!important}
+  .payerchip .sq{background:#EEE!important;color:#333!important;width:16pt;height:16pt;font-size:7pt}
+  .payerchip b{font-size:8.6pt}
+  .payerchip small{font-size:6.4pt}
+
+  .mfacts,.mids{background:#ccc!important;border-top:1px solid #999!important}
+  .mfacts>div,.mids>div{background:#fff!important;padding:5pt 9pt!important}
+  .mids>div{background:#FAFAF8!important}
+  dt{font-size:6.2pt!important;letter-spacing:.08em;color:#777!important}
+  dd{font-size:8.6pt!important;color:#111!important}
+
+  .chead{padding:6pt 10pt!important;border-bottom:1px solid #999!important;background:#F4F4F2!important}
+  .chead h2{font-size:9.6pt!important}
+  .chead .ico{width:15pt;height:15pt;background:#fff!important;border:1px solid #bbb}
+  .chead .ico svg{width:9pt;height:9pt;stroke:#333!important}
+  .chead .cnt{font-size:6.4pt}
+  .cbody{padding:8pt 10pt!important}
+
+  .accs{grid-template-columns:repeat(2,1fr)!important;gap:6pt!important}
+  .acc{border:1px solid #bbb!important;border-radius:3pt!important;background:#fff!important;break-inside:avoid}
+  .acchead{padding:5pt 8pt!important;background:#F7F7F5!important;border-bottom:1px solid #ddd!important}
+  .acchead h3{font-size:8.8pt!important}
+  .acchead .lvl{font-size:6.2pt!important}
+  .accbody{padding:7pt 8pt!important}
+  .accrow+.accrow{margin-top:6pt;padding-top:6pt;border-top:1px dashed #ddd}
+  .accrow .lab span{font-size:7.2pt!important}
+  .accrow .lab b{font-size:11pt!important;color:#0A5C46!important}
+  .track{display:none}
+  .accrow .foot{font-size:6.8pt!important;margin-top:3pt}
+
+  .tblwrap{overflow:visible!important}
+  .tbl{font-size:8pt!important;min-width:0!important}
+  .tbl thead{display:table-header-group}
+  .tbl th{padding:4pt 7pt!important;font-size:6.2pt!important;background:#F4F4F2!important;
+    border-bottom:1px solid #999!important;color:#555!important}
+  .tbl td{padding:5pt 7pt!important;border-bottom:1px solid #ddd!important}
+  .tbl tbody tr{opacity:1!important;transform:none!important;animation:none!important;break-inside:avoid}
+  .tbl tbody tr[hidden]{display:none!important}
+  .tbl .sub{font-size:6.8pt!important;color:#555!important}
+  .tbl .big{font-size:9.6pt!important;color:#0A5C46!important}
+  .svcs span{background:#F2F2F0!important;font-size:6.8pt!important;padding:1pt 4pt!important;color:#444!important}
+  .tag{border:1px solid #bbb;background:#fff!important;font-size:6.6pt!important;padding:1pt 5pt!important}
+  .tag.net{color:#25489E!important;border-color:#25489E}
+  .tag.out{color:#7A5507!important;border-color:#7A5507}
+
+  .contact{gap:6pt 12pt!important}
+  .tel{border:none!important;background:none!important;padding:0!important;font-size:8.6pt!important}
+  .tel svg{display:none}
+  .csep{margin:8pt 0}
+
+  .disc{border:1px solid #bbb!important;background:#FAFAF8!important;padding:7pt 9pt!important;
+    font-size:7.2pt!important;line-height:1.5!important;color:#444!important;break-inside:avoid}
+  .disc b{font-size:6.8pt!important;color:#111!important}
+
+  .printfoot{display:flex;gap:12pt;margin-top:8pt;padding-top:5pt;border-top:1px solid #bbb;
+    font-family:var(--mono);font-size:6.6pt;color:#777;letter-spacing:.04em}
+  .printfoot span:nth-child(2){margin-left:auto}
+  .none{color:#888!important}
+}
+.badge.neutral{background:var(--paper-2);color:var(--muted)}
+.badge.neutral i{background:var(--dim);animation:none}
+.member.inactive::before{background:linear-gradient(180deg,var(--danger),#E88A6E)!important}
+.member.inactive .mname h1{color:#9E4029}
+@media print{.member.inactive{border-color:#A33F22!important}}
+.card.sum .cbody{padding:0}
+.sumhead{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--paper)}
+.sumhead b{font-size:12.6px;font-weight:600;letter-spacing:-.018em}
+.sumhead span{margin-left:auto;font-family:var(--mono);font-size:9.4px;letter-spacing:.08em;color:var(--dim);
+  padding:3px 9px;border-radius:6px;background:#fff;border:1px solid var(--line)}
+.sumgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line)}
+.scell{background:#fff;padding:15px 18px;min-width:0}
+.scell dt{font-size:9.4px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.scell dd.big{font-family:'Sora',sans-serif;font-size:23px;font-weight:600;letter-spacing:-.04em;color:var(--accent-deep);line-height:1}
+.scell dd.none{font-size:14px;color:var(--dim);font-weight:400}
+.scell small{display:block;font-family:var(--mono);font-size:9.4px;color:var(--muted);margin-top:6px;line-height:1.45}
+.salso{margin-top:8px;padding-top:7px;border-top:1px dashed var(--line-2);display:grid;gap:3px}
+.salso span{font-size:10.6px;color:var(--muted)}
+.salso b{color:var(--accent-deep);font-weight:600}
+@media (max-width:900px){.sumgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.sumgrid{grid-template-columns:minmax(0,1fr)}}
+@media print{
+  .sumgrid{grid-template-columns:repeat(4,1fr)!important;background:#ccc!important}
+  .scell{padding:6pt 8pt!important;background:#fff!important}
+  .scell dd.big{font-size:13pt!important;color:#0A5C46!important}
+  .scell small{font-size:6.4pt!important}
+  .sumhead{padding:5pt 8pt!important;background:#F7F7F5!important}
+  .salso{display:none}
+}
+.tbl.kv td{padding:8px 14px}
+.tbl.kv .kpath{font-family:var(--mono);font-size:10.6px;color:var(--muted);word-break:break-all}
+.tbl.kv .kval{font-size:11.8px;font-weight:500;word-break:break-word}
+@media print{.tbl.kv .kpath{font-size:6.6pt!important}.tbl.kv .kval{font-size:7.4pt!important}}
+.pset{display:grid;gap:8px}
+.pk{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;
+  border:1px solid var(--line-2);background:rgba(255,255,255,.72);cursor:pointer;transition:all .26s var(--ease)}
+.pk:hover{border-color:var(--accent);background:#fff}
+.pk input{position:absolute;opacity:0;pointer-events:none}
+.pk .bx{width:18px;height:18px;flex:none;border-radius:5px;border:1.6px solid var(--line-2);
+  display:grid;place-items:center;transition:all .24s var(--ease)}
+.pk .bx svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:3.2;opacity:0;transform:scale(.5);transition:all .24s var(--ease)}
+.pk input:checked+.bx{background:var(--accent);border-color:var(--accent)}
+.pk input:checked+.bx svg{opacity:1;transform:none}
+.pk b{display:block;font-size:12.8px;font-weight:600;letter-spacing:-.016em}
+.pk small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.pset.always .pk{background:var(--accent-soft);border-color:rgba(14,157,115,.3);cursor:default}
+.pset.always .pk>svg{width:18px;height:18px;flex:none;stroke:var(--accent-deep);fill:none;stroke-width:3}
+.pk em{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+  padding:3px 8px;border-radius:5px;background:#fff;color:var(--accent-deep)}
+.subhead2{display:flex;align-items:center;gap:9px;margin:18px 0 10px;font-size:9.4px;font-weight:700;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+.subhead2::after{content:'';flex:1;height:1px;background:rgba(14,26,23,.11)}
+.pnet{display:flex;gap:6px}
+.pnet button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line-2);
+  background:rgba(255,255,255,.7);font-size:12px;font-weight:600;color:var(--muted);transition:all .26s var(--ease)}
+.pnet button.on{background:var(--accent-deep);border-color:var(--accent-deep);color:#F2FBF7}
+@media print{.noprint{display:none!important}}
+.sumhead .stcchip{font-family:var(--mono);font-size:9.4px;font-weight:700;letter-spacing:.07em;
+  padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent-deep)}
+.scell dt em.planwide{font-style:normal;font-family:var(--mono);font-size:7.6px;letter-spacing:.06em;
+  padding:1px 5px;border-radius:4px;background:var(--paper-2);color:var(--dim);margin-left:5px;text-transform:none}
+@media print{.scell dt em.planwide{font-size:5.6pt!important}
+  .sumhead .stcchip{font-size:6.4pt!important;padding:1pt 4pt!important}}
+.lvlseg{display:inline-flex;gap:3px;padding:3px;border-radius:9px;background:#fff;
+  border:1px solid var(--line);margin-left:4px}
+.lvlseg button{padding:5px 11px;border-radius:6px;font-size:10.6px;font-weight:600;
+  color:var(--muted);transition:all .24s var(--ease)}
+.lvlseg button:hover{color:var(--ink)}
+.lvlseg button.on{background:var(--accent-deep);color:#F2FBF7}
+.scell dt em.famtag{font-style:normal;font-family:var(--mono);font-size:7.6px;letter-spacing:.06em;
+  padding:1px 5px;border-radius:4px;background:var(--amber-soft);color:var(--amber);
+  margin-left:5px;text-transform:none}
+@media print{.lvlseg{display:none}}
+</style>
+<link rel="stylesheet" href="../_session.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="dots"></div><div class="bloom"></div></div>
+
+<div class="strip">
+  <div class="in">
+    <span>DATE OF SERVICE <b id="sDos">—</b></span>
+    <span class="sp">
+      <span>TRANSACTION <b id="sTrace">—</b></span>
+      <span>RECEIVED <b id="sWhen">—</b></span>
+      <span>RESPONSE <b id="sMs">—</b></span>
+    </span>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <img src="../assets/logo-64.png" alt="ReviFlow RCM">
+      <span>ReviFlow<em>RCM</em></span>
+    </div>
+    <span class="crumb">Check eligibility / <b>Benefits detail</b></span>
+    <div class="hact">
+      <a href="eligibility.html" class="hbtn back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <button class="hbtn" id="rawBtn"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Raw 271</button>
+      <button class="hbtn" id="printBtn"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 19H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-2"/><path d="M7 15h10v6H7z"/></svg>Print</button>
+    </div>
+  </div>
+</header>
+
+<nav class="snav">
+  <div class="snin" id="snav">
+    <a href="#member" class="on">Member</a>
+    <a href="#provider">Provider</a>
+    <a href="#maximums">Maximums &amp; deductibles</a>
+    <a href="#benefits">Benefit detail</a>
+    <a href="#contact">Contacts</a>
+  </div>
+</nav>
+
+<div class="printhead" aria-hidden="true">
+  <div class="ph-top">
+    <div class="ph-brand">
+      <img src="../assets/logo-64.png" alt="">
+      <div><b>ReviFlow<em>RCM</em></b><small>Eligibility and benefits verification</small></div>
+    </div>
+    <div class="ph-meta">
+      <div><u>Date of service</u><span id="pDos">—</span></div>
+      <div><u>Transaction</u><span id="pTrace">—</span></div>
+      <div><u>Received</u><span id="pWhen">—</span></div>
+    </div>
+  </div>
+  <div class="ph-rule"></div>
+</div>
+
+<main class="wrap" id="main">
+  <div id="loading" class="loadbox">
+    <span class="spin"></span>
+    <b>Loading the response…</b>
+  </div>
+  <div id="content" hidden></div>
+  <div class="printfoot" aria-hidden="true">
+    <span>ReviFlow RCM · Eligibility and benefits verification</span>
+    <span id="pFootTrace">—</span>
+    <span id="pFootWhen">—</span>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="modal" id="mPrint" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 19H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-2"/><path d="M7 15h10v6H7z"/></svg></span>
+    <div><h3>What should be printed?</h3><p>Member and coverage details are always included.</p></div>
+    <button class="mx" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="pset always">
+      <span class="pk">
+        <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+        <span><b>Basic details</b><small>Member, coverage status, payer and requesting provider</small></span>
+        <em>Always</em>
+      </span>
+    </div>
+
+    <div class="subhead2">Optional sections</div>
+    <div class="pset" id="printOpts"></div>
+
+    <div class="subhead2">Network</div>
+    <div class="pnet" id="printNet">
+      <button class="on" data-n="current">As shown on screen</button>
+      <button data-n="all">All networks</button>
+    </div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="doPrint"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 19H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-2"/><path d="M7 15h10v6H7z"/></svg>Print</button>
+  </div>
+</div>
+<div class="modal" id="mRaw" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg></span>
+    <div><h3>Raw 271 response</h3><p>Exactly as returned by the payer.</p></div>
+    <button class="mx" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody"><pre id="rawJson"></pre></div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Close</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="copyRaw"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>Copy JSON</button>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var DATA=null;
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function money(n){return '$'+(Math.round((+n||0)*100)/100).toFixed(2);}
+  function d8(v){
+    if(!v)return '';
+    var s=String(v).replace(/\D/g,'');
+    if(s.length===8)return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8);
+    return String(v);
+  }
+  function fmtDate(v){
+    var iso=d8(v);
+    if(!iso)return '';
+    var d=new Date(iso+'T12:00:00');
+    return isNaN(d)?String(v):d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+  }
+  function title(s){
+    return String(s||'').toLowerCase().replace(/\b\w/g,function(c){return c.toUpperCase();});
+  }
+  function pick(o,path){
+    return path.split('.').reduce(function(a,k){return (a==null?a:a[k]);},o);
+  }
+
+  /* ── unwrap whatever shape the payer returned ── */
+  function normalise(raw){
+    var d=raw||{};
+    var sub=d.subscriber||d.member||{};
+    var dep=(d.dependents&&d.dependents[0])||null;
+    var person=dep||sub;
+    var benefits=d.benefitsInformation||d.benefits||
+      (dep&&dep.benefitsInformation)||[];
+    var errors=d.errors||d.AAA||sub.aaaErrors||(dep&&dep.aaaErrors)||[];
+    return {
+      raw:d,
+      person:person,
+      subscriber:sub,
+      dependent:dep,
+      plan:(d.planInformation||{}),
+      status:(d.planStatus||[]),
+      benefits:Array.isArray(benefits)?benefits:[],
+      provider:d.provider||(d.providers&&d.providers[0])||{},
+      payer:d.payer||{},
+      meta:d.meta||{},
+      errors:Array.isArray(errors)?errors:[errors].filter(Boolean),
+      trace:(d.meta&&d.meta.traceId)||d.controlNumber||d.reassociationKey||''
+    };
+  }
+
+  /* every benefit line the payer sent, grouped by what it describes */
+  function group(bens,codes){
+    return bens.filter(function(b){return codes.indexOf(b.code)>-1;});
+  }
+  function amountOf(b){
+    if(b.benefitAmount!=null && b.benefitAmount!=='')return money(b.benefitAmount);
+    if(b.benefitPercent!=null && b.benefitPercent!=='')
+      return Math.round(parseFloat(b.benefitPercent)*100)+'%';
+    return null;
+  }
+  function levelOf(b){
+    return title(b.coverageLevel||b.coverageLevelCode||'');
+  }
+  function netOf(b){
+    var n=b.inPlanNetworkIndicator||b.inPlanNetworkIndicatorCode||'';
+    if(/^y/i.test(n))return 'In network';
+    if(/^n/i.test(n))return 'Out of network';
+    return '';
+  }
+  function periodOf(b){
+    return title(b.timeQualifier||b.timeQualifierCode||'');
+  }
+  function servicesOf(b){
+    return (b.serviceTypeCodes||[]).map(function(c,i){
+      return (b.serviceTypes&&b.serviceTypes[i])||c;
+    });
+  }
+
+  function box(label,val,mono){
+    return '<div><dt>'+esc(label)+'</dt><dd'+(mono?' class="mono"':'')+'>'+
+      (val==null||val===''?'<span class="none">Not reported</span>':esc(val))+'</dd></div>';
+  }
+
+
+
+  /* Stamped so a stale copy of this file is visible in the console. */
+  var RESULT_BUILD='2026.08.19-c';
+  console.info('%cReviFlow eligibility result '+RESULT_BUILD+
+    ' · planDates '+(typeof planDates==='function'?'present':'MISSING'),
+    'color:#0A5C46;font-weight:700');
+
+  /* When a plan begins and ends.
+     Payers report this in several places and none of them consistently: on the
+     plan record, on the plan-status lines, or as dated benefit entries. Take
+     the earliest start and the latest end across all of them, so a plan is not
+     shown as open-ended just because one field was empty. */
+  function planDates(N){
+    var begins=[], ends=[];
+
+    function push(o){
+      if(!o) return;
+      var b = o.planBegin || o.planBeginDate || o.eligibilityBegin ||
+              o.eligibilityBeginDate || o.benefitBegin || o.periodStart ||
+              o.startDate || o.effectiveDate || o.plan;
+      var e = o.planEnd || o.planEndDate || o.eligibilityEnd ||
+              o.eligibilityEndDate || o.benefitEnd || o.periodEnd ||
+              o.endDate || o.expirationDate || o.terminationDate;
+      if(b) begins.push(String(b));
+      if(e) ends.push(String(e));
+    }
+
+    push(N.plan);
+    push(N.plan && N.plan.planDateInformation);
+    push(N.raw && N.raw.planDateInformation);
+    (N.status||[]).forEach(function(st){
+      push(st); push(st.planDateInformation);
+    });
+    (N.benefits||[]).forEach(function(b){
+      push(b.benefitsDateInformation);
+      /* a date sitting directly on the benefit line counts too */
+      if(b.planBegin || b.planEnd || b.benefitBegin || b.benefitEnd) push(b);
+    });
+    push(N.person && N.person.planDateInformation);
+    push(N.subscriber && N.subscriber.planDateInformation);
+
+    /* dates arrive as YYYYMMDD or YYYY-MM-DD; compare on digits alone */
+    var key = function(v){ return String(v).replace(/\D/g,''); };
+    var pick = function(list, latest){
+      var best = null;
+      list.forEach(function(v){
+        var k = key(v);
+        if(k.length < 8) return;
+        if(best === null) { best = v; return; }
+        best = (latest ? (k > key(best)) : (k < key(best))) ? v : best;
+      });
+      return best;
+    };
+
+    return { begin: pick(begins, false), end: pick(ends, true) };
+  }
+
+  /* ══════════ RENDER ══════════ */
+  function render(N){
+    var p=N.person, out=[];
+    var PD=planDates(N);
+
+    /* ── member banner ── */
+    var name=[p.lastName,p.firstName].filter(Boolean).join(', ')||
+             [p.firstName,p.lastName].filter(Boolean).join(' ')||'Member';
+    if(p.middleName)name+=' '+p.middleName;
+    var addr=p.address||{};
+    var st=(N.status[0])||{};
+    /* only a positive statement counts as active — "inactive" must not match "active" */
+    var statusTxt=(st.status||'');
+    if(!statusTxt){
+      var ab=N.benefits.filter(function(b){return /^(1|6)$/.test(b.code)||/active|inactive/i.test(b.name||'');})[0];
+      if(ab)statusTxt=ab.name||'';
+    }
+    var inactive=/inactive|not\s*active|terminated|cancell?ed|ineligible|non[- ]?covered/i.test(statusTxt)||
+                 N.benefits.some(function(b){return b.code==='6';});
+    var active=!inactive && (/active/i.test(statusTxt)||
+               N.benefits.some(function(b){return b.code==='1'||/^active/i.test(b.name||'');}));
+    var payerName=N.payer.name||N.raw.payerName||
+      (N.raw.tradingPartnerServiceId?('Payer '+N.raw.tradingPartnerServiceId):'Payer');
+
+    out.push('<section class="member rv'+(inactive?' inactive':'')+'" id="member">'+
+      '<div class="mtop">'+
+        '<div class="mname"><h1>'+esc(name)+'</h1>'+
+          (addr.address1?'<address>'+esc(addr.address1)+
+            (addr.address2?'<br>'+esc(addr.address2):'')+
+            '<br>'+esc([addr.city,addr.state,addr.postalCode].filter(Boolean).join(', '))+
+          '</address>':'')+
+        '</div>'+
+        '<div class="mbadges">'+
+          '<span class="badge '+(inactive?'no':(active?'ok':'neutral'))+'"><i></i>'+
+            esc(statusTxt||(active?'Active coverage':'Coverage returned'))+'</span>'+
+          '<span class="payerchip"><span class="sq">'+
+            esc(String(payerName).slice(0,2).toUpperCase())+'</span>'+
+            '<span><b>'+esc(payerName)+'</b><small>PAYER ID · '+
+            esc(N.raw.tradingPartnerServiceId||N.payer.payorIdentification||'—')+'</small></span></span>'+
+        '</div></div>'+
+      '<dl class="mfacts">'+
+        box('Date of birth',fmtDate(p.dateOfBirth))+
+        box('Gender',title(p.gender||p.genderCode))+
+        box('Relationship',title(N.dependent?(p.relationship||'Dependent'):'Self'))+
+        box('Plan begins',fmtDate(PD.begin))+
+        box('Plan ends',PD.end?fmtDate(PD.end):(PD.begin?'Open ended':''))+
+      '</dl>'+
+      '<dl class="mids">'+
+        box('Member ID',p.memberId||N.subscriber.memberId,true)+
+        box('Subscriber',N.dependent
+          ? [N.subscriber.lastName,N.subscriber.firstName].filter(Boolean).join(', ')
+          : name)+
+        box('Group number',p.groupNumber||N.subscriber.groupNumber||pick(N,'plan.groupNumber'),true)+
+        box('Group name',p.groupDescription||N.subscriber.groupDescription||pick(N,'plan.groupDescription'))+
+      '</dl></section>');
+
+    /* ── errors, when the payer rejected ── */
+    if(N.errors.length){
+      out.push('<section class="card rv err">'+
+        '<div class="chead"><span class="ico bad"><svg viewBox="0 0 24 24">'+
+          '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>'+
+          '<h2>Payer could not complete this request</h2></div>'+
+        '<div class="cbody"><dl class="pgrid">'+
+          N.errors.map(function(e){
+            return box('AAA '+(e.code||''),e.description||e.message||'')+
+                   box('Follow-up',e.followupAction||'')+
+                   box('Location',e.location||e.field||'');
+          }).join('')+
+        '</dl></div></section>');
+    }
+
+    /* ── requesting provider ── */
+    var pr=N.provider;
+    if(pr && (pr.providerName||pr.organizationName||pr.npi)){
+      var pa=pr.address||{};
+      out.push('<section class="card rv" id="provider">'+
+        '<div class="chead"><span class="ico"><svg viewBox="0 0 24 24">'+
+          '<path d="M4 21V7l8-4 8 4v14"/><path d="M12 10v6M9 13h6"/></svg></span>'+
+          '<h2>Requesting provider</h2></div>'+
+        '<div class="cbody"><dl class="pgrid">'+
+          box('Name',pr.organizationName||[pr.firstName,pr.lastName].filter(Boolean).join(' ')||pr.providerName)+
+          box('NPI',pr.npi,true)+
+          box('Entity type',title(pr.entityIdentifier||pr.providerTypeCode||''))+
+          box('Provider code',title(pr.providerCode||''))+
+          (pa.address1?'<div style="grid-column:span 2"><dt>Address</dt><dd>'+
+            esc([pa.address1,pa.city,pa.state,pa.postalCode].filter(Boolean).join(', '))+'</dd></div>':'')+
+        '</dl></div></section>');
+    }
+
+    /* ── summary of what the visit will cost ── */
+    if(N.benefits.length){
+      out.push('<section class="card rv sum" id="summary" data-sec="summary">'+
+        '<div class="chead"><span class="ico"><svg viewBox="0 0 24 24">'+
+          '<path d="M12 3v18M7 8h7a2.5 2.5 0 010 5H9a2.5 2.5 0 000 5h8"/></svg></span>'+
+          '<h2>Cost summary</h2>'+
+          '<div class="filter" id="netfilter">'+
+            '<button data-n="all">All networks</button>'+
+            '<button class="on" data-n="In network">In network</button>'+
+            '<button data-n="Out of network">Out of network</button>'+
+          '</div></div>'+
+        '<div class="cbody" id="sumBox">'+summaryHTML(N,'In network')+'</div></section>');
+    }
+
+    /* ── accumulators: deductible (C) and out of pocket (G) ── */
+    var acc=group(N.benefits,['C','G']);
+    if(acc.length){
+      out.push('<section class="card rv" id="maximums" data-sec="maximums">'+
+        '<div class="chead"><span class="ico"><svg viewBox="0 0 24 24">'+
+          '<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></span>'+
+          '<h2>Plan maximums and deductibles</h2>'+
+          '<span class="cnt" id="accCnt"></span></div>'+
+        '<div class="cbody"><div class="accs" id="accs">'+accHTML(acc,'In network')+'</div></div>'+
+      '</section>');
+    }
+
+    /* ── everything else the payer sent ── */
+    var rest=N.benefits.filter(function(b){return ['C','G'].indexOf(b.code)<0;});
+    if(rest.length){
+      out.push('<section class="card rv" id="benefits">'+
+        '<div class="chead"><span class="ico"><svg viewBox="0 0 24 24">'+
+          '<path d="M7 4h10l3 3v13a1 1 0 01-1 1H5a1 1 0 01-1-1V7z"/><path d="M9 12h7M9 16h5"/></svg></span>'+
+          '<h2>Benefit detail</h2>'+
+          '<span class="cnt">'+rest.length+' LINE'+(rest.length===1?'':'S')+'</span></div>'+
+        '<div class="tblwrap"><table class="tbl"><thead><tr>'+
+          '<th style="width:30%">Benefit</th><th>Service types</th><th>Network</th>'+
+          '<th>Level</th><th>Period</th><th class="r">Amount</th>'+
+        '</tr></thead><tbody>'+
+        rest.map(function(b,i){
+          var svc=servicesOf(b);
+          return '<tr data-net="'+esc(netOf(b)||'')+'" style="animation-delay:'+Math.min(.5,i*.03)+'s">'+
+            '<td><b>'+esc(b.name||title(b.code))+'</b>'+
+              (b.planCoverage?'<div class="sub">'+esc(b.planCoverage)+'</div>':'')+
+              (b.insuranceTypeCode||b.insuranceType?'<div class="sub">'+
+                esc(b.insuranceType||b.insuranceTypeCode)+'</div>':'')+
+              (b.additionalInformation&&b.additionalInformation.length
+                ? '<div class="sub">'+esc(b.additionalInformation.map(function(a){
+                    return a.description;}).filter(Boolean).join(' · '))+'</div>':'')+
+            '</td>'+
+            '<td>'+(svc.length
+              ? '<div class="svcs">'+svc.slice(0,4).map(function(x){
+                  return '<span>'+esc(x)+'</span>';}).join('')+
+                (svc.length>4?'<span class="more">+'+(svc.length-4)+'</span>':'')+'</div>'
+              : '<span class="none">—</span>')+'</td>'+
+            '<td>'+(netOf(b)?'<span class="tag '+(/^In/.test(netOf(b))?'net':'out')+'">'+
+              netOf(b)+'</span>':'<span class="none">—</span>')+'</td>'+
+            '<td>'+(levelOf(b)||'<span class="none">—</span>')+'</td>'+
+            '<td>'+(periodOf(b)||'<span class="none">—</span>')+'</td>'+
+            '<td class="r">'+(amountOf(b)
+              ? '<span class="big">'+amountOf(b)+'</span>'
+              : '<span class="none">—</span>')+'</td></tr>';
+        }).join('')+
+        '</tbody></table>'+
+        '<p class="none" id="benNone" hidden style="padding:26px;text-align:center">'+
+          'No benefit lines reported for this network.</p>'+
+        '</div></section>');
+    }
+
+    /* ── contacts the payer attached ── */
+    var contacts=[];
+    N.benefits.forEach(function(b){
+      (b.benefitsRelatedEntities||b.benefitsRelatedEntity||[]).forEach(function(e){
+        contacts.push(e);
+      });
+    });
+    if(contacts.length){
+      out.push('<section class="card rv" id="contact">'+
+        '<div class="chead"><span class="ico"><svg viewBox="0 0 24 24">'+
+          '<path d="M5 4h4l2 5-2.5 1.5a12 12 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg></span>'+
+          '<h2>Service level contacts</h2></div>'+
+        '<div class="cbody">'+contacts.map(function(e){
+          var ad=e.address||{};
+          var phones=(e.contactInformation&&e.contactInformation.contacts)||[];
+          return '<dl class="contact">'+
+            box('Name',e.entityName||e.entityIdentifier)+
+            box('Type',title(e.entityIdentifier||''))+
+            box('Relationship',title(e.entityRelationship||''))+
+            (ad.address1?'<div style="grid-column:span 2"><dt>Address</dt><dd>'+
+              esc([ad.address1,ad.city,ad.state,ad.postalCode].filter(Boolean).join(', '))+'</dd></div>':'')+
+            (phones.length?'<div><dt>Contact</dt><dd>'+phones.map(function(c){
+              return c.communicationMode==='Telephone'
+                ? '<a class="tel" href="tel:'+esc(c.communicationNumber)+'">'+
+                  '<svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>'+
+                  esc(c.communicationNumber)+'</a>'
+                : esc(c.communicationNumber);
+            }).join(' ')+'</dd></div>':'')+
+          '</dl>';
+        }).join('<hr class="csep">')+'</div></section>');
+    }
+
+    out.push('<p class="disc rv"><b>Benefit disclaimer</b>'+
+      'This response reflects what the payer returned at the time of the request and is not a guarantee of payment. '+
+      'Benefits are subject to contract limits and to the member\u2019s status on the date of service. '+
+      'Accumulated amounts such as deductible and out of pocket may change as further claims are processed.</p>');
+
+    return out.join('');
+  }
+
+
+  /* Copay, deductible, coinsurance and out of pocket for the service type
+     that was actually requested — MH returns mental health only. */
+  var STC_NAMES={
+    '30':'Health benefit plan coverage','98':'Professional visit, office',
+    '47':'Hospital','86':'Emergency services','88':'Pharmacy','UC':'Urgent care',
+    'MH':'Mental health','35':'Dental care','AL':'Vision','A4':'Psychiatric',
+    'A6':'Psychotherapy','A7':'Psychiatric inpatient','A8':'Psychiatric outpatient',
+    'BH':'Behavioral health','33':'Chiropractic','48':'Hospital inpatient',
+    '50':'Hospital outpatient','52':'Hospital visit','60':'General benefits'
+  };
+  /* mental health is reported under several neighbouring codes */
+  var STC_FAMILY={
+    'MH':['MH','A4','A6','A7','A8','BH','MHS'],
+    '30':null,   /* the whole plan — do not narrow */
+    '98':['98','96','UC','BZ'],
+    '47':['47','48','50','51','52'],
+    'AL':['AL','AK','AJ']
+  };
+
+  function requestedStc(N){
+    var e=N.raw.encounter||{};
+    var c=(e.serviceTypeCodes&&e.serviceTypeCodes[0])||e.serviceTypeCode||null;
+    return c||null;
+  }
+  function stcMatches(b, stc){
+    if(!stc||stc==='30')return true;                 /* whole plan: everything counts */
+    var codes=b.serviceTypeCodes||[];
+    if(!codes.length)return false;                   /* unscoped lines are plan-wide, not this service */
+    var fam=STC_FAMILY[stc]||[stc];
+    return codes.some(function(c){return fam.indexOf(c)>-1;});
+  }
+
+  var LEVEL='individual';   /* what the tiles report on */
+
+  function summaryHTML(N,net){
+    var stc=requestedStc(N);
+
+    function relevant(code, strict){
+      return N.benefits.filter(function(b){
+        if(b.code!==code)return false;
+        if(net!=='all'&&netOf(b)&&netOf(b)!==net)return false;
+        return strict ? stcMatches(b,stc) : true;
+      });
+    }
+    /* prefer lines scoped to the requested service; fall back to plan-wide */
+    function pickSet(code){
+      var exact=relevant(code,true);
+      if(exact.length)return {list:exact,scoped:true};
+      var any=relevant(code,false).filter(function(b){
+        return !(b.serviceTypeCodes||[]).length ||
+               (b.serviceTypeCodes||[]).indexOf('30')>-1;
+      });
+      return {list:any,scoped:false};
+    }
+
+    function cell(label,code,opts){
+      opts=opts||{};
+      var set=pickSet(code);
+      var list=set.list.slice().sort(opts.prefer||preferIndividual);
+      if(!list.length){
+        return '<div class="scell"><dt>'+label+'</dt>'+
+          '<dd class="none">Not reported</dd>'+
+          '<small>Payer sent nothing for this'+(stc&&stc!=='30'?' service type':'')+'</small></div>';
+      }
+      var best=list[0], amt=amountOf(best);
+      var lvl=levelOf(best);
+      var isFamily=/family|employee and|spouse|child/i.test(String(lvl||''));
+      var extra=list.slice(1,3).map(function(b){
+        var a=amountOf(b);
+        return a?('<span>'+esc([levelOf(b),netOf(b),periodOf(b)].filter(Boolean).join(' · ')||'Also')+
+          ' <b>'+a+'</b></span>'):'';
+      }).filter(Boolean).join('');
+      return '<div class="scell"><dt>'+label+
+          (set.scoped?'':' <em class="planwide">plan-wide</em>')+
+          (isFamily?' <em class="famtag">family only</em>':'')+'</dt>'+
+        '<dd class="big">'+(amt||'—')+'</dd>'+
+        '<small>'+esc([lvl||'Individual',netOf(best),periodOf(best)]
+          .filter(Boolean).join(' · ')||'As reported')+'</small>'+
+        (extra?'<div class="salso">'+extra+'</div>':'')+
+      '</div>';
+    }
+
+    /* Individual first, then remaining balance over the annual figure.
+       Payers return both, and family totals are misleading at the desk. */
+    function levelRank(b){
+      var l=String(levelOf(b)||'').toLowerCase();
+      var fam=/family|employee and|spouse|child/.test(l);
+      var ind=/individual|employee only|self only/.test(l);
+      if(LEVEL==='family'){
+        if(fam)return 0;
+        if(!l)return 1;
+        if(ind)return 3;
+        return 2;
+      }
+      if(ind)return 0;
+      if(!l)return 1;                       /* unstated usually means individual */
+      if(fam)return 3;
+      return 2;
+    }
+    var preferIndividual=function(a,b){
+      var d=levelRank(a)-levelRank(b);
+      if(d)return d;
+      var ra=/remain/i.test(periodOf(a))?0:1, rb=/remain/i.test(periodOf(b))?0:1;
+      return ra-rb;
+    };
+    var preferRemaining=preferIndividual;
+
+    /* name the service from what the payer echoed back, not our own table */
+    var label=STC_NAMES[stc]||null;
+    if(!label && stc){
+      var hit=N.benefits.filter(function(b){
+        return (b.serviceTypeCodes||[]).indexOf(stc)>-1 && b.serviceTypes && b.serviceTypes.length;
+      })[0];
+      label=hit?hit.serviceTypes[0]:('Service type '+stc);
+    }
+    label=label||'All service types';
+
+    var scopedCount=N.benefits.filter(function(b){
+      return stcMatches(b,stc)&&(net==='all'||!netOf(b)||netOf(b)===net);}).length;
+
+    var hasFamily=N.benefits.some(function(b){
+      return /family|employee and/i.test(String(levelOf(b)||''))&&
+             (net==='all'||!netOf(b)||netOf(b)===net); });
+
+    return '<div class="sumhead"><b>'+esc(label)+'</b>'+
+        (stc?'<span class="stcchip">'+esc(stc)+'</span>':'')+
+        (hasFamily?'<span class="lvlseg" id="lvlSeg">'+
+          '<button data-l="individual"'+(LEVEL==='individual'?' class="on"':'')+'>Individual</button>'+
+          '<button data-l="family"'+(LEVEL==='family'?' class="on"':'')+'>Family</button>'+
+        '</span>':'')+
+        '<span>'+(net==='all'?'All networks':esc(net))+' · '+scopedCount+' line'+
+        (scopedCount===1?'':'s')+'</span></div>'+
+      '<div class="sumgrid">'+
+        cell('Copay','B')+
+        cell('Deductible','C',{prefer:preferRemaining})+
+        cell('Coinsurance','A')+
+        cell('Out of pocket','G',{prefer:preferRemaining})+
+      '</div>';
+  }
+
+  /* accumulator cards, filtered by network */
+  function accHTML(acc,net){
+    var rows=acc.filter(function(b){return net==='all'||netOf(b)===net;});
+    if(!rows.length)return '<p class="none" style="padding:20px">Nothing reported for this network.</p>';
+
+    var byName={};
+    rows.forEach(function(b){
+      var k=(b.name||title(b.code))+' · '+(netOf(b)||'Any network');
+      (byName[k]=byName[k]||[]).push(b);
+    });
+
+    return Object.keys(byName).map(function(k){
+      var list=byName[k];
+      return '<div class="acc"><div class="acchead"><h3>'+esc(k.split(' · ')[0])+'</h3>'+
+        '<span class="lvl">'+esc(k.split(' · ')[1]||'')+'</span></div>'+
+        '<div class="accbody">'+list.map(function(b){
+          var amt=amountOf(b);
+          return '<div class="accrow"><div class="lab">'+
+            '<span>'+esc([levelOf(b),periodOf(b)].filter(Boolean).join(' · ').toUpperCase()||'REPORTED')+'</span>'+
+            (amt?'<b>'+amt+'</b>':'<span class="na-dash">—</span>')+'</div>'+
+            (b.additionalInformation&&b.additionalInformation.length
+              ? '<div class="foot"><b>'+esc(b.additionalInformation.map(function(a){
+                  return a.description;}).filter(Boolean).join(' · '))+'</b></div>':'')+
+          '</div>';
+        }).join('')+'</div></div>';
+    }).join('');
+  }
+
+  /* ══════════ BOOT ══════════ */
+  (async function(){
+    var qs=new URLSearchParams(location.search), id=qs.get('e');
+    var rec=null, raw=null;
+
+    try{
+      if(typeof RFStore!=='undefined'){
+        await RFStore.ready();
+        rec = id ? await RFStore.eligResult(id) : await RFStore.lastElig();
+        if(rec&&rec.res)raw=rec.res;
+      }
+    }catch(e){ console.warn('history read failed',e); }
+
+    if(!raw){
+      try{ raw=JSON.parse(sessionStorage.getItem('rf_last_271')||'null'); }catch(e){}
+    }
+
+    if(!raw){
+      $('loading').hidden=true;
+      $('content').hidden=false;
+      $('content').innerHTML='<div class="nodata">'+
+        '<svg viewBox="0 0 24 24" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10h18"/></svg>'+
+        '<b>No response to show</b>'+
+        '<span>Run a check from the eligibility page. Results stay available here for 24 hours.</span>'+
+        '<a class="btn pri" href="eligibility.html">Check eligibility</a></div>';
+      document.querySelector('.snav').style.display='none';
+      return;
+    }
+
+    DATA=raw;
+    var N=normalise(raw);
+
+    /* top strip, from the response itself */
+    $('sDos').textContent=fmtDate(
+      pick(raw,'encounter.dateOfService')||
+      (rec&&rec.meta&&rec.meta.dos)||'')||'—';
+    $('sTrace').textContent=N.trace||'—';
+    $('sWhen').textContent=rec&&rec.t
+      ? new Date(rec.t).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})
+      : '—';
+    $('sMs').textContent=(rec&&rec.meta&&rec.meta.ms)?(rec.meta.ms+' ms')
+      :(pick(raw,'_meta.ms')?pick(raw,'_meta.ms')+' ms':'—');
+
+    var dosTxt=$('sDos').textContent, trTxt=$('sTrace').textContent, whTxt=$('sWhen').textContent;
+    $('pDos').textContent=dosTxt;
+    $('pTrace').textContent=trTxt;
+    $('pWhen').textContent=whTxt;
+    $('pFootTrace').textContent='TRANSACTION '+trTxt;
+    $('pFootWhen').textContent=whTxt;
+
+    $('content').innerHTML=render(N);
+    $('loading').hidden=true;
+    $('content').hidden=false;
+
+    /* the summary opens on in-network, so the table agrees from the start */
+    (function(){
+      var shown=0,total=0;
+      document.querySelectorAll('#benefits tbody tr').forEach(function(tr){
+        total++;
+        var rn=tr.dataset.net||'';
+        var keep=!rn||rn==='In network';
+        tr.hidden=!keep;
+        if(keep)shown++;
+      });
+      var cnt=document.querySelector('#benefits .cnt');
+      if(cnt&&total)cnt.textContent=shown+' OF '+total+' · IN NETWORK';
+      var ac=document.getElementById('accCnt');
+      if(ac)ac.textContent='IN NETWORK';
+      var none=document.getElementById('benNone');
+      if(none)none.hidden=shown>0;
+    })();
+
+    /* reveal on scroll */
+    var io=new IntersectionObserver(function(en){
+      en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+    },{threshold:.06,rootMargin:'0px 0px -3% 0px'});
+    [].slice.call(document.querySelectorAll('.rv')).forEach(function(el,i){
+      el.style.transitionDelay=(Math.min(i,8)*0.05)+'s';io.observe(el);
+    });
+
+    /* individual or family */
+    document.addEventListener('click',function(e){
+      var b=e.target.closest('#lvlSeg [data-l]');
+      if(!b)return;
+      LEVEL=b.dataset.l;
+      var net=(document.querySelector('#netfilter button.on')||{dataset:{n:'In network'}}).dataset.n;
+      var sb=$('sumBox');
+      if(sb)sb.innerHTML=summaryHTML(N,net);
+    });
+
+    /* network filter */
+    var nf=$('netfilter');
+    if(nf){
+      var acc=N.benefits.filter(function(b){return ['C','G'].indexOf(b.code)>-1;});
+      nf.addEventListener('click',function(e){
+        var b=e.target.closest('button');if(!b)return;
+        var net=b.dataset.n;
+        nf.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+        $('accs').innerHTML=accHTML(acc,net);
+        var sb=$('sumBox');
+        if(sb)sb.innerHTML=summaryHTML(N,net);
+        var ac=$('accCnt');
+        if(ac)ac.textContent=(net==='all'?'ALL NETWORKS':net.toUpperCase());
+
+        /* the same choice filters the benefit detail table */
+        var shown=0,total=0;
+        document.querySelectorAll('#benefits tbody tr').forEach(function(tr){
+          total++;
+          var rn=tr.dataset.net||'';
+          /* lines with no network flag stay visible — they apply either way */
+          var keep=(net==='all')||!rn||rn===net;
+          tr.hidden=!keep;
+          if(keep)shown++;
+        });
+        var cnt=document.querySelector('#benefits .cnt');
+        if(cnt)cnt.textContent=(net==='all'
+          ? total+' LINE'+(total===1?'':'S')
+          : shown+' OF '+total+' · '+net.toUpperCase());
+        var none=document.getElementById('benNone');
+        if(none)none.hidden=shown>0;
+      });
+    }
+
+    /* section nav */
+    var links=[].slice.call(document.querySelectorAll('#snav a'));
+    links.forEach(function(a){
+      var target=document.querySelector(a.getAttribute('href'));
+      if(!target){a.style.display='none';return;}
+      a.addEventListener('click',function(e){
+        e.preventDefault();
+        var y=target.getBoundingClientRect().top+window.scrollY-104;
+        window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+        links.forEach(function(x){x.classList.toggle('on',x===a);});
+      });
+    });
+    var ticking=false;
+    window.addEventListener('scroll',function(){
+      if(ticking)return;ticking=true;
+      requestAnimationFrame(function(){
+        var y=window.scrollY+150,cur=0;
+        links.forEach(function(a,i){
+          var t=document.querySelector(a.getAttribute('href'));
+          if(t&&t.offsetTop<=y)cur=i;
+        });
+        if((window.innerHeight+window.scrollY)>=(document.body.scrollHeight-4))cur=links.length-1;
+        links.forEach(function(a,i){a.classList.toggle('on',i===cur);});
+        ticking=false;
+      });
+    },{passive:true});
+  })();
+
+
+  /* ══════════ PRINT PICKER ══════════ */
+  var SECTIONS=[
+    {id:'summary',   label:'Cost summary',        note:'Copay, coinsurance and out of pocket', on:true},
+    {id:'maximums',  label:'Maximums and deductibles', note:'Accumulator balances',           on:true},
+    {id:'benefits',  label:'Benefit detail',      note:'Every benefit line returned',         on:true},
+    {id:'contact',   label:'Service level contacts', note:'Payer contacts on the response',  on:false}
+  ];
+
+  $('printBtn').addEventListener('click',function(){
+    var avail=SECTIONS.filter(function(x){return document.getElementById(x.id);});
+    if(!avail.length){window.print();return;}
+    $('printOpts').innerHTML=avail.map(function(x){
+      return '<label class="pk"><input type="checkbox" data-sec="'+x.id+'"'+(x.on?' checked':'')+'>'+
+        '<span class="bx"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>'+
+        '<span><b>'+esc(x.label)+'</b><small>'+esc(x.note)+'</small></span></label>';
+    }).join('');
+    scrim.classList.add('on');$('mPrint').classList.add('on');document.body.style.overflow='hidden';
+  });
+
+  $('printNet').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+  });
+
+  $('doPrint').addEventListener('click',function(){
+    var want={};
+    $('printOpts').querySelectorAll('[data-sec]').forEach(function(i){want[i.dataset.sec]=i.checked;});
+    var netMode=($('printNet').querySelector('button.on')||{}).dataset;
+
+    /* show everything again if the whole response was asked for */
+    var restore=null;
+    if(netMode&&netMode.n==='all'){
+      var allBtn=document.querySelector('#netfilter [data-n="all"]');
+      var cur=document.querySelector('#netfilter button.on');
+      if(allBtn&&cur&&allBtn!==cur){restore=cur;allBtn.click();}
+    }
+
+    SECTIONS.forEach(function(x){
+      var el=document.getElementById(x.id);
+      if(!el)return;
+      el.classList.toggle('noprint',want[x.id]===false);
+    });
+
+    closeM();
+    setTimeout(function(){
+      window.print();
+      setTimeout(function(){
+        SECTIONS.forEach(function(x){
+          var el=document.getElementById(x.id);
+          if(el)el.classList.remove('noprint');
+        });
+        if(restore)restore.click();
+      },400);
+    },260);
+  });
+
+  /* raw JSON */
+  var scrim=$('scrim');
+  function closeM(){scrim.classList.remove('on');
+    document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on');});
+    document.body.style.overflow='';}
+  scrim.addEventListener('click',closeM);
+  document.addEventListener('click',function(e){if(e.target.closest('[data-close]'))closeM();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+  $('rawBtn').addEventListener('click',function(){
+    if(!DATA)return;
+    $('rawJson').textContent=JSON.stringify(DATA,null,2);
+    scrim.classList.add('on');$('mRaw').classList.add('on');document.body.style.overflow='hidden';
+  });
+  $('copyRaw').addEventListener('click',async function(){
+    try{ await navigator.clipboard.writeText(JSON.stringify(DATA,null,2));
+      this.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Copied';
+      var b=this;setTimeout(function(){
+        b.innerHTML='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>Copy JSON';},1800);
+    }catch(e){}
+  });
+
+})();
+</script>
+
+</body>
+</html>

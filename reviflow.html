@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReviFlow — sign in</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/logo-180.png">
+<meta name="description" content="Sign in to ReviFlow, the Revify RCM workspace. Employee, provider and administrator access.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#606E6A;
+  --line:rgba(14,26,23,.09);--line-2:rgba(14,26,23,.16);
+  --accent:#0E9D73;--accent-soft:#E4F5EE;--accent-deep:#0B3D31;
+  --indigo:#5A6CFF;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:8px}
+
+/* ── backdrop, matching the home hero ── */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg .dots{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(14,26,23,.10) 1px,transparent 0);background-size:28px 28px;-webkit-mask-image:radial-gradient(112% 78% at 50% 4%,#000,transparent 70%);mask-image:radial-gradient(112% 78% at 50% 4%,#000,transparent 70%)}
+.bg .bloom{position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:min(1050px,105vw);height:min(720px,76vw);border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(14,157,115,.16),rgba(14,157,115,.05) 45%,transparent 70%)}
+.bg .bloom2{position:absolute;bottom:-32%;right:-12%;width:min(560px,64vw);height:min(560px,64vw);border-radius:50%;filter:blur(64px);background:radial-gradient(circle,rgba(90,108,255,.10),transparent 68%)}
+.bg svg{position:absolute;inset:0;width:100%;height:100%;opacity:.62}
+.bg path{fill:none;stroke:rgba(14,157,115,.34);stroke-width:1;stroke-dasharray:4 12;animation:flow 4.4s linear infinite}
+.bg path:nth-child(2){animation-duration:5.8s;stroke:rgba(14,26,23,.14)}
+.bg path:nth-child(3){animation-duration:7s}
+@keyframes flow{to{stroke-dashoffset:-160}}
+
+/* ── header ── */
+.phdr{position:relative;z-index:3;display:flex;align-items:center;gap:16px;padding:clamp(15px,2.2vw,24px) clamp(18px,3.6vw,46px)}
+.back{display:inline-flex;align-items:center;gap:9px;padding:9px 17px 9px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.6);font-size:13.5px;font-weight:600;transition:border-color .35s var(--ease),background .35s var(--ease),transform .35s var(--ease)}
+.back svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s var(--ease)}
+.back:hover{border-color:var(--accent);background:#fff;transform:translateX(-2px)}
+.back:hover svg{transform:translateX(-3px)}
+.brand{margin-left:auto;display:flex;align-items:center;gap:9px}
+.brand svg{width:25px;height:25px}
+.brand span{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.035em}
+.brand em{font-style:normal;color:var(--accent);font-weight:400;font-size:.9em;margin-left:4px}
+
+/* ── stage ── */
+.portal{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(14px,2.6vw,36px) clamp(18px,3.6vw,46px) clamp(26px,3.4vw,46px)}
+.pinner{max-width:980px;margin:0 auto;width:100%}
+.ptop{text-align:center;margin-bottom:clamp(26px,3.6vw,46px)}
+.pkick{display:inline-flex;align-items:center;gap:8px;padding:6px 15px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.72);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:17px;opacity:0;transform:translateY(12px);animation:up .8s var(--ease) .1s forwards}
+.pkick i{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blip 2.2s infinite}
+@keyframes blip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}
+.ptop h1{font-family:'Sora',sans-serif;font-size:clamp(27px,4vw,46px);line-height:1.06;font-weight:600;letter-spacing:-.043em;margin-bottom:12px}
+.ptop h1 span{display:inline-block;opacity:0;transform:translateY(22px);animation:up .9s var(--ease) .22s forwards}
+.ptop h1 em{font-style:normal;color:var(--accent)}
+.ptop p{font-size:clamp(13.5px,1.1vw,16px);line-height:1.65;color:var(--muted);max-width:46ch;margin:0 auto;opacity:0;transform:translateY(14px);animation:up .8s var(--ease) .46s forwards}
+@keyframes up{to{opacity:1;transform:none}}
+
+/* ── three doors ── */
+.doors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4vw,30px)}
+.door{display:block;text-align:center;opacity:0;transform:translateY(28px);animation:up .9s var(--ease) forwards}
+.door:nth-child(1){animation-delay:.6s}
+.door:nth-child(2){animation-delay:.71s}
+.door:nth-child(3){animation-delay:.82s}
+
+.frame{
+  position:relative;width:100%;max-width:210px;margin:0 auto;aspect-ratio:4/3;
+  border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--line-2);
+  display:grid;place-items:center;padding:16px;
+  box-shadow:0 12px 30px -22px rgba(11,61,49,.4);
+  transition:transform .5s var(--ease),border-color .4s var(--ease),box-shadow .5s var(--ease)
+}
+.frame::before{content:'';position:absolute;inset:0;background:radial-gradient(72% 62% at 50% 20%,rgba(14,157,115,.09),transparent 68%);opacity:0;transition:opacity .45s var(--ease)}
+.frame::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .55s var(--ease)}
+.door:hover .frame,.door:focus-visible .frame{transform:translateY(-6px);border-color:rgba(14,157,115,.42);box-shadow:0 26px 50px -28px rgba(11,61,49,.45)}
+.door:hover .frame::before{opacity:1}
+.door:hover .frame::after{transform:scaleX(1)}
+.frame svg{position:relative;z-index:1;width:100%;height:100%;overflow:visible}
+
+.ln{fill:none;stroke:rgba(14,26,23,.5);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ac{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fs{fill:#EDF1EF}.fa{fill:var(--accent)}.fsoft{fill:var(--accent-soft)}
+
+/* 01 · worklist clearing — rows tick off in sequence */
+.tick{opacity:0;transform:scale(.4);transform-origin:center;transition:opacity .32s var(--ease),transform .42s var(--ease)}
+.door:hover .tick{opacity:1;transform:scale(1)}
+.door:hover .t2{transition-delay:.14s}
+.door:hover .t3{transition-delay:.28s}
+.rowfill{fill:var(--accent-soft);opacity:0;transition:opacity .36s var(--ease)}
+.door:hover .rowfill{opacity:1}
+.door:hover .r2{transition-delay:.14s}
+.door:hover .r3{transition-delay:.28s}
+.caret{transition:transform .5s var(--ease)}
+.door:hover .caret{transform:translateY(46px)}
+.rowtxt{transition:opacity .36s var(--ease)}
+.door:hover .rowtxt{opacity:.35}
+
+/* 02 · chart drawing — trend line draws, marker pops, bar grows */
+.trend{stroke-dasharray:180;stroke-dashoffset:180;transition:stroke-dashoffset 1.1s var(--ease)}
+.door:hover .trend{stroke-dashoffset:0}
+.marker{opacity:0;transform:scale(.3);transform-origin:center;transition:opacity .3s var(--ease) .72s,transform .45s var(--ease) .72s}
+.door:hover .marker{opacity:1;transform:scale(1)}
+.bar{transform:scaleY(.3);transform-origin:bottom;transition:transform .6s var(--ease)}
+.door:hover .bar{transform:scaleY(1)}
+.door:hover .b2{transition-delay:.1s}
+.door:hover .b3{transition-delay:.2s}
+.door:hover .b4{transition-delay:.3s}
+
+/* 03 · permissions granted — toggles slide on in sequence */
+.tgtrack{fill:#E2E7E5;transition:fill .4s var(--ease)}
+.door:hover .tgtrack{fill:var(--accent)}
+.door:hover .g2{transition-delay:.13s}
+.door:hover .g3{transition-delay:.26s}
+.tgknob{transition:transform .45s var(--ease)}
+.door:hover .tgknob{transform:translateX(16px)}
+.door:hover .k2{transition-delay:.13s}
+.door:hover .k3{transition-delay:.26s}
+.seal{opacity:0;transform:scale(.5);transform-origin:center;transition:opacity .34s var(--ease) .42s,transform .5s var(--ease) .42s}
+.door:hover .seal{opacity:1;transform:scale(1)}
+
+/* shared idle pulse */
+.pulse{animation:pulseIn 3.2s ease-in-out infinite}
+@keyframes pulseIn{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ── label outside the frame ── */
+.meta{padding-top:clamp(14px,1.8vw,20px)}
+.meta h2{font-family:'Sora',sans-serif;font-size:clamp(16.5px,1.6vw,20px);font-weight:600;letter-spacing:-.032em;margin-bottom:7px;transition:color .35s ease}
+.door:hover .meta h2{color:var(--accent)}
+.meta p{font-size:12.8px;line-height:1.6;color:var(--muted);max-width:28ch;margin:0 auto 14px}
+.enter{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--accent-deep);padding:7px 15px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);transition:all .4s var(--ease)}
+.enter svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .4s var(--ease)}
+.door:hover .enter{border-color:var(--accent-deep);background:var(--accent-deep);color:#F2FBF7}
+.door:hover .enter svg{transform:translateX(4px)}
+
+.pfoot{position:relative;z-index:2;text-align:center;padding:0 clamp(18px,3.6vw,46px) clamp(20px,2.6vw,30px);font-size:12.2px;color:var(--muted);opacity:0;animation:up .8s var(--ease) 1s forwards}
+.pfoot a{color:var(--accent-deep);font-weight:500;border-bottom:1px solid rgba(11,61,49,.28)}
+.pfoot a:hover{color:var(--accent);border-color:var(--accent)}
+
+@media (max-width:820px){
+  .doors{grid-template-columns:minmax(0,1fr);max-width:340px;margin:0 auto;gap:26px}
+  .frame{max-width:186px;aspect-ratio:16/10}
+  .portal{justify-content:flex-start}
+}
+@media (max-width:520px){
+  .brand span{font-size:15px}
+  .frame{max-width:164px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .door,.pkick,.ptop h1 span,.ptop p,.pfoot{opacity:1!important;transform:none!important}
+}
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="dots"></div>
+  <div class="bloom"></div>
+  <div class="bloom2"></div>
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="none">
+    <path d="M-60 250 C 300 250, 420 470, 760 470 C 1100 470, 1200 250, 1500 250"/>
+    <path d="M-60 640 C 320 640, 440 470, 760 470 C 1080 470, 1180 640, 1500 640"/>
+    <path d="M-60 440 C 340 440, 460 500, 760 500 C 1060 500, 1160 440, 1500 440"/>
+  </svg>
+</div>
+
+<header class="phdr">
+  <a href="index.html" class="back">
+    <svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>
+    Back to home
+  </a>
+  <div class="brand">
+    <img class="brandmark" src="assets/logo-64.png" alt="ReviFlow RCM">
+    <span>R&nbsp;e&nbsp;v&nbsp;i&nbsp;F&nbsp;l&nbsp;o&nbsp;w&nbsp;</span>
+  </div>
+</header>
+
+<main class="portal">
+  <div class="pinner">
+
+    <div class="ptop">
+      <span class="pkick"><i></i>Secure workspace</span>
+      <h1><span>Who is signing in <em>today</em>?</span></h1>
+      <p>Choose your role to continue. Each workspace shows only the records that role is cleared to see.</p>
+    </div>
+
+    <div class="doors">
+
+      <!-- 01 EMPLOYEE — worklist clearing -->
+      <a class="door" href="Provider/provider-login.html">
+        <div class="frame">
+          <svg viewBox="0 0 200 150" aria-hidden="true">
+            <rect class="fs" x="18" y="16" width="164" height="118" rx="11"/>
+            <path class="ln" d="M18 16h164v118H18zM18 40h164" stroke-width="1.6" opacity=".55"/>
+            <circle class="fa pulse" cx="31" cy="28" r="3.2"/>
+            <rect x="42" y="25.5" width="34" height="5" rx="2.5" fill="rgba(14,26,23,.16)"/>
+
+            <rect class="rowfill" x="30" y="52" width="140" height="20" rx="6"/>
+            <rect class="rowtxt" x="56" y="59" width="66" height="5.5" rx="2.75" fill="rgba(14,26,23,.22)"/>
+            <path class="ac tick" d="M36 62l4 4 7-8" style="transform-origin:41px 62px"/>
+            <circle class="ln" cx="41" cy="62" r="7" stroke-width="1.5" opacity=".3"/>
+
+            <rect class="rowfill r2" x="30" y="80" width="140" height="20" rx="6"/>
+            <rect class="rowtxt" x="56" y="87" width="84" height="5.5" rx="2.75" fill="rgba(14,26,23,.22)"/>
+            <path class="ac tick t2" d="M36 90l4 4 7-8" style="transform-origin:41px 90px"/>
+            <circle class="ln" cx="41" cy="90" r="7" stroke-width="1.5" opacity=".3"/>
+
+            <rect class="rowfill r3" x="30" y="108" width="140" height="20" rx="6"/>
+            <rect class="rowtxt" x="56" y="115" width="52" height="5.5" rx="2.75" fill="rgba(14,26,23,.22)"/>
+            <path class="ac tick t3" d="M36 118l4 4 7-8" style="transform-origin:41px 118px"/>
+            <circle class="ln" cx="41" cy="118" r="7" stroke-width="1.5" opacity=".3"/>
+
+            <g class="caret"><circle class="fa" cx="176" cy="62" r="3.4"/></g>
+          </svg>
+        </div>
+        <div class="meta">
+          <h2>Employee</h2>
+          <p>Front desk, coders and billing staff. Worklists, eligibility and claim queues.</p>
+          <span class="enter">Continue<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+
+      <!-- 02 PROVIDER — performance drawing itself -->
+      <a class="door" href="Provider/provider-login.html">
+        <div class="frame">
+          <svg viewBox="0 0 200 150" aria-hidden="true">
+            <rect class="fs" x="18" y="16" width="164" height="118" rx="11"/>
+            <path class="ln" d="M18 16h164v118H18z" stroke-width="1.6" opacity=".55"/>
+            <rect x="32" y="30" width="40" height="5" rx="2.5" fill="rgba(14,26,23,.18)"/>
+            <path class="ln" d="M32 116h136" stroke-width="1.4" opacity=".35"/>
+
+            <rect class="bar fsoft" x="38" y="82" width="17" height="34" rx="4"/>
+            <rect class="bar b2 fsoft" x="65" y="72" width="17" height="44" rx="4"/>
+            <rect class="bar b3 fsoft" x="92" y="62" width="17" height="54" rx="4"/>
+            <rect class="bar b4 fa" x="119" y="50" width="17" height="66" rx="4"/>
+
+            <path class="ac trend" d="M46 96 C 66 88, 78 74, 100 66 S 138 46, 156 40" stroke-width="2.4"/>
+            <g class="marker">
+              <circle cx="156" cy="40" r="10" fill="rgba(14,157,115,.16)"/>
+              <circle class="fa" cx="156" cy="40" r="4.6"/>
+            </g>
+          </svg>
+        </div>
+        <div class="meta">
+          <h2>Provider</h2>
+          <p>Clinicians and owners. Encounter status, documentation flags and collections.</p>
+          <span class="enter">Continue<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+
+      <!-- 03 ADMIN — permissions granted -->
+      <a class="door" href="Admin/admin-login.html">
+        <div class="frame">
+          <svg viewBox="0 0 200 150" aria-hidden="true">
+            <rect class="fs" x="18" y="16" width="164" height="118" rx="11"/>
+            <path class="ln" d="M18 16h164v118H18z" stroke-width="1.6" opacity=".55"/>
+            <rect x="32" y="30" width="46" height="5" rx="2.5" fill="rgba(14,26,23,.18)"/>
+
+            <rect x="34" y="52" width="52" height="5.5" rx="2.75" fill="rgba(14,26,23,.2)"/>
+            <rect class="tgtrack" x="128" y="48" width="34" height="15" rx="7.5"/>
+            <circle class="tgknob" cx="136" cy="55.5" r="5.4" fill="#fff"/>
+
+            <rect x="34" y="79" width="66" height="5.5" rx="2.75" fill="rgba(14,26,23,.2)"/>
+            <rect class="tgtrack g2" x="128" y="75" width="34" height="15" rx="7.5"/>
+            <circle class="tgknob k2" cx="136" cy="82.5" r="5.4" fill="#fff"/>
+
+            <rect x="34" y="106" width="40" height="5.5" rx="2.75" fill="rgba(14,26,23,.2)"/>
+            <rect class="tgtrack g3" x="128" y="102" width="34" height="15" rx="7.5"/>
+            <circle class="tgknob k3" cx="136" cy="109.5" r="5.4" fill="#fff"/>
+
+            <g class="seal" style="transform-origin:100px 82px">
+              <circle cx="100" cy="82" r="21" fill="rgba(14,157,115,.12)"/>
+              <path class="ac" d="M100 68l13 5v10c0 7.6-5.4 12.4-13 14.6-7.6-2.2-13-7-13-14.6V73z" stroke-width="2"/>
+              <path class="ac" d="M95.4 82.4l3.4 3.4 6-6.8" stroke-width="2.2"/>
+            </g>
+          </svg>
+        </div>
+        <div class="meta">
+          <h2>Admin</h2>
+          <p>Practice administrators. Roles, audit history, payer setup and exports.</p>
+          <span class="enter">Continue<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</main>
+
+<p class="pfoot">Trouble signing in? <a href="index.html#contact">Contact your administrator</a> · Protected by single sign-on and multi-factor authentication</p>
+
+</body>
+</html>

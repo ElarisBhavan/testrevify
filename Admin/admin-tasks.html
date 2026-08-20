@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tasks — ReviFlow Admin</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_admin.css">
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_session.js"></script>
+<script src="../_notify.js"></script>
+<link rel="stylesheet" href="../_session.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="mesh"></div><div class="aur a1"></div><div class="aur a2"></div><div class="aur a3"></div></div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <img class="mk" src="../assets/logo-64.png" alt="ReviFlow RCM">
+      <span>ReviFlow<em>RCM</em></span>
+    </div>
+    <span class="rolechip">ADMIN CONSOLE</span>
+    <span class="crumb"><a href="admin-dashboard.html">Administration</a> / <b>Tasks</b></span>
+    <div class="hact">
+      <span class="who"><span class="av" id="meAv">--</span><span><b id="meName">—</b><small id="meRole">—</small></span></span>
+      <a class="hbtn" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <button class="hbtn out" id="logout">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ptop">
+    <div>
+      <h1>Tasks</h1>
+      <p>Work routed to you, raised by you, or copied to you for visibility. Providers and employees across every organisation can send work here.</p>
+    </div>
+    <div class="cta">
+      <button class="btn pri" id="newTask"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Assign task</button>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="tools">
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Search task, reference or person…">
+    </label>
+    <select class="sel" id="fStatus">
+      <option value="all">All statuses</option><option value="open">Open</option>
+      <option value="prog">In progress</option><option value="block">Blocked</option>
+      <option value="res">Resolved</option>
+    </select>
+    <select class="sel" id="fRole">
+      <option value="all">All views</option><option value="assignee">Assigned to me</option>
+      <option value="owner">Raised by me</option><option value="cc">Copied to me</option>
+    </select>
+    <span class="sp"></span>
+    <span class="cnt" id="cnt">—</span>
+  </div>
+
+  <div class="grid">
+    <section class="card c8" style="animation-delay:.2s">
+      <div class="chead">
+        <span class="ci"><svg viewBox="0 0 24 24"><path d="M7 4h10l3 3v13a1 1 0 01-1 1H5a1 1 0 01-1-1V7z"/><path d="M9 13l2 2 4-5"/></svg></span>
+        <div><h2>Task queue</h2><p>Newest first.</p></div>
+        <span class="sub" id="tSub">—</span>
+      </div>
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead><tr>
+            <th style="width:34%">Task</th><th>From / To</th><th>Priority</th>
+            <th>Due</th><th>Status</th><th class="r" style="width:60px"></th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="empty" hidden>
+        <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M7 4h10l3 3v13a1 1 0 01-1 1H5a1 1 0 01-1-1V7z"/><path d="M9 13l2 2 4-5"/></svg><br>
+        <b id="emptyT">No tasks yet</b><br><span id="emptyS">Work assigned to you appears here.</span>
+      </div>
+    </section>
+
+    <section class="card c4" style="animation-delay:.24s">
+      <div class="chead">
+        <span class="ci"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg></span>
+        <div><h2>Activity</h2><p>Across your tasks.</p></div>
+      </div>
+      <div class="feed" id="feed"></div>
+    </section>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<!-- ASSIGN -->
+<div class="modal" id="mNew" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="9" y="2" width="6" height="4" rx="1.5"/><path d="M9 13l2 2 4-5"/></svg></span>
+    <div><h3>Assign task</h3><p>Sent to the assignee. Anyone in CC gets read-only access.</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="fgrid">
+      <label class="f full"><span>Assign to <u>*</u></span>
+        <select id="aTo"><option value="">Select a person</option></select></label>
+
+      <label class="f full"><span>CC <span style="margin-left:auto;font-family:var(--mono);font-size:8.8px;color:var(--dim)">VIEW ONLY</span></span>
+        <div class="ccbar" id="ccBar"><select id="ccPick"><option value="">Add someone to CC…</option></select></div>
+        <p style="font-size:10.4px;color:var(--dim);margin-top:6px">CC recipients can read the task and its history but cannot edit or complete it.</p>
+      </label>
+
+      <label class="f full"><span>Task name <u>*</u></span>
+        <input type="text" id="aName" placeholder="e.g. Grant portal access for new coder"></label>
+
+      <div class="f"><span>Priority</span>
+        <div class="pseg" id="aPri">
+          <button type="button" class="high" data-p="high">High</button>
+          <button type="button" class="med on" data-p="med">Medium</button>
+          <button type="button" class="low" data-p="low">Low</button>
+        </div></div>
+
+      <label class="f"><span>Status</span>
+        <select id="aStatus"><option>Open</option><option>In progress</option><option>Blocked</option><option>Resolved</option></select></label>
+
+      <label class="f"><span>TAT <u>*</u></span>
+        <select id="aTat">
+          <option value="4">4 hours</option><option value="8">Same day · 8 hours</option>
+          <option value="24" selected>24 hours</option><option value="48">48 hours</option>
+          <option value="72">72 hours</option><option value="120">5 business days</option>
+        </select></label>
+
+      <label class="f"><span>Category</span>
+        <select id="aCat">
+          <option>Access and permissions</option><option>Credentialing</option>
+          <option>Payer setup</option><option>Prior authorisation</option>
+          <option>Eligibility</option><option>Coding query</option>
+          <option>Denial appeal</option><option>Documentation</option>
+          <option>Payment posting</option><option>Other</option>
+        </select></label>
+
+      <label class="f full"><span>Description <u>*</u></span>
+        <textarea id="aDesc" placeholder="What needs doing and anything the assignee needs to start."></textarea></label>
+    </div>
+    <div class="hint" id="route">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/></svg>
+      <span id="routeText">Select an assignee to see the routing path.</span>
+    </div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="aSubmit"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>Assign and notify</button>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="modal" id="mDetail" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi" id="dIco"></span>
+    <div><h3 id="dName">—</h3><p id="dSub">—</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="dchips" id="dChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
+    <dl class="dmeta" id="dMeta"></dl>
+    <div class="subhead">Description</div>
+    <div class="dtext" id="dDesc">—</div>
+    <div class="subhead">Activity</div>
+    <div class="dtl" id="dTl"></div>
+    <div id="dEdit"></div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Close</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="dSave"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="tT">—</b><small id="tS"></small></span></div>
+
+<style>
+.ccbar{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;padding:8px 10px;border-radius:10px;
+  border:1px solid rgba(13,26,22,.16);background:rgba(255,255,255,.74);align-items:center}
+.cctag{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:7px;
+  background:var(--blue-s);color:#25489E;font-size:11px;font-weight:600}
+.cctag button{width:15px;height:15px;border-radius:4px;display:grid;place-items:center;color:inherit;opacity:.6;border:none;background:none;cursor:pointer}
+.cctag button:hover{opacity:1;background:rgba(59,111,245,.18)}
+.cctag svg{width:9px;height:9px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round}
+.ccbar select{flex:1;min-width:140px;border:none;background:none;padding:4px;font-size:12.4px;cursor:pointer}
+.ccbar select:focus{outline:none}
+.pseg{display:flex;gap:6px}
+.pseg button{flex:1;padding:10px 8px;border-radius:10px;border:1px solid rgba(13,26,22,.14);
+  background:rgba(255,255,255,.6);font-size:12px;font-weight:600;color:var(--muted);text-align:center;cursor:pointer;transition:all .3s var(--e)}
+.pseg button.on.high{background:var(--coral-s);border-color:rgba(208,96,63,.4);color:#9B3F24}
+.pseg button.on.med{background:var(--amber-s);border-color:rgba(201,138,24,.4);color:#7A5507}
+.pseg button.on.low{background:var(--teal-s);border-color:rgba(31,147,174,.4);color:#146176}
+.tname{display:flex;align-items:flex-start;gap:11px}
+.tico{width:32px;height:32px;flex:none;border-radius:10px;display:grid;place-items:center}
+.tico svg{width:15px;height:15px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke:var(--ink);opacity:.7}
+.tname b{display:block;font-size:12.8px;font-weight:600;letter-spacing:-.016em;line-height:1.35}
+.tname small{display:block;font-family:var(--mono);font-size:9.4px;color:var(--dim);margin-top:3px}
+.rolepill{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:5px;
+  font-family:var(--mono);font-size:8.4px;font-weight:700;letter-spacing:.05em;vertical-align:middle}
+.rolepill.owner{background:var(--green-s);color:var(--green-d)}
+.rolepill.assignee{background:var(--blue-s);color:#25489E}
+.rolepill.cc{background:var(--paper-2);color:var(--muted)}
+.st{padding:4px 10px;border-radius:7px;font-size:10.2px;font-weight:700;white-space:nowrap}
+.st.open{background:var(--blue-s);color:#25489E}
+.st.prog{background:var(--amber-s);color:#7A5507}
+.st.res{background:var(--green-s);color:var(--green-d)}
+.st.block{background:var(--coral-s);color:#9B3F24}
+.due.over{color:var(--coral);font-weight:600}
+.dchip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:8px;
+  font-size:10.6px;font-weight:700;background:rgba(255,255,255,.7);color:var(--muted)}
+.dchip i{width:7px;height:7px;border-radius:50%}
+.dchip.high{background:var(--coral-s);color:#9B3F24}.dchip.high i{background:var(--coral)}
+.dchip.med{background:var(--amber-s);color:#7A5507}.dchip.med i{background:var(--amber)}
+.dchip.low{background:var(--teal-s);color:#146176}.dchip.low i{background:var(--teal)}
+.dmeta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:rgba(13,26,22,.1);
+  border:1px solid rgba(13,26,22,.1);border-radius:12px;overflow:hidden;margin-bottom:4px}
+.dmeta>div{background:rgba(255,255,255,.64);padding:11px 13px}
+.dmeta dt{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.dmeta dd{font-size:12px;font-weight:600;letter-spacing:-.015em;word-break:break-word}
+.dmeta dd.mono{font-family:var(--mono);font-size:11px;font-weight:500}
+.dtext{padding:13px 15px;border-radius:12px;background:rgba(255,255,255,.6);
+  border:1px solid rgba(13,26,22,.1);font-size:12.8px;line-height:1.65}
+.dtl{position:relative;padding-left:20px;display:grid;gap:11px}
+.dtl::before{content:'';position:absolute;left:5px;top:5px;bottom:5px;width:1px;background:rgba(13,26,22,.14)}
+.dtl div{position:relative;font-size:11.6px;line-height:1.5;color:var(--muted)}
+.dtl div::before{content:'';position:absolute;left:-19px;top:5px;width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid var(--line-2)}
+.dtl div.on::before{border-color:var(--green);background:var(--green)}
+.dtl b{color:var(--ink);font-weight:600;text-transform:capitalize}
+.dtl small{display:block;font-family:var(--mono);font-size:9.4px;color:var(--dim);margin-top:2px}
+.dedit{margin-top:16px;padding:15px;border-radius:13px;background:rgba(14,157,115,.07);border:1px solid rgba(14,157,115,.2)}
+.dedit h4{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);font-weight:700;margin-bottom:12px}
+.viewonly{margin-top:16px;display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:var(--paper-2);
+  border:1px solid var(--line);font-size:11.6px;color:var(--muted);line-height:1.55}
+.viewonly svg{width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;flex:none;margin-top:1px}
+</style>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var ME=null,PEOPLE=[],TASKS=[],CC=[],EDIT=null,priority='med';
+  var filt={q:'',status:'all',role:'all',over:false};
+
+  var STL={open:'Open',prog:'In progress',res:'Resolved',block:'Blocked'};
+  var ROLEL={admin:'Administrator',supervisor:'Supervisor',provider:'Provider',
+             scheduler:'Scheduler',employee:'Employee'};
+  var CATICON={
+    'Access and permissions':'<rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/>',
+    'Credentialing':'<path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.2 12l2 2 3.6-4"/>',
+    'Payer setup':'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/>',
+    'Prior authorisation':'<path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/>',
+    'Eligibility':'<rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10h18"/>',
+    'Coding query':'<path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/>',
+    'Denial appeal':'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+    'Documentation':'<path d="M7 4h8l4 4v12a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M9 13h6"/>',
+    'Payment posting':'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/>',
+    'Other':'<circle cx="12" cy="12" r="9"/><path d="M9 12h6"/>'
+  };
+  var CATCOL={'Access and permissions':'var(--violet-s)','Credentialing':'var(--green-s)',
+    'Payer setup':'var(--amber-s)','Prior authorisation':'var(--coral-s)','Eligibility':'var(--teal-s)',
+    'Coding query':'var(--blue-s)','Denial appeal':'var(--coral-s)','Documentation':'var(--green-s)',
+    'Payment posting':'var(--amber-s)','Other':'var(--paper-2)'};
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function toast(t,s){$('tT').textContent=t;$('tS').textContent=s||'';
+    $('toast').classList.add('on');clearTimeout(toast._t);
+    toast._t=setTimeout(function(){$('toast').classList.remove('on');},3600);}
+  function stamp(d){return d?new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric'})+
+    ' · '+new Date(d).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}):'—';}
+  function rel(d){
+    if(!d)return '—';
+    var m=Math.round((new Date(d)-Date.now())/60000),a=Math.abs(m);
+    var t=a<60?a+'m':a<1440?Math.round(a/60)+'h':Math.round(a/1440)+'d';
+    return m<0?t+' overdue':'in '+t;
+  }
+
+  (async function(){
+    await RFStore.ready();
+    var s=RFSession.require(['admin']);
+    if(!s)return;
+    ME=s;
+    $('meAv').textContent=s.initials||'SA';
+    $('meName').textContent=s.name||s.username;
+    $('meRole').textContent=(s.role||'').toUpperCase();
+    PEOPLE=await RFStore.assignableTo();
+    paintPickers();
+    await refresh();
+  })();
+
+  $('logout').addEventListener('click',function(){RFSession.signOut('manual');});
+
+  function paintPickers(){
+    var groups={},order=['admin','supervisor','provider','scheduler','employee'];
+    PEOPLE.forEach(function(p){(groups[p.role]=groups[p.role]||[]).push(p);});
+    var html='<option value="">Select a person</option>';
+    order.forEach(function(r){
+      if(!groups[r])return;
+      html+='<optgroup label="'+ROLEL[r]+'s">'+groups[r].map(function(p){
+        return '<option value="'+p.username+'" data-name="'+esc(p.name)+'" data-role="'+p.role+'">'+
+          esc(p.name)+(p.title?' — '+esc(p.title):'')+'</option>';}).join('')+'</optgroup>';
+    });
+    $('aTo').innerHTML=html;
+    $('ccPick').innerHTML='<option value="">Add someone to CC…</option>'+
+      PEOPLE.map(function(p){return '<option value="'+p.username+'" data-name="'+esc(p.name)+'">'+
+        esc(p.name)+' — '+ROLEL[p.role]+'</option>';}).join('');
+  }
+  function paintCC(){
+    $('ccBar').querySelectorAll('.cctag').forEach(function(x){x.remove();});
+    CC.forEach(function(c){
+      var el=document.createElement('span');el.className='cctag';
+      el.innerHTML=esc(c.name)+'<button type="button" data-cc="'+c.username+'">'+
+        '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+      $('ccBar').insertBefore(el,$('ccPick'));
+    });
+  }
+  $('ccPick').addEventListener('change',function(){
+    var o=this.selectedOptions[0];
+    if(!o||!this.value)return;
+    if(this.value===$('aTo').value){toast('Already the assignee');this.value='';return;}
+    if(!CC.some(function(c){return c.username===o.value;}))CC.push({username:o.value,name:o.dataset.name});
+    this.value='';paintCC();
+  });
+  $('ccBar').addEventListener('click',function(e){
+    var b=e.target.closest('[data-cc]');if(!b)return;
+    CC=CC.filter(function(c){return c.username!==b.dataset.cc;});paintCC();
+  });
+
+  async function refresh(){TASKS=await RFStore.tasks();render();}
+
+
+  /* ── five cards, each one a filter ── */
+  var KPI=[
+    {k:'open',  label:'Open',        c:'var(--blue-s)', s:'var(--blue)',    note:'awaiting you',
+     ic:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'},
+    {k:'prog',  label:'In progress', c:'var(--amber-s)',s:'var(--amber)',   note:'being worked',
+     ic:'<path d="M12 3a9 9 0 109 9"/><path d="M12 7v5l4 2"/>'},
+    {k:'over',  label:'Overdue',     c:'var(--coral-s)',s:'var(--coral)',   note:'past TAT',
+     ic:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>'},
+    {k:'res',   label:'Resolved',    c:'var(--green-s)',s:'var(--green-d)', note:'closed',
+     ic:'<path d="M5 13l4 4L19 7"/>'},
+    {k:'owner', label:'Raised by you',c:'var(--violet-s)',s:'var(--violet)',note:'sent out',
+     ic:'<path d="M12 19V5M5 12l7-7 7 7"/>'}
+  ];
+  function countFor(k,mine){
+    if(k==='over')  return mine.filter(function(t){return t.status!=='res'&&t.due&&new Date(t.due)<Date.now();}).length;
+    if(k==='owner') return TASKS.filter(function(t){return t._role==='owner';}).length;
+    return mine.filter(function(t){return t.status===k;}).length;
+  }
+  function activeKpi(){
+    if(filt.role==='owner')return 'owner';
+    if(filt.over)return 'over';
+    return filt.status;
+  }
+  function paintKpis(mine){
+    var cur=activeKpi();
+    $('kpis').innerHTML=KPI.map(function(x,i){
+      return '<button class="card kpi'+(cur===x.k?' on':'')+'" data-k="'+x.k+'" '+
+        'style="animation-delay:'+(0.06+i*0.05)+'s">'+
+        '<div class="top"><span class="ic" style="background:'+x.c+'">'+
+        '<svg viewBox="0 0 24 24" style="stroke:'+x.s+'">'+x.ic+'</svg>'+
+        '</span><h3>'+x.label+'</h3></div><b>'+countFor(x.k,mine)+'</b><small>'+x.note+'</small></button>';
+    }).join('');
+  }
+  $('kpis').addEventListener('click',function(e){
+    var b=e.target.closest('[data-k]');if(!b)return;
+    var k=b.dataset.k, cur=activeKpi();
+    /* tapping the active card clears the filter */
+    if(cur===k){filt.status='all';filt.role='all';filt.over=false;}
+    else if(k==='owner'){filt.role='owner';filt.status='all';filt.over=false;}
+    else if(k==='over'){filt.over=true;filt.status='all';filt.role='assignee';}
+    else{filt.status=k;filt.role='assignee';filt.over=false;}
+    $('fStatus').value=filt.status;
+    $('fRole').value=filt.role;
+    render();
+  });
+
+  function render(){
+    var list=TASKS.filter(function(t){
+      if(filt.status!=='all'&&t.status!==filt.status)return false;
+      if(filt.role!=='all'&&t._role!==filt.role)return false;
+      if(filt.over&&!(t.status!=='res'&&t.due&&new Date(t.due)<Date.now()))return false;
+      if(filt.q){
+        var h=(t.title+' '+(t.ref||'')+' '+(t.from_name||'')+' '+(t.assignee_name||'')).toLowerCase();
+        if(h.indexOf(filt.q)<0)return false;
+      }
+      return true;
+    });
+
+    var mine=TASKS.filter(function(t){return t._role==='assignee';});
+    paintKpis(mine);
+
+    $('cnt').textContent=list.length+' of '+TASKS.length;
+    $('tSub').textContent=list.length+' SHOWN';
+    $('empty').hidden=list.length>0;
+    if(!TASKS.length){
+      $('emptyT').textContent='No tasks yet';
+      $('emptyS').textContent='Work assigned to you by providers or employees appears here.';
+    }else if(!list.length){
+      $('emptyT').textContent='Nothing in this view';
+      $('emptyS').textContent='Try a different filter.';
+    }
+
+    $('rows').innerHTML=list.map(function(t,i){
+      var over=(t.status!=='res'&&t.due&&new Date(t.due)<Date.now());
+      return '<tr style="animation-delay:'+Math.min(.4,i*.03)+'s" data-open="'+t.id+'">'+
+        '<td><div class="tname"><span class="tico" style="background:'+(CATCOL[t.category]||'var(--paper-2)')+'">'+
+          '<svg viewBox="0 0 24 24">'+(CATICON[t.category]||CATICON.Other)+'</svg></span>'+
+          '<span><b>'+esc(t.title)+'<span class="rolepill '+t._role+'">'+t._role.toUpperCase()+'</span></b>'+
+          '<small>'+esc(t.ref||'')+' · '+esc(t.category||'Other')+
+          ((t.cc||[]).length?' · CC '+t.cc.length:'')+'</small></span></div></td>'+
+        '<td><div style="font-size:12px">'+esc(t.from_name||t.created_by)+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">→ '+esc(t.assignee_name||t.assignee)+'</div></td>'+
+        '<td><span class="dchip '+(t.priority||'med')+'"><i></i>'+
+          ({high:'High',med:'Medium',low:'Low'}[t.priority||'med'])+'</span></td>'+
+        '<td class="mono due'+(over?' over':'')+'">'+(t.status==='res'?'Closed':rel(t.due))+'</td>'+
+        '<td><span class="st '+t.status+'">'+STL[t.status]+'</span></td>'+
+        '<td class="r"><button class="ib"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></td></tr>';
+    }).join('');
+
+    var hist=[];
+    TASKS.forEach(function(t){(t.history||[]).forEach(function(h){hist.push({t:t,h:h});});});
+    hist.sort(function(a,b){return new Date(b.h.at)-new Date(a.h.at);});
+    var IC={created:['g','<path d="M12 5v14M5 12h14"/>'],
+            updated:['b','<path d="M12 19V5M5 12l7-7 7 7"/>'],
+            note:['v','<path d="M21 15a2 2 0 01-2 2H8l-4 4V5a2 2 0 012-2h13a2 2 0 012 2z"/>']};
+    $('feed').innerHTML=hist.length?hist.slice(0,30).map(function(x,i){
+      var ic=IC[x.h.what]||IC.updated;
+      return '<div class="frow" style="animation-delay:'+Math.min(.4,i*.03)+'s">'+
+        '<span class="fdot '+ic[0]+'"><svg viewBox="0 0 24 24">'+ic[1]+'</svg></span>'+
+        '<span class="fb"><b>'+esc(x.t.ref||'')+' '+esc(x.h.what)+'</b>'+
+        '<p>'+esc(x.h.detail)+'</p><small>'+stamp(x.h.at)+' · '+esc(x.h.by)+'</small></span></div>';
+    }).join(''):'<p style="padding:26px;text-align:center;color:var(--dim);font-size:12.4px">Nothing recorded yet.</p>';
+  }
+
+  $('q').addEventListener('input',function(){filt.q=this.value.toLowerCase().trim();render();});
+  $('fStatus').addEventListener('change',function(){filt.status=this.value;filt.over=false;render();});
+  $('fRole').addEventListener('change',function(){filt.role=this.value;filt.over=false;render();});
+
+  var scrim=$('scrim');
+  function openM(id){scrim.classList.add('on');$(id).classList.add('on');document.body.style.overflow='hidden';}
+  function closeM(){scrim.classList.remove('on');
+    document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on');});
+    document.body.style.overflow='';}
+  scrim.addEventListener('click',closeM);
+  document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',closeM);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+
+  $('newTask').addEventListener('click',function(){
+    CC=[];paintCC();EDIT=null;
+    $('aTo').value='';$('aName').value='';$('aDesc').value='';
+    $('aStatus').value='Open';$('aTat').value='24';$('aCat').selectedIndex=0;
+    $('aPri').querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+    $('aPri').querySelector('[data-p="med"]').classList.add('on');priority='med';
+    $('routeText').textContent='Select an assignee to see the routing path.';
+    openM('mNew');
+  });
+  $('aPri').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');priority=b.dataset.p;
+  });
+  $('aTo').addEventListener('change',function(){
+    var o=this.selectedOptions[0];this.classList.remove('bad');
+    if(!o||!this.value){$('routeText').textContent='Select an assignee to see the routing path.';return;}
+    $('routeText').innerHTML='Goes to <b>'+esc(o.dataset.name)+'</b> ('+ROLEL[o.dataset.role]+').'+
+      (CC.length?' Copied to <b>'+CC.map(function(c){return esc(c.name);}).join('</b>, <b>')+'</b> for visibility only.':'');
+  });
+
+  $('aSubmit').addEventListener('click',async function(){
+    var to=$('aTo'),name=$('aName'),desc=$('aDesc'),bad=null;
+    [to,name,desc].forEach(function(el){el.classList.remove('bad');
+      if(!el.value.trim()){el.classList.add('bad');if(!bad)bad=el;}});
+    if(bad){bad.focus();return;}
+    var o=to.selectedOptions[0],tat=parseInt($('aTat').value,10);
+    var stMap={'Open':'open','In progress':'prog','Blocked':'block','Resolved':'res'};
+    this.disabled=true;
+    var r=await RFStore.saveTask({
+      title:name.value.trim(),description:desc.value.trim(),
+      category:$('aCat').value,priority:priority,
+      status:stMap[$('aStatus').value],tat_hours:tat,
+      due:new Date(Date.now()+tat*3600000).toISOString(),
+      assignee:to.value,assignee_name:o.dataset.name,assignee_role:o.dataset.role,
+      cc:CC.map(function(c){return c.username;}),
+      cc_names:CC.map(function(c){return c.name;})
+    });
+    this.disabled=false;
+    if(!r.ok){toast('Could not assign',r.error||'');return;}
+    if(window.RFNotify){
+      RFNotify.send([to.value],{title:'New task: '+name.value.trim(),
+        body:(ME.name||ME.username)+' assigned this to you · TAT '+tat+'h.',
+        meta:r.ref,ttl:9000});
+      if(CC.length)RFNotify.send(CC.map(function(c){return c.username;}),
+        {title:'Copied on: '+name.value.trim(),
+         body:(ME.name||ME.username)+' copied you on a task for '+o.dataset.name+'. View only.',
+         meta:r.ref+' · CC',ttl:8000});
+    }
+    closeM();await refresh();
+    toast('Task assigned to '+o.dataset.name,r.ref+' · TAT '+tat+'h');
+  });
+
+  $('rows').addEventListener('click',async function(e){
+    var row=e.target.closest('[data-open]');if(!row)return;
+    var t=await RFStore.task(+row.dataset.open);if(!t)return;
+    EDIT=t.id;
+    $('dIco').style.background=CATCOL[t.category]||'var(--paper-2)';
+    $('dIco').innerHTML='<svg viewBox="0 0 24 24">'+(CATICON[t.category]||CATICON.Other)+'</svg>';
+    $('dName').textContent=t.title;
+    $('dSub').textContent=(t.ref||'')+' · raised by '+(t.from_name||t.created_by);
+    $('dChips').innerHTML='<span class="dchip '+(t.priority||'med')+'"><i></i>'+
+      ({high:'High',med:'Medium',low:'Low'}[t.priority||'med'])+' priority</span>'+
+      '<span class="st '+t.status+'">'+STL[t.status]+'</span>'+
+      '<span class="dchip">'+esc(t.category||'Other')+'</span>'+
+      (t._readonly?'<span class="dchip">View only · CC</span>':'');
+    $('dMeta').innerHTML=
+      '<div><dt>Raised by</dt><dd>'+esc(t.from_name||t.created_by)+'</dd></div>'+
+      '<div><dt>Assigned to</dt><dd>'+esc(t.assignee_name||t.assignee)+'</dd></div>'+
+      '<div><dt>Due</dt><dd class="mono">'+stamp(t.due)+'</dd></div>'+
+      '<div><dt>TAT</dt><dd>'+(t.tat_hours||24)+' hours</dd></div>'+
+      '<div><dt>Category</dt><dd>'+esc(t.category||'Other')+'</dd></div>'+
+      '<div><dt>CC</dt><dd>'+((t.cc_names||[]).join(', ')||'—')+'</dd></div>';
+    $('dDesc').textContent=t.description||'—';
+    $('dTl').innerHTML=(t.history||[]).map(function(h,i){
+      return '<div'+(i===0?' class="on"':'')+'><b>'+esc(h.what)+'</b> — '+esc(h.detail)+
+        '<small>'+stamp(h.at)+' · '+esc(h.by)+'</small></div>';
+    }).join('')||'<div class="on"><b>No activity yet</b></div>';
+
+    if(t._readonly){
+      $('dEdit').innerHTML='<div class="viewonly">'+
+        '<svg viewBox="0 0 24 24" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2.5"/>'+
+        '<path d="M8 11V8a4 4 0 018 0v3"/></svg><span>You are copied on this task for visibility. Only '+
+        esc(t.assignee_name||t.assignee)+' and '+esc(t.from_name||t.created_by)+' can change or close it.</span></div>';
+      $('dSave').style.display='none';
+    }else{
+      $('dEdit').innerHTML='<div class="dedit"><h4>Update this task</h4><div class="fgrid">'+
+        '<label class="f"><span>Status</span><select id="dStatus">'+
+          ['Open','In progress','Blocked','Resolved'].map(function(x){
+            return '<option'+(STL[t.status]===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select></label>'+
+        '<label class="f"><span>Priority</span><select id="dPri">'+
+          [['high','High'],['med','Medium'],['low','Low']].map(function(x){
+            return '<option value="'+x[0]+'"'+(t.priority===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></label>'+
+        '<label class="f full"><span>Add a note</span><textarea id="dNote" placeholder="What changed"></textarea></label>'+
+      '</div></div>';
+      $('dSave').style.display='';
+    }
+    openM('mDetail');
+  });
+
+  $('dSave').addEventListener('click',async function(){
+    if(!EDIT)return;
+    var t=await RFStore.task(EDIT);if(!t)return;
+    var stMap={'Open':'open','In progress':'prog','Blocked':'block','Resolved':'res'};
+    var note=$('dNote')?$('dNote').value.trim():'';
+    var next=Object.assign({},t);delete next._readonly;
+    next.status=stMap[$('dStatus').value];next.priority=$('dPri').value;
+    var r=await RFStore.saveTask(next);
+    if(!r.ok){toast('Could not update',r.error||'');return;}
+    if(note)await RFStore.addTaskNote(EDIT,note);
+    if(window.RFNotify){
+      var others=[t.assignee,t.created_by].concat(t.cc||[])
+        .filter(function(u,i,arr){return u&&u!==ME.username&&arr.indexOf(u)===i;});
+      if(others.length)RFNotify.send(others,{title:t.ref+' '+STL[next.status].toLowerCase(),
+        body:(ME.name||ME.username)+' updated “'+t.title+'”'+(note?' — '+note:''),
+        meta:'TASK UPDATE',ttl:8000});
+    }
+    closeM();await refresh();toast('Task updated',STL[next.status]);
+  });
+
+  setInterval(refresh,6000);
+})();
+</script>
+
+</body>
+</html>

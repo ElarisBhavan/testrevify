@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claims — ReviFlow</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_prefs.css">
+<script src="_prefs.js"></script>
+<script src="../_notify.js"></script>
+<script src="../_guard.js"></script>
+<script src="../_driver.js"></script>
+<script src="../_store.js"></script>
+<script src="../_codes.js"></script>
+<script src="../_claimform.js"></script>
+<script src="../_datepicker.js"></script>
+<script src="../_session.js"></script>
+<style>
+
+:root{
+  --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#606E6A;--dim:#8A9A97;
+  --line:rgba(14,26,23,.09);--line-2:rgba(14,26,23,.16);
+  --accent:#0E9D73;--accent-soft:#E4F5EE;--accent-deep:#0B3D31;
+  --indigo:#5A6CFF;--indigo-soft:#EDEFFF;--amber:#B8791A;--amber-soft:#FBF0DC;
+  --danger:#C4573B;--danger-soft:#FBEAE5;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg .dots{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(14,26,23,.10) 1px,transparent 0);background-size:28px 28px;-webkit-mask-image:radial-gradient(110% 74% at 50% 0%,#000,transparent 70%);mask-image:radial-gradient(110% 74% at 50% 0%,#000,transparent 70%)}
+.bg .bloom{position:absolute;top:-28%;left:50%;transform:translateX(-50%);width:min(1040px,104vw);height:min(700px,74vw);border-radius:50%;filter:blur(84px);background:radial-gradient(circle,rgba(14,157,115,.16),rgba(14,157,115,.05) 46%,transparent 70%);animation:breathe 13s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.85;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.05)}}
+.bg .bloom2{position:absolute;bottom:-34%;right:-13%;width:min(560px,64vw);height:min(560px,64vw);border-radius:50%;filter:blur(64px);background:radial-gradient(circle,rgba(90,108,255,.11),transparent 68%)}
+
+.hdr{position:relative;z-index:3;display:flex;align-items:center;gap:14px;padding:clamp(14px,2vw,22px) clamp(16px,3.2vw,42px);border-bottom:1px solid var(--line);background:rgba(251,250,246,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:9px}.brand svg{width:24px;height:24px}
+.brand span{font-family:'Sora',sans-serif;font-size:15.5px;font-weight:600;letter-spacing:-.035em}
+.brand em{font-style:normal;color:var(--accent);font-weight:400;font-size:.9em;margin-left:4px}
+.crumb{margin-left:14px;padding-left:14px;border-left:1px solid var(--line-2);font-size:13px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.hactions{margin-left:auto;display:flex;gap:9px;align-items:center}
+.rf-who{font-family:var(--mono);font-size:10.4px;color:var(--muted)}
+.hbtn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.66);font-size:13px;font-weight:600;white-space:nowrap;transition:all .32s var(--ease)}
+.hbtn svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hbtn:hover{border-color:var(--accent);background:#fff}
+.hbtn.out:hover{border-color:var(--danger);background:rgba(196,87,59,.07);color:#9E4029}
+.hbtn.out:hover svg{stroke:var(--danger)}
+
+.wrap{position:relative;z-index:2;flex:1;width:100%;max-width:1180px;margin:0 auto;padding:clamp(20px,3vw,38px) clamp(16px,3.2vw,42px) clamp(40px,5vw,70px)}
+.ptop{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:clamp(18px,2.4vw,26px);opacity:0;transform:translateY(16px);animation:up .8s var(--ease) .08s forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.ptop>div:first-child{flex:1;min-width:270px}
+.kick{display:inline-flex;align-items:center;gap:8px;padding:5px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
+.kick i{width:5px;height:5px;border-radius:50%;background:var(--indigo);animation:blip 2.2s infinite}
+@keyframes blip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}
+.ptop h1{font-family:'Sora',sans-serif;font-size:clamp(24px,3.2vw,36px);line-height:1.08;font-weight:600;letter-spacing:-.04em;margin-bottom:9px}
+.ptop h1 em{font-style:normal;color:var(--accent)}
+.ptop p{font-size:13.6px;line-height:1.62;color:var(--muted);max-width:58ch}
+.ptop .cta{margin-left:auto;flex:none;display:flex;gap:9px;flex-wrap:wrap;padding-top:4px}
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;padding:11px 19px;border-radius:12px;font-size:13.2px;font-weight:600;white-space:nowrap;transition:all .34s var(--ease)}
+.btn svg{width:15px;height:15px;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.btn.pri{background:var(--accent-deep);color:#F2FBF7;box-shadow:0 12px 26px -14px rgba(11,61,49,.9)}
+.btn.pri svg{stroke:#F2FBF7}
+.btn.pri:hover{background:var(--accent);transform:translateY(-2px)}
+.btn.pri:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.sec{border:1px solid var(--line-2);background:rgba(255,255,255,.7)}
+.btn.sec svg{stroke:var(--accent)}
+.btn.sec:hover{border-color:var(--accent);background:#fff;transform:translateY(-2px)}
+
+.tools{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:16px;opacity:0;transform:translateY(16px);animation:up .8s var(--ease) .14s forwards}
+.search{position:relative;flex:1;min-width:200px;max-width:320px;display:flex;align-items:center}
+.search input{width:100%;padding:10px 13px 10px 36px;border-radius:11px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);font-size:13px}
+.search input:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,157,115,.13)}
+.search svg{position:absolute;left:12px;width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none}
+.sel{padding:10px 32px 10px 13px;border-radius:11px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);font-size:12.6px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606E6A' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+.sel:focus{outline:none;border-color:var(--accent)}
+.tools .sp{flex:1}
+.cnt{font-family:var(--mono);font-size:10.6px;color:var(--muted);padding:9px 13px;border-radius:99px;background:rgba(255,255,255,.72);border:1px solid var(--line-2)}
+
+/* ═══ batch cards ═══ */
+.batch{background:#fff;border:1px solid var(--line-2);border-radius:16px;margin-bottom:12px;overflow:hidden;
+  box-shadow:0 16px 40px -34px rgba(11,61,49,.4);opacity:0;transform:translateY(16px);
+  animation:up .7s var(--ease) forwards;transition:border-color .34s var(--ease),box-shadow .34s var(--ease)}
+.batch:hover{border-color:rgba(14,157,115,.35);box-shadow:0 22px 46px -30px rgba(11,61,49,.45)}
+.bhead{display:flex;align-items:center;gap:13px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bico{width:36px;height:36px;flex:none;border-radius:11px;display:grid;place-items:center;background:var(--indigo-soft)}
+.bico svg{width:17px;height:17px;stroke:var(--indigo);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.batch.done .bico{background:var(--accent-soft)}.batch.done .bico svg{stroke:var(--accent-deep)}
+.batch.failed .bico{background:var(--danger-soft)}.batch.failed .bico svg{stroke:var(--danger)}
+.bid{min-width:0;flex:1}
+.bid b{display:block;font-family:'Sora',sans-serif;font-size:14.4px;font-weight:600;letter-spacing:-.028em;line-height:1.3}
+.bid small{display:block;font-family:var(--mono);font-size:9.8px;color:var(--dim);margin-top:3px}
+.bstat{padding:5px 12px;border-radius:8px;font-size:10.6px;font-weight:700;white-space:nowrap}
+.bstat.done{background:var(--accent-soft);color:var(--accent-deep)}
+.bstat.run{background:var(--indigo-soft);color:var(--indigo)}
+.bstat.failed{background:var(--danger-soft);color:var(--danger)}
+
+.bgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line)}
+.bgrid>div{background:#fff;padding:13px 16px;min-width:0}
+.bgrid dt{font-size:9.4px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;white-space:nowrap}
+.bgrid dd{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.03em;line-height:1.15}
+.bgrid dd.sm{font-family:'Manrope',sans-serif;font-size:12.6px;font-weight:500;letter-spacing:0}
+.bgrid dd.mono{font-family:var(--mono);font-size:11.6px;font-weight:500}
+.bgrid dd.ok{color:var(--accent-deep)}
+.bgrid dd.warn{color:var(--amber)}
+.bgrid dd.bad{color:var(--danger)}
+
+.bsum{padding:14px 18px;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bar{flex:1;min-width:180px;height:9px;border-radius:99px;background:#EDF1EF;overflow:hidden;display:flex}
+.bar i{height:100%;transition:width .9s var(--ease)}
+.bar i.a{background:linear-gradient(90deg,var(--accent),#2FBF93)}
+.bar i.n{background:#C3CBC8}
+.bar i.e{background:var(--danger)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:9.8px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:8px;height:8px;border-radius:3px}
+
+.bfiles{display:flex;gap:8px;flex-wrap:wrap;padding:13px 18px;border-top:1px solid var(--line);background:var(--paper-2)}
+.fchip{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:9px;border:1px solid var(--line-2);
+  background:#fff;font-family:var(--mono);font-size:10.2px;font-weight:600;transition:all .3s var(--ease)}
+.fchip svg{width:13px;height:13px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fchip:hover{transform:translateY(-2px);box-shadow:0 10px 20px -12px rgba(11,61,49,.6)}
+.fchip.in{color:var(--muted)}.fchip.in svg{stroke:var(--muted)}
+.fchip.out{color:var(--accent-deep);border-color:rgba(14,157,115,.34)}
+.fchip.out svg{stroke:var(--accent-deep)}
+.fchip.out:hover{background:var(--accent-soft)}
+.fchip.del{margin-left:auto;color:var(--danger);border-color:rgba(196,87,59,.3)}
+.fchip.del svg{stroke:var(--danger)}
+.fchip.del:hover{background:var(--danger-soft)}
+
+.empty{padding:60px 20px;text-align:center;color:var(--dim);font-size:13px;line-height:1.7}
+.empty svg{width:32px;height:32px;stroke:var(--dim);fill:none;stroke-width:1.7;margin-bottom:12px}
+.empty b{font-family:'Sora',sans-serif;font-size:16px;color:var(--ink)}
+
+/* ═══ modal ═══ */
+.scrim{position:fixed;inset:0;z-index:90;background:rgba(14,26,23,.34);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:all .34s var(--ease)}
+.scrim.on{opacity:1;visibility:visible}
+.modal{position:fixed;z-index:91;left:50%;top:50%;width:min(620px,calc(100vw - 24px));max-height:calc(100vh - 48px);overflow:auto;
+  transform:translate(-50%,-46%) scale(.96);opacity:0;visibility:hidden;
+  background:rgba(255,255,255,.6);backdrop-filter:blur(26px) saturate(180%);
+  border:1px solid rgba(255,255,255,.66);border-radius:20px;
+  box-shadow:0 40px 90px -30px rgba(14,26,23,.55);transition:all .4s var(--ease)}
+.modal.on{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+.mhead{display:flex;align-items:center;gap:12px;padding:17px 20px;border-bottom:1px solid rgba(14,26,23,.1)}
+.mhead .mi{width:34px;height:34px;flex:none;border-radius:11px;background:var(--accent-soft);display:grid;place-items:center}
+.mhead .mi svg{width:17px;height:17px;stroke:var(--accent-deep);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mhead h3{font-family:'Sora',sans-serif;font-size:15.6px;font-weight:600;letter-spacing:-.032em}
+.mhead p{font-size:11.6px;color:var(--muted);margin-top:2px}
+.mclose{margin-left:auto;width:31px;height:31px;border-radius:9px;display:grid;place-items:center;color:var(--muted);transition:all .3s var(--ease)}
+.mclose svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round}
+.mclose:hover{background:rgba(255,255,255,.8);transform:rotate(90deg)}
+.mbody{padding:19px 20px}
+.fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.f{display:block}
+.f>span{display:flex;align-items:center;gap:6px;font-size:11.2px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.f select{width:100%;padding:10px 30px 10px 12px;border-radius:10px;border:1px solid rgba(14,26,23,.16);background:rgba(255,255,255,.76);font-size:12.8px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606E6A' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 11px center}
+.f select:focus{outline:none;border-color:var(--accent);background-color:#fff}
+.drop{padding:28px 18px;border-radius:14px;border:2px dashed rgba(14,26,23,.18);background:rgba(255,255,255,.55);text-align:center;cursor:pointer;transition:all .34s var(--ease)}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop.has{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
+.drop .di{width:42px;height:42px;margin:0 auto 12px;border-radius:13px;background:var(--accent-soft);display:grid;place-items:center;transition:transform .4s var(--ease)}
+.drop:hover .di{transform:translateY(-3px) scale(1.06)}
+.drop .di svg{width:21px;height:21px;stroke:var(--accent-deep);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.drop b{display:block;font-size:13.4px;font-weight:600;margin-bottom:4px;word-break:break-all}
+.drop small{font-size:11.2px;color:var(--muted)}
+.subhead{display:flex;align-items:center;gap:9px;margin:18px 0 11px;font-size:10.2px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.subhead::after{content:'';flex:1;height:1px;background:rgba(14,26,23,.12)}
+.prevwrap{overflow-x:auto;border:1px solid var(--line-2);border-radius:11px}
+.prev{width:100%;border-collapse:collapse;font-size:11.4px}
+.prev th{text-align:left;padding:9px 11px;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);background:var(--paper-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+.prev td{padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+.prev tr:last-child td{border-bottom:none}
+.prevnote{font-family:var(--mono);font-size:9.8px;color:var(--dim);margin-top:8px}
+.hint{margin-top:14px;padding:12px 14px;border-radius:11px;background:var(--indigo-soft);border:1px solid rgba(90,108,255,.22);font-size:11.6px;line-height:1.6;color:#3A45B8;display:flex;gap:10px}
+.hint svg{width:15px;height:15px;stroke:var(--indigo);fill:none;stroke-width:2;flex:none;margin-top:1px}
+.hint.warn{background:var(--danger-soft);border-color:rgba(196,87,59,.24);color:#9E4029}
+.hint.warn svg{stroke:var(--danger)}
+.mfoot{display:flex;gap:9px;padding:15px 20px;border-top:1px solid rgba(14,26,23,.1);background:rgba(255,255,255,.36)}
+.mfoot .sp{flex:1}
+
+.prog{height:10px;border-radius:99px;background:#EDF1EF;overflow:hidden;margin-bottom:12px}
+.prog i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent-deep),#2FBF93);transition:width .35s var(--ease)}
+.progtxt{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:16px}
+.livegrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.livegrid>div{background:rgba(255,255,255,.8);padding:12px 13px}
+.livegrid dt{font-size:9.2px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.livegrid dd{font-family:'Sora',sans-serif;font-size:19px;font-weight:600;letter-spacing:-.03em}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:95;display:flex;align-items:center;gap:12px;padding:14px 19px;border-radius:13px;background:var(--accent-deep);color:#F2FBF7;box-shadow:0 22px 44px -20px rgba(11,61,49,.9);opacity:0;pointer-events:none;transition:all .45s var(--ease);max-width:calc(100vw - 30px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast svg{width:17px;height:17px;stroke:#7BE8C0;fill:none;stroke-width:2.4;flex:none}
+.toast b{display:block;font-size:13px;font-weight:600}
+.toast small{display:block;font-size:11px;color:rgba(242,251,247,.74);margin-top:2px}
+
+@media (max-width:1000px){.bgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.crumb{display:none}}
+@media (max-width:640px){
+  .bgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fg{grid-template-columns:minmax(0,1fr)}
+  .livegrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ptop .cta{width:100%;margin-left:0}.ptop .cta .btn{flex:1;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.batch,.ptop,.tools{opacity:1;transform:none}}
+
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1.2vw,15px);margin-bottom:16px}
+.kpi{padding:15px 17px;background:#fff;border:1px solid var(--line-2);border-radius:16px;
+  box-shadow:0 16px 40px -34px rgba(11,61,49,.4);opacity:0;transform:translateY(16px);
+  animation:up .7s var(--ease) forwards;transition:transform .35s var(--ease),border-color .35s var(--ease)}
+.kpi:hover{transform:translateY(-4px);border-color:rgba(14,157,115,.35)}
+.kpi .top{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.kpi .ic{width:27px;height:27px;border-radius:8px;display:grid;place-items:center}
+.kpi .ic svg{width:14px;height:14px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kpi h3{font-size:10.2px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.kpi b{font-family:'Sora',sans-serif;font-size:26px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.kpi small{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:7px}
+.card{background:#fff;border:1px solid var(--line-2);border-radius:16px;overflow:hidden;
+  box-shadow:0 16px 40px -34px rgba(11,61,49,.4);opacity:0;transform:translateY(16px);
+  animation:up .7s var(--ease) .16s forwards}
+.tblwrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12.6px}
+.tbl th{text-align:left;padding:11px 17px;font-size:9.4px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--dim);font-weight:700;border-bottom:1px solid var(--line-2);white-space:nowrap;background:var(--paper-2)}
+.tbl th.r,.tbl td.r{text-align:right}
+.tbl td{padding:13px 17px;border-bottom:1px solid var(--line);vertical-align:top;cursor:pointer}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr{opacity:0;transform:translateX(-8px);animation:sl .5s var(--ease) forwards}
+@keyframes sl{to{opacity:1;transform:none}}
+.tbl tbody tr:hover td{background:var(--paper)}
+.ib{width:29px;height:29px;border-radius:8px;border:1px solid var(--line-2);background:#fff;
+  display:grid;place-items:center;cursor:pointer}
+.ib svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round}
+.claimed{display:inline-block;padding:4px 10px;border-radius:7px;font-size:10.2px;font-weight:700}
+.claimed.submitted{background:var(--indigo-soft);color:var(--indigo)}
+.claimed.pending{background:var(--amber-soft);color:var(--amber)}
+.claimed.paid{background:var(--accent-soft);color:var(--accent-deep)}
+.claimed.denied{background:var(--danger-soft);color:var(--danger)}
+.dv{background:#fff}
+.paper{background:#fff;color:#111;padding:24px 26px;font-family:'Manrope',sans-serif}
+.paper.form{font-family:var(--mono);font-size:10.4px;line-height:1.5}
+.frm-h{text-align:center;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px}
+.frm-h b{display:block;font-family:'Sora',sans-serif;font-size:14px;letter-spacing:.04em}
+.frm-h small{font-size:9px;color:#555;letter-spacing:.08em}
+.fbox{border:1px solid #111;margin-bottom:-1px}
+.fr{display:flex;border-bottom:1px solid #111}.fr:last-child{border-bottom:none}
+.fc{flex:1;padding:5px 7px;border-right:1px solid #111;min-width:0}.fc:last-child{border-right:none}
+.fc u{display:block;font-size:7.4px;color:#666;text-decoration:none;letter-spacing:.05em;margin-bottom:2px}
+.fc span{display:block;font-size:10.4px;font-weight:600;word-break:break-word;min-height:13px}
+.fc.w2{flex:2}.fc.w3{flex:3}
+.svct{width:100%;border-collapse:collapse;font-size:9.6px;margin-top:-1px}
+.svct th{border:1px solid #111;padding:4px 5px;font-size:7.2px;color:#555;text-align:left;background:#F4F4F2}
+.svct td{border:1px solid #111;padding:6px 5px;font-weight:600}
+.stamp{position:absolute;top:44px;right:30px;transform:rotate(-11deg);border:2.5px solid #0A5C46;
+  border-radius:7px;padding:6px 14px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.06em;color:#0A5C46;opacity:.82}
+.modal.wide{width:min(880px,calc(100vw - 24px))}
+@media print{.hdr,.ptop,.kpis,.tools,.card,.mhead,.mfoot,.scrim{display:none!important}
+  .modal{position:static;transform:none;opacity:1;visibility:visible;box-shadow:none;border:none;width:100%;max-height:none}}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.tbl{min-width:760px}}
+
+.foot-note{margin-top:14px;font-family:'Manrope',sans-serif;font-size:10px;color:#666;line-height:1.6}
+.svct tbody tr:last-child td{background:#F4F4F2}
+.epwarn{display:flex;gap:11px;padding:14px 16px;border-radius:13px;margin-bottom:15px;
+  background:var(--coral-s);border:1px solid rgba(206,95,62,.3);animation:epIn .4s var(--e)}
+.epwarn.amber{background:var(--amber-s);border-color:rgba(192,134,22,.3)}
+@keyframes epIn{from{opacity:0;transform:translateY(-6px)}}
+.epwarn svg{width:17px;height:17px;stroke:var(--coral);fill:none;stroke-width:2;flex:none;margin-top:1px}
+.epwarn.amber svg{stroke:var(--amber)}
+.epwarn b{display:block;font-size:13px;font-weight:700;color:#9B3F24}
+.epwarn.amber b{color:#7A5507}
+.epwarn small{display:block;font-size:11.6px;line-height:1.55;color:#9B3F24;margin-top:3px}
+.epwarn.amber small{color:#7A5507}
+.epwarn code{font-family:var(--mono);font-size:10.6px;background:rgba(255,255,255,.6);
+  padding:1px 5px;border-radius:4px}
+.kpi[data-group]{cursor:pointer}
+.kpi.on{border-color:var(--accent-deep);box-shadow:0 0 0 2px rgba(14,157,115,.16)}
+.kpi.on h3{color:var(--accent-deep)}
+.refbox{margin-left:auto;margin-right:12px;text-align:right;max-width:280px}
+.refbox .rl{display:block;font-family:var(--mono);font-size:8.4px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim)}
+.refbox .rv{display:block;font-family:var(--mono);font-size:11.4px;font-weight:600;
+  word-break:break-all;line-height:1.35}
+.refbox .rv.bad{color:var(--danger)}
+.refbox .rej{display:block;margin-top:5px;padding:3px 8px;border-radius:6px;
+  background:var(--danger-soft);color:var(--danger);font-family:var(--mono);
+  font-size:9px;font-weight:700;letter-spacing:.05em}
+.refbox button{margin-top:4px;font-size:9.4px;color:var(--muted);text-decoration:underline;
+  cursor:pointer;font-family:var(--mono)}
+.refbox button:hover{color:var(--ink)}
+@media (max-width:700px){.refbox{display:none}}
+.acts{display:inline-flex;gap:5px;justify-content:flex-end}
+.ib{width:29px;height:29px;border-radius:8px;display:grid;place-items:center;
+  border:1px solid var(--line-2);background:#fff;cursor:pointer;transition:all .24s var(--ease)}
+.ib svg{width:13px;height:13px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ib:hover{border-color:var(--accent-deep);transform:translateY(-1px)}
+.ib:hover svg{stroke:var(--accent-deep)}
+.stwrap{padding:18px}
+.stcard{border:1px solid var(--line-2);border-radius:15px;padding:16px 18px;margin-bottom:12px;
+  background:#fff}
+.sthead{display:flex;align-items:center;gap:11px;margin-bottom:9px;flex-wrap:wrap}
+.sthead b{font-family:'Sora',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:-.028em}
+.sthead .amt{margin-left:auto;font-family:'Sora',sans-serif;font-size:17px;font-weight:600;
+  letter-spacing:-.035em;color:var(--accent-deep)}
+.stmsg{font-size:13px;line-height:1.55;color:var(--ink);margin-bottom:5px}
+.sthint{font-size:11.6px;color:var(--muted);line-height:1.5;margin-bottom:13px}
+.stgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.stgrid>div{background:#fff;padding:10px 12px;min-width:0}
+.stgrid dt{font-size:8.4px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.stgrid dd{font-size:12.2px;font-weight:600;word-break:break-word}
+.stlines{margin-top:14px}
+.stlines>b{display:block;font-size:9.4px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:7px}
+.stline{display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;
+  background:var(--paper-2);margin-bottom:5px;font-size:11.8px}
+.stline .pc{font-family:var(--mono);font-weight:600;flex:none}
+.stline .ld{flex:1;min-width:0;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stline .la{font-family:var(--mono);font-weight:600;flex:none}
+.stnone{padding:36px 24px;text-align:center;color:var(--muted);line-height:1.65}
+.stnone b{display:block;font-family:'Sora',sans-serif;font-size:15px;color:var(--ink);margin-bottom:7px}
+.stnone ul{display:inline-block;text-align:left;margin-top:9px}
+@media (max-width:820px){.stgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ptop-act{margin-left:auto;position:relative}
+.expmenu{position:absolute;top:calc(100% + 6px);right:0;z-index:40;min-width:212px;padding:5px;
+  border-radius:12px;background:#fff;border:1px solid var(--line-2);
+  box-shadow:0 22px 46px -20px rgba(14,26,23,.45);
+  opacity:0;visibility:hidden;transform:translateY(-6px);
+  transition:all .26s var(--ease);display:flex;flex-direction:column}
+.expmenu.on{opacity:1;visibility:visible;transform:none}
+.expmenu button{padding:10px 12px;border:none;background:none;border-radius:9px;text-align:left;
+  font-family:'Manrope',system-ui,sans-serif;font-size:12.4px;font-weight:600;color:var(--ink);
+  cursor:pointer;transition:background .2s}
+.expmenu button:hover{background:var(--accent-soft);color:var(--accent-deep)}
+
+.autobar{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:14px;
+  margin-bottom:14px;background:var(--indigo-soft);border:1px solid rgba(90,108,255,.22)}
+.autobar .ai{width:32px;height:32px;flex:none;border-radius:10px;background:#fff;
+  display:grid;place-items:center}
+.autobar .ai svg{width:16px;height:16px;stroke:var(--indigo);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.autobar .ab{flex:1;min-width:0}
+.autobar b{display:block;font-size:13px;font-weight:700;color:#2A3580}
+.autobar small{display:block;font-size:11.4px;color:#2A3580;opacity:.85;margin-top:2px;line-height:1.5}
+.autobar.warn{background:var(--amber-soft);border-color:rgba(192,134,22,.24)}
+.autobar.warn .ai svg{stroke:var(--amber)}
+.autobar.warn b,.autobar.warn small{color:#7A5507}
+@media (max-width:640px){.ptop-act{margin-left:0;margin-top:12px}.autobar{flex-wrap:wrap}}
+.hgroup{margin-bottom:18px}
+.hgroup > h4{font-family:'Sora',sans-serif;font-size:12.4px;font-weight:600;letter-spacing:-.01em;
+  color:var(--muted);margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.hrun{border:1px solid var(--line-2);border-radius:13px;margin-bottom:9px;overflow:hidden;background:#fff}
+.hhead{display:flex;align-items:center;gap:11px;padding:12px 15px;cursor:pointer;
+  transition:background .2s}
+.hhead:hover{background:var(--paper-2)}
+.hbatch{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:-.01em;flex:none}
+.htrig{padding:3px 9px;border-radius:6px;font-family:var(--mono);font-size:8.6px;font-weight:700;
+  letter-spacing:.07em;flex:none}
+.htrig.auto{background:var(--indigo-soft);color:var(--indigo)}
+.htrig.man{background:var(--amber-soft);color:var(--amber)}
+.htime{font-size:11.4px;color:var(--muted);flex:none}
+.hstats{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.hstat{padding:3px 9px;border-radius:6px;font-family:var(--mono);font-size:9.6px;font-weight:700}
+.hstat.s{background:var(--accent-soft);color:var(--accent-deep)}
+.hstat.r{background:var(--danger-soft);color:var(--danger)}
+.hstat.f{background:var(--amber-soft);color:var(--amber)}
+.hchev{width:20px;height:20px;flex:none;transition:transform .28s var(--ease)}
+.hchev svg{width:13px;height:13px;stroke:var(--dim);fill:none;stroke-width:2.2;stroke-linecap:round}
+.hrun.open .hchev{transform:rotate(90deg)}
+.hdetail{display:none;border-top:1px solid var(--line);background:var(--paper)}
+.hrun.open .hdetail{display:block}
+.hclaim{display:flex;align-items:center;gap:10px;padding:9px 15px;border-bottom:1px solid var(--line);
+  font-size:11.8px}
+.hclaim:last-child{border-bottom:none}
+.hclaim .cn{font-family:var(--mono);font-weight:600;flex:none;min-width:92px}
+.hclaim .oc{padding:2px 8px;border-radius:5px;font-family:var(--mono);font-size:8.6px;font-weight:700;flex:none}
+.hclaim .oc.sent{background:var(--accent-soft);color:var(--accent-deep)}
+.hclaim .oc.rejected{background:var(--danger-soft);color:var(--danger)}
+.hclaim .oc.failed{background:var(--amber-soft);color:var(--amber)}
+.hclaim .ref{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);
+  text-align:right;word-break:break-all;max-width:220px}
+.hclaim .err{flex:1;min-width:0;color:var(--danger);font-size:11.2px}
+.hempty{padding:48px 24px;text-align:center;color:var(--muted);line-height:1.7}
+.hempty b{display:block;font-family:'Sora',sans-serif;font-size:15px;color:var(--ink);margin-bottom:7px}
+@media (max-width:700px){.hstats{width:100%;margin-left:0}.hclaim{flex-wrap:wrap}}
+</style>
+<link rel="stylesheet" href="../_session.css">
+<link rel="stylesheet" href="../_claimform.css">
+<link rel="stylesheet" href="../_datepicker.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="dots"></div><div class="bloom"></div><div class="bloom2"></div></div>
+
+<header class="hdr">
+  <div class="brand">
+    <img class="brandmark" src="../assets/logo-64.png" alt="ReviFlow RCM">
+    <span>ReviFlow<em>RCM</em></span>
+  </div>
+  <span class="crumb">Provider workspace / <b>Claims</b></span>
+  <div class="hactions">
+    <span class="rf-who" id="rfWho"></span>
+    <a href="provider-dashboard.html" class="hbtn"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+    <a href="provider-login.html" class="hbtn out" id="logout">Log out
+      <svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ptop">
+    <div>
+      <span class="kick"><i></i>837 professional and institutional</span>
+      <h1>Claims</h1>
+      <p>Every claim built from a patient record. Claims are created from the billing tab of a patient's chart.</p>
+    </div>
+    <div class="ptop-act">
+      <button class="btn sec" id="histBtn" title="Every submission batch, automatic and manual">
+        <svg viewBox="0 0 24 24"><path d="M12 8v5l3 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3.5 5v4h4"/></svg>History</button>
+      <button class="btn sec" id="exportBtn" title="Download what is on screen">
+        <svg viewBox="0 0 24 24"><path d="M12 3v13M7 12l5 5 5-5"/><path d="M4 20h16"/></svg>Export</button>
+      <span class="expmenu" id="expMenu">
+        <button data-x="csv">Spreadsheet · CSV</button>
+        <button data-x="json">Full detail · JSON</button>
+        <button data-x="837">Payload sent to Stedi · JSON</button>
+      </span>
+    </div>
+  </div>
+
+  <div class="autobar" id="autoBar" hidden>
+    <span class="ai"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+    <span class="ab">
+      <b id="autoTitle">Automatic submission</b>
+      <small id="autoNote">—</small>
+    </span>
+    <button class="btn sec sm" id="autoRun" title="Send the queue now instead of waiting">
+      <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>Send now</button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="tools rfrange" id="dateBar">
+    <span class="rfpresets" id="datePresets">
+      <button data-p="all" class="on">All time</button>
+      <button data-p="7">Last 7 days</button>
+      <button data-p="30">Last 30 days</button>
+      <button data-p="month">This month</button>
+      <button data-p="last">Last month</button>
+      <button data-p="ytd">This year</button>
+    </span>
+    <span class="rfdates">
+      <span class="rfdate"><input type="date" id="dFrom" placeholder="From" aria-label="From date" min="1900-01-01" max="2100-12-31"></span>
+      <span class="sep">to</span>
+      <span class="rfdate"><input type="date" id="dTo" placeholder="To" aria-label="To date" min="1900-01-01" max="2100-12-31"></span>
+    </span>
+    <button class="rfclear" id="dClear" hidden>Clear dates</button>
+    <span class="sp"></span>
+    <span class="cnt" id="dSummary"></span>
+  </div>
+
+  <div class="tools">
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Search claim number, patient or payer…">
+    </label>
+    <select class="sel" id="fStatus">
+      <option value="all">All statuses</option>
+      <option value="ready">Ready to submit</option>
+      <option value="submitted">Submitted</option>
+      <option value="pending">Pending</option><option value="paid">Paid</option>
+      <option value="denied">Denied</option>
+    </select>
+    <select class="sel" id="fForm"><option value="all">All forms</option><option value="CMS-1500">CMS-1500</option><option value="UB-04">UB-04</option></select>
+    <select class="sel" id="fDateField" title="Which date the range applies to">
+      <option value="dos">Date of service</option>
+      <option value="created">Created</option>
+      <option value="submitted">Submitted</option>
+    </select>
+    <span class="sp"></span>
+    <span class="cnt" id="cnt">—</span>
+  </div>
+
+  <div class="card">
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:22%">Claim</th><th>Patient</th><th>Payer</th>
+          <th>Provider</th><th class="r">Charge</th><th>Status</th><th class="r" style="width:60px"></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M7 4h8l4 4v12a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M9 13l2 2 4-5"/></svg><br>
+      <b>No claims yet</b><br>
+      <span>Open a patient's chart, go to Billing, and select Create claim against a date of service.</span>
+    </div>
+  </div>
+</main>
+
+<div class="modal wide" id="mHist" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8v5l3 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3.5 5v4h4"/></svg></span>
+    <div><h3>Submission history</h3><p>Every batch sent to the payer, newest first.</p></div>
+    <span class="sub" id="histCount"></span>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody" id="histBody"></div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Close</button>
+    <span class="sp"></span>
+    <button class="btn sec" id="histCsv"><svg viewBox="0 0 24 24"><path d="M12 3v13M7 12l5 5 5-5"/><path d="M4 20h16"/></svg>Export history</button>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="modal wide" id="mView" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M7 4h8l4 4v12a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M9 12h6M9 16h6"/></svg></span>
+    <div><h3 id="vTitle">Claim</h3><p id="vSub">—</p></div>
+    <div class="refbox" id="vRef" hidden></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="dv" id="vBody"></div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Close</button>
+    <button class="btn sec" id="vStedi"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>Submit to payer</button>
+    <select class="sel" id="vStatus" style="max-width:170px">
+      <option value="ready">Ready to submit</option>
+      <option value="submitted">Submitted</option><option value="pending">Pending</option>
+      <option value="paid">Paid</option><option value="denied">Denied</option>
+      <option value="rejected">Rejected</option>
+    </select>
+    <span class="sp"></span>
+    <button class="btn sec" id="vAskPayer" title="Ask the payer where this claim is">
+      <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9"/><path d="M12 7v5l3 2"/></svg>Check status</button>
+    <button class="btn sec" id="vEdit"><svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/></svg>Edit claim</button>
+    <button class="btn sec" id="vPrint"><svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 19H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-2"/><path d="M7 15h10v6H7z"/></svg>Print</button>
+    <button class="btn pri" id="vSave"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Update status</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="tT">—</b><small id="tS"></small></span></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var CLAIMS=[],VIEW=null,
+      filt={q:'',status:'all',form:'all',group:'',from:'',to:'',dateField:'dos'};
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function money(n){return '$'+(+n||0).toFixed(2);}
+  function fmtS(d){return d?new Date(d+'T12:00:00').toLocaleDateString(undefined,
+    {month:'2-digit',day:'2-digit',year:'numeric'}):'—';}
+  function fmtD(d){return d?new Date(d).toLocaleDateString(undefined,
+    {month:'short',day:'numeric',year:'numeric'}):'—';}
+  function toast(t,s){$('tT').textContent=t;$('tS').textContent=s||'';
+    $('toast').classList.add('on');clearTimeout(toast._t);
+    toast._t=setTimeout(function(){$('toast').classList.remove('on');},3400);}
+
+  (async function(){
+    await RFStore.ready();
+    /* payers, place of service and code descriptions for the claim editor */
+    if(window.RFCodes&&RFCodes.sync)await RFCodes.sync();
+    setTimeout(paintAuto,400);
+    var sess=RFSession.require();
+    if(!sess)return;
+    $('rfWho').textContent=(sess.name||sess.username||'').toUpperCase();
+    $('logout').addEventListener('click',function(e){e.preventDefault();
+      RFSession.signOut('manual');});
+    await refresh();
+  })();
+
+  async function refresh(){CLAIMS=await RFStore.claims({});render();}
+
+  document.addEventListener('click',function(e){
+    var k=e.target.closest('[data-group]');
+    if(!k)return;
+    filt.group=(filt.group===k.dataset.group)?'':k.dataset.group;
+    render();
+  });
+
+
+  /* ── date range ── */
+  function claimDate(c){
+    if(filt.dateField==='created')
+      return String(c.created_at||'').slice(0,10);
+    if(filt.dateField==='submitted')
+      return String(c.submitted_at||c.status_checked_at||'').slice(0,10);
+    return String(c.dos||'').slice(0,10);
+  }
+
+  function today(){
+    var d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+
+           '-'+String(d.getDate()).padStart(2,'0');
+  }
+  function shift(days){
+    var d=new Date(); d.setDate(d.getDate()+days);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+
+           '-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  function applyPreset(p){
+    var now=new Date(), y=now.getFullYear(), m=now.getMonth();
+    var pad=function(n){return String(n).padStart(2,'0');};
+    if(p==='all'){ filt.from=''; filt.to=''; }
+    else if(p==='7'){ filt.from=shift(-6); filt.to=today(); }
+    else if(p==='30'){ filt.from=shift(-29); filt.to=today(); }
+    else if(p==='month'){ filt.from=y+'-'+pad(m+1)+'-01'; filt.to=today(); }
+    else if(p==='last'){
+      var lm=new Date(y,m,0);
+      filt.from=lm.getFullYear()+'-'+pad(lm.getMonth()+1)+'-01';
+      filt.to=lm.getFullYear()+'-'+pad(lm.getMonth()+1)+'-'+pad(lm.getDate());
+    }
+    else if(p==='ytd'){ filt.from=y+'-01-01'; filt.to=today(); }
+    $('dFrom').value=filt.from;
+    $('dTo').value=filt.to;
+    $('datePresets').querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('on',b.dataset.p===p);});
+    render();
+  }
+
+  $('datePresets').addEventListener('click',function(e){
+    var b=e.target.closest('[data-p]');
+    if(b)applyPreset(b.dataset.p);
+  });
+
+  ['dFrom','dTo'].forEach(function(id){
+    $(id).addEventListener('change',function(){
+      filt.from=$('dFrom').value;
+      filt.to=$('dTo').value;
+      /* a range typed by hand is nobody's preset */
+      $('datePresets').querySelectorAll('button').forEach(function(b){
+        b.classList.remove('on');});
+      if(filt.from&&filt.to&&filt.from>filt.to){
+        var t=filt.from; filt.from=filt.to; filt.to=t;
+        $('dFrom').value=filt.from; $('dTo').value=filt.to;
+        toast('Dates swapped','The start was after the end');
+      }
+      render();
+    });
+  });
+
+  $('dClear').addEventListener('click',function(){ applyPreset('all'); });
+
+  $('fDateField').addEventListener('change',function(){
+    filt.dateField=this.value;
+    render();
+  });
+
+
+
+  /* ── submission history ── */
+  var RUNS=[];
+
+  /* record a hand-sent claim alongside the nightly batches */
+  async function logManual(c,outcome,reference,errors){
+    try{
+      var me=RFStore.getSession();
+      await fetch('/api/claims-queue',{method:'POST',
+        headers:{'Content-Type':'application/json'},credentials:'same-origin',
+        body:JSON.stringify({logManual:{
+          claim_no:c.claim_no, outcome:outcome, reference:reference||'',
+          errors:errors||[], by:(me&&(me.name||me.username))||''
+        }})});
+    }catch(e){}
+  }
+
+  function runDay(iso){
+    var d=new Date(iso);
+    var t=new Date(), y=new Date(); y.setDate(y.getDate()-1);
+    var same=function(a,b){return a.toDateString()===b.toDateString();};
+    if(same(d,t))return 'Today';
+    if(same(d,y))return 'Yesterday';
+    return d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  }
+  function runTime(iso){
+    return new Date(iso).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function histHTML(){
+    if(!RUNS.length){
+      return '<div class="hempty"><b>No batches yet</b>'+
+        'Batches appear here once claims have been submitted, whether sent '+
+        'automatically overnight or by hand from a claim.</div>';
+    }
+
+    /* grouped by day, because that is how a biller looks for one */
+    var days={}, order=[];
+    RUNS.forEach(function(r){
+      var k=runDay(r.ran_at);
+      if(!days[k]){ days[k]=[]; order.push(k); }
+      days[k].push(r);
+    });
+
+    return order.map(function(k){
+      var runs=days[k];
+      var tot=runs.reduce(function(x,r){return x+(r.sent||0);},0);
+      return '<div class="hgroup"><h4>'+esc(k)+' · '+runs.length+' batch'+
+          (runs.length===1?'':'es')+' · '+tot+' claim'+(tot===1?'':'s')+' sent</h4>'+
+        runs.map(function(r,i){
+          var auto=r.trigger!=='manual';
+          return '<div class="hrun" data-run="'+esc(r.batch)+'">'+
+            '<div class="hhead">'+
+              '<span class="hchev"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>'+
+              '<span class="hbatch">'+esc(r.batch||'—')+'</span>'+
+              '<span class="htrig '+(auto?'auto':'man')+'">'+(auto?'AUTOMATIC':'MANUAL')+'</span>'+
+              '<span class="htime">'+runTime(r.ran_at)+
+                (r.by?' · '+esc(r.by):'')+'</span>'+
+              '<span class="hstats">'+
+                (r.sent?'<span class="hstat s">'+r.sent+' SENT</span>':'')+
+                (r.rejected?'<span class="hstat r">'+r.rejected+' REJECTED</span>':'')+
+                (r.failed?'<span class="hstat f">'+r.failed+' FAILED</span>':'')+
+                (!r.sent&&!r.rejected&&!r.failed?'<span class="hstat">NOTHING SENT</span>':'')+
+              '</span>'+
+            '</div>'+
+            '<div class="hdetail">'+
+              ((r.detail||[]).length
+                ? r.detail.map(function(d){
+                    var oc=String(d.outcome||'').split(' ')[0];
+                    return '<div class="hclaim">'+
+                      '<span class="cn">'+esc(d.claim||'—')+'</span>'+
+                      '<span class="oc '+esc(oc)+'">'+esc(String(d.outcome||'').toUpperCase())+'</span>'+
+                      ((d.errors&&d.errors.length)
+                        ? '<span class="err">'+esc(d.errors.join(' · '))+'</span>'
+                        : (d.error?'<span class="err">'+esc(d.error)+'</span>':'<span class="err"></span>'))+
+                      (d.reference?'<span class="ref">'+esc(d.reference)+'</span>':'')+
+                    '</div>';
+                  }).join('')
+                : '<div class="hclaim"><span class="err">No claim detail recorded.</span></div>')+
+            '</div></div>';
+        }).join('')+
+      '</div>';
+    }).join('');
+  }
+
+  $('histBtn').addEventListener('click',async function(){
+    $('histBody').innerHTML='<div class="hempty">Loading…</div>';
+    scrim.classList.add('on');
+    $('mHist').classList.add('on');
+    document.body.style.overflow='hidden';
+    try{
+      var r=await fetch('/api/claims-queue?history=1',{credentials:'same-origin'});
+      if(!r.ok){
+        $('histBody').innerHTML='<div class="hempty"><b>History is not available</b>'+
+          (r.status===404
+            ? 'Deploy claims-queue.js to record submission batches.'
+            : 'The queue could not be reached.')+'</div>';
+        $('histCount').textContent='';
+        return;
+      }
+      var j=await r.json();
+      RUNS=j.runs||[];
+      $('histCount').textContent=RUNS.length?RUNS.length+' BATCHES':'';
+      $('histBody').innerHTML=histHTML();
+    }catch(e){
+      $('histBody').innerHTML='<div class="hempty"><b>History is not available</b>'+
+        'The queue could not be reached.</div>';
+    }
+  });
+
+  document.addEventListener('click',function(e){
+    var h=e.target.closest('.hhead');
+    if(!h)return;
+    h.parentNode.classList.toggle('open');
+  });
+
+  $('histCsv').addEventListener('click',function(){
+    if(!RUNS.length){ toast('Nothing to export','No batches recorded yet',true); return; }
+    var head=['Batch','Date','Time','Trigger','Sent','Rejected','Failed',
+              'Claim','Outcome','Reference','Errors'];
+    var rows=[];
+    RUNS.forEach(function(r){
+      var d=new Date(r.ran_at);
+      var base=[r.batch, d.toLocaleDateString(), runTime(r.ran_at),
+                r.trigger==='manual'?'Manual':'Automatic',
+                r.sent||0, r.rejected||0, r.failed||0];
+      if((r.detail||[]).length){
+        r.detail.forEach(function(x){
+          rows.push(base.concat([x.claim||'', x.outcome||'', x.reference||'',
+            (x.errors||[]).join(' | ')||x.error||'']).map(csvCell).join(','));
+        });
+      }else{
+        rows.push(base.concat(['','','','']).map(csvCell).join(','));
+      }
+    });
+    download('claim-batches-'+stamp()+'.csv',
+      [head.map(csvCell).join(',')].concat(rows).join('\n'));
+    toast('Exported',RUNS.length+' batch'+(RUNS.length===1?'':'es'));
+  });
+
+  /* ── export ── */
+  function visibleClaims(){
+    /* whatever the filters are showing, in the order shown */
+    return CLAIMS.filter(function(c){
+      if(filt.from||filt.to){
+        var when=claimDate(c);
+        if(!when)return false;
+        if(filt.from&&when<filt.from)return false;
+        if(filt.to&&when>filt.to)return false;
+      }
+      var st=String(c.status||'draft').toLowerCase();
+      if(filt.group){
+        var G={ready:['draft','ready'],
+               flight:['submitted','pending','accepted','received','in-process'],
+               paid:['paid'],attention:['rejected','denied']};
+        if((G[filt.group]||[]).indexOf(st)<0)return false;
+      }
+      if(filt.status!=='all'&&st!==filt.status)return false;
+      if(filt.form!=='all'&&c.form!==filt.form)return false;
+      if(filt.q){
+        var h=(c.claim_no+' '+c.patient_last+' '+c.patient_first+' '+c.payer).toLowerCase();
+        if(h.indexOf(filt.q)<0)return false;
+      }
+      return true;
+    });
+  }
+
+  function download(name,text,type){
+    var blob=new Blob([text],{type:type||'text/csv;charset=utf-8;'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=name;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href);},900);
+  }
+  function csvCell(v){
+    return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  }
+  function stamp(){
+    var d=new Date();
+    return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  }
+
+  $('exportBtn').addEventListener('click',function(e){
+    e.stopPropagation();
+    $('expMenu').classList.toggle('on');
+  });
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('#expMenu')&&!e.target.closest('#exportBtn'))
+      $('expMenu').classList.remove('on');
+  });
+
+  $('expMenu').addEventListener('click',function(e){
+    var b=e.target.closest('[data-x]');
+    if(!b)return;
+    $('expMenu').classList.remove('on');
+    var list=visibleClaims();
+    if(!list.length){ toast('Nothing to export','No claims match the current filters',true); return; }
+
+    if(b.dataset.x==='csv'){
+      var head=['Claim number','Status','Form','Date of service','Patient','Member ID',
+                'Payer','Payer ID','Billed','Paid','Provider NPI','Diagnoses',
+                'Procedures','Payer claim number','Submitted','Rejections'];
+      var rows=list.map(function(c){
+        return [
+          c.claim_no, c.status||'draft', c.form,
+          c.dos, [c.patient_last,c.patient_first].filter(Boolean).join(', '),
+          c.member_id, c.payer, c.payer_id,
+          (+c.total||0).toFixed(2),
+          c.paid_amount!=null?(+c.paid_amount).toFixed(2):'',
+          c.provider_npi||c.org_npi||'',
+          (c.dx||[]).filter(Boolean).join(' '),
+          (c.lines||[]).map(function(l){
+            return l.cpt+(l.units>1?' ×'+l.units:''); }).join(' '),
+          c.stedi_claim_no||'',
+          c.submitted_at?String(c.submitted_at).slice(0,10):'',
+          (c.rejections||[]).map(function(r){
+            return (r.code||'')+' '+(r.message||''); }).join(' | ')
+        ].map(csvCell).join(',');
+      });
+      download('claims-'+stamp()+'.csv',[head.map(csvCell).join(',')].concat(rows).join('\n'));
+      toast('Exported',list.length+' claim'+(list.length===1?'':'s')+' as CSV');
+      return;
+    }
+
+    if(b.dataset.x==='json'){
+      download('claims-'+stamp()+'.json',JSON.stringify(list,null,2),'application/json');
+      toast('Exported',list.length+' claim'+(list.length===1?'':'s')+' with full detail');
+      return;
+    }
+
+    if(b.dataset.x==='837'){
+      /* what would actually go to Stedi, useful when a payer disputes a claim */
+      (async function(){
+        var out=[];
+        for(var i=0;i<list.length;i++){
+          try{
+            var r=await fetch('/api/claims',{method:'POST',
+              headers:{'Content-Type':'application/json'},credentials:'same-origin',
+              body:JSON.stringify({dryRun:true,claim:list[i]})});
+            var j=await r.json();
+            out.push({claim_no:list[i].claim_no,payload:j.payload||j});
+          }catch(err){ out.push({claim_no:list[i].claim_no,error:String(err.message||err)}); }
+        }
+        download('claims-837-'+stamp()+'.json',JSON.stringify(out,null,2),'application/json');
+        toast('Exported',out.length+' payload'+(out.length===1?'':'s'));
+      })();
+    }
+  });
+
+  /* ── automatic submission ──
+     A claim marked ready is copied to a server-side queue, because the
+     scheduled job runs when no browser is open and cannot read this one. */
+  async function enqueue(c){
+    try{
+      var r=await fetch('/api/claims-queue',{method:'POST',
+        headers:{'Content-Type':'application/json'},credentials:'same-origin',
+        body:JSON.stringify({claim:c})});
+      if(r.status===404||r.status===503)return false;
+      return r.ok;
+    }catch(e){ return false; }
+  }
+
+  async function paintAuto(){
+    var bar=$('autoBar');
+    try{
+      var r=await fetch('/api/claims-queue',{credentials:'same-origin'});
+      if(!r.ok){
+        var j={};try{ j=await r.json(); }catch(e){}
+        bar.hidden=false;
+        bar.classList.add('warn');
+        $('autoRun').hidden=true;
+
+        if(r.status===404){
+          $('autoTitle').textContent='The queue is not deployed';
+          $('autoNote').innerHTML='<code>claims-queue.js</code> and '+
+            '<code>claims-cron.js</code> need to be in <code>netlify/functions/</code>, '+
+            'with their routes in <code>netlify.toml</code>. Until then, submit '+
+            'each claim from its own screen.';
+        }else if(j.error==='package_missing'){
+          $('autoTitle').textContent='One package is missing from the deploy';
+          $('autoNote').innerHTML='Add <code>"@netlify/blobs"</code> to the '+
+            'dependencies in <code>package.json</code>, commit it, and redeploy. '+
+            '<b>Editing package.json is not enough — a new build has to run.</b> '+
+            '<a href="/api/claims-queue?diag=1" target="_blank">Run the check</a>';
+        }else if(j.error==='blobs_unconfigured'||j.error==='no_storage'){
+          $('autoTitle').textContent='The queue has nowhere to store claims';
+          $('autoNote').innerHTML='Netlify Blobs is not configured on this site. '+
+            'Either set <code>NETLIFY_SITE_ID</code> and <code>NETLIFY_API_TOKEN</code> '+
+            'in the site environment, or set <code>DATABASE_URL</code> to use Postgres '+
+            'instead — the queue accepts either. Redeploy afterwards. '+
+            '<a href="/api/claims-queue?diag=1" target="_blank">Run the check</a>';
+        }else{
+          $('autoTitle').textContent='The queue could not be opened';
+          $('autoNote').innerHTML=esc(j.message||'No reason was given.')+
+            ' <a href="/api/claims-queue?diag=1" target="_blank">Run the check</a>';
+        }
+        return;
+      }
+      var j=await r.json();
+      bar.hidden=false;
+      bar.classList.remove('warn');
+      $('autoRun').hidden=false;
+      var hour=AUTO_HOUR;
+      $('autoTitle').textContent=j.pending
+        ? j.pending+' claim'+(j.pending===1?'':'s')+' queued for tonight'
+        : 'Automatic submission is on';
+      $('autoNote').textContent=j.pending
+        ? 'They will be sent automatically at '+hour+'. Nothing further is needed.'
+        : 'Claims marked ready are queued and sent at '+hour+' each day.';
+    }catch(e){
+      bar.hidden=true;
+    }
+  }
+  var AUTO_HOUR='9:00 PM';
+
+  $('autoRun').addEventListener('click',async function(){
+    if(!confirm('Send every queued claim to the payer now, without waiting for tonight?'))return;
+    this.disabled=true;
+    try{
+      var r=await fetch('/api/claims-cron?force=1',{credentials:'same-origin'});
+      var j=await r.json();
+      if(j.error){ toast('Could not run',j.message||j.error,true); }
+      else{
+        toast('Batch finished',
+          j.sent+' sent · '+j.rejected+' rejected · '+j.failed+' failed');
+        await refresh(); await paintAuto();
+      }
+    }catch(e){ toast('Could not reach the scheduler','',true); }
+    this.disabled=false;
+  });
+
+  function render(){
+    var list=CLAIMS.filter(function(c){
+      /* date range, on the field chosen beside it */
+      if(filt.from||filt.to){
+        var when=claimDate(c);
+        if(!when)return false;
+        if(filt.from&&when<filt.from)return false;
+        if(filt.to&&when>filt.to)return false;
+      }
+
+      var st=String(c.status||'draft').toLowerCase();
+      if(filt.group){
+        var G={ready:['draft','ready'],
+                flight:['submitted','pending','accepted','received','in-process'],
+                paid:['paid'],attention:['rejected','denied']};
+        if((G[filt.group]||[]).indexOf(st)<0)return false;
+      }
+      if(filt.status!=='all'&&st!==filt.status)return false;
+      if(filt.form!=='all'&&c.form!==filt.form)return false;
+      if(filt.q){
+        var h=(c.claim_no+' '+c.patient_last+' '+c.patient_first+' '+c.payer).toLowerCase();
+        if(h.indexOf(filt.q)<0)return false;
+      }
+      return true;
+    });
+
+    /* Group by what a biller actually works: anything awaiting submission,
+       anything in flight, anything paid, anything needing a fix. Statuses are
+       grouped rather than matched one to one, so a claim never falls outside
+       every tile and leaves the row of zeros you saw. */
+    var GROUPS={
+      ready:['draft','ready'],
+      flight:['submitted','pending','accepted','received','in-process'],
+      paid:['paid'],
+      attention:['rejected','denied']
+    };
+    /* Count what the filters have selected, not every claim ever — otherwise
+       the tiles contradict the rows directly beneath them. The group filter
+       itself is left out, so clicking one tile does not empty the others. */
+    var scoped=CLAIMS.filter(function(c){
+      if(filt.from||filt.to){
+        var when=claimDate(c);
+        if(!when)return false;
+        if(filt.from&&when<filt.from)return false;
+        if(filt.to&&when>filt.to)return false;
+      }
+      if(filt.status!=='all'&&String(c.status||'draft').toLowerCase()!==filt.status)return false;
+      if(filt.form!=='all'&&c.form!==filt.form)return false;
+      if(filt.q){
+        var h=(c.claim_no+' '+c.patient_last+' '+c.patient_first+' '+c.payer).toLowerCase();
+        if(h.indexOf(filt.q)<0)return false;
+      }
+      return true;
+    });
+    var inGroup=function(g){
+      return scoped.filter(function(c){
+        return GROUPS[g].indexOf(String(c.status||'draft').toLowerCase())>-1;});
+    };
+    var sum=function(a){return a.reduce(function(x,c){return x+(+c.total||0);},0);};
+    var d=[
+      ['Ready to submit',inGroup('ready').length,money(sum(inGroup('ready'))),
+        'var(--amber-soft)','var(--amber)','ready'],
+      ['Submitted',inGroup('flight').length,money(sum(inGroup('flight'))),
+        'var(--indigo-soft)','var(--indigo)','flight'],
+      ['Paid',inGroup('paid').length,money(sum(inGroup('paid'))),
+        'var(--accent-soft)','var(--accent-deep)','paid'],
+      ['Needs attention',inGroup('attention').length,money(sum(inGroup('attention'))),
+        'var(--danger-soft)','var(--danger)','attention']];
+    $('kpis').innerHTML=d.map(function(x,i){
+      return '<div class="kpi'+(filt.group===x[5]?' on':'')+
+        '" data-group="'+x[5]+'" style="animation-delay:'+(0.06+i*0.05)+'s">'+
+        '<div class="top"><span class="ic" style="background:'+x[3]+'">'+
+        '<svg viewBox="0 0 24 24" style="stroke:'+x[4]+'"><path d="M7 4h8l4 4v12a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>'+
+        '</span><h3>'+x[0]+'</h3></div><b>'+x[1]+'</b><small>'+x[2]+'</small></div>';
+    }).join('');
+
+    $('cnt').textContent=list.length+' of '+CLAIMS.length;
+
+    var ranged=!!(filt.from||filt.to);
+    $('dClear').hidden=!ranged;
+    var label={dos:'date of service',created:'created',submitted:'submitted'}[filt.dateField];
+    $('dSummary').textContent=ranged
+      ? (filt.from?fmtS(filt.from):'anything')+' – '+(filt.to?fmtS(filt.to):'today')+
+        ' · by '+label
+      : 'All dates · by '+label;
+    $('empty').hidden=list.length>0;
+    $('rows').innerHTML=list.map(function(c,i){
+      return '<tr style="animation-delay:'+Math.min(.4,i*.03)+'s" data-v="'+c.id+'">'+
+        '<td><b style="display:block;font-family:var(--mono);font-size:12px">'+esc(c.claim_no)+'</b>'+
+          '<small style="display:block;font-size:10.4px;color:var(--dim);margin-top:3px">'+
+          esc(c.form)+' · DOS '+fmtS(c.dos)+'</small></td>'+
+        '<td>'+esc(c.patient_last)+', '+esc(c.patient_first)+
+          '<div style="font-family:var(--mono);font-size:9.8px;color:var(--dim);margin-top:3px">'+esc(c.patient_mid||'')+'</div></td>'+
+        '<td>'+esc(c.payer||'—')+'</td>'+
+        '<td>'+esc(c.provider_name||'—')+'</td>'+
+        '<td class="r" style="font-family:var(--mono);font-weight:600">'+money(c.total)+'</td>'+
+        '<td><span class="claimed '+(c.status||'submitted')+'">'+(c.status||'submitted').toUpperCase()+'</span></td>'+
+        '<td class="r"><span class="acts">'+
+          '<button class="ib" data-edit="'+c.id+'" title="Edit claim">'+
+            '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/></svg></button>'+
+          '<button class="ib" title="Open claim">'+
+            '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>'+
+        '</span></td></tr>';
+    }).join('');
+  }
+
+  $('q').addEventListener('input',function(){filt.q=this.value.toLowerCase().trim();render();});
+  $('fStatus').addEventListener('change',function(){filt.status=this.value;render();});
+  $('fForm').addEventListener('change',function(){filt.form=this.value;render();});
+
+  var scrim=$('scrim');
+  function closeM(){
+    scrim.classList.remove('on');
+    /* every modal, not just the viewer — the history panel lives here too */
+    document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on');});
+    document.body.style.overflow='';
+  }
+  scrim.addEventListener('click',closeM);
+  document.addEventListener('click',function(e){
+    if(e.target.closest('[data-close]'))closeM();
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+
+  function box(n,label,val,cls){
+    return '<div class="fc'+(cls?' '+cls:'')+'"><u>'+n+'. '+label+'</u><span>'+esc(val||'')+'</span></div>';
+  }
+
+  function cms1500(c){
+    var m=c.cms||{},L=c.lines||[];
+    var dx=(c.dx||[]);
+    return '<div class="paper form" style="position:relative">'+
+      '<span class="stamp">'+(c.status||'submitted').toUpperCase()+'</span>'+
+      '<div class="frm-h"><b>HEALTH INSURANCE CLAIM FORM</b>'+
+        '<small>APPROVED BY NUCC 02/12 · '+esc(c.claim_no)+' · '+fmtD(c.created_at)+'</small></div>'+
+      '<div class="fbox">'+
+        '<div class="fr">'+box('1','INSURANCE TYPE',m.type,'w2')+box('1a',"INSURED'S I.D. NUMBER",c.member_id,'w2')+'</div>'+
+        '<div class="fr">'+box('2','PATIENT NAME',c.patient_last+', '+c.patient_first,'w2')+
+          box('3','BIRTH DATE',fmtS(c.patient_dob))+box('4',"INSURED'S NAME",m.iname,'w2')+'</div>'+
+        '<div class="fr">'+box('5','PATIENT ADDRESS',m.paddr,'w3')+
+          box('6','RELATIONSHIP',m.rel)+box('7',"INSURED'S ADDRESS",m.iaddr,'w2')+'</div>'+
+        '<div class="fr">'+box('10a','EMPLOYMENT',m.emp?'YES':'NO')+box('10b','AUTO ACCIDENT',(m.auto?'YES':'NO')+(m.accst?' · '+m.accst:''))+
+          box('10c','OTHER ACCIDENT',m.other?'YES':'NO')+box('11','POLICY GROUP / FECA',c.group_id,'w2')+'</div>'+
+        '<div class="fr">'+box('12','PATIENT SIGNATURE','SIGNATURE ON FILE','w2')+
+          box('13',"INSURED'S SIGNATURE",'SIGNATURE ON FILE','w2')+'</div>'+
+        '<div class="fr">'+box('14','DATE OF CURRENT ILLNESS',fmtS(m.d14)+(m.q14?' · '+m.q14:''),'w2')+
+          box('17','REFERRING PROVIDER',m.ref,'w2')+box('17b','NPI',m.refnpi)+'</div>'+
+        '<div class="fr">'+box('18','HOSPITALISATION',(m.h18a?fmtS(m.h18a):'—')+' – '+(m.h18b?fmtS(m.h18b):'—'),'w2')+
+          box('19','ADDITIONAL CLAIM INFO',m.d19,'w3')+'</div>'+
+        '<div class="fr">'+
+          '<div class="fc w3"><u>21. DIAGNOSIS OR NATURE OF ILLNESS (ICD IND. '+(m.icd||'0')+')</u><span>'+
+            (dx.length?dx.map(function(d,i){return String.fromCharCode(65+i)+'. '+esc(d);}).join('   '):'—')+'</span></div>'+
+          box('22','RESUBMISSION',(m.resub||'—')+(m.origref?' · '+m.origref:''))+
+          box('23','PRIOR AUTHORISATION',c.prior_auth)+'</div>'+
+      '</div>'+
+      '<table class="svct"><thead><tr>'+
+        '<th style="width:16%">24A. DATE(S) OF SERVICE</th><th style="width:6%">24B. POS</th>'+
+        '<th style="width:20%">24D. PROCEDURES / MODIFIER</th><th style="width:8%">24E. DX PTR</th>'+
+        '<th style="width:13%">24F. $ CHARGES</th><th style="width:7%">24G. UNITS</th>'+
+        '<th style="width:20%">24J. RENDERING PROVIDER NPI</th></tr></thead><tbody>'+
+      L.map(function(l){
+        return '<tr><td>'+fmtS(l.from)+(l.to&&l.to!==l.from?' – '+fmtS(l.to):'')+'</td>'+
+          '<td>'+esc(l.pos||'11')+'</td>'+
+          '<td>'+esc(l.cpt)+(l.mod?' · '+esc(l.mod):'')+'</td>'+
+          '<td>'+esc(l.dx||'A')+'</td><td>'+money((+l.charge||0)*(+l.units||1))+'</td>'+
+          '<td>'+(l.units||1)+'</td><td>'+esc(m.rnpi||c.provider_npi||'—')+'</td></tr>';
+      }).join('')+'</tbody></table>'+
+      '<div class="fbox" style="margin-top:-1px">'+
+        '<div class="fr">'+box('25','FEDERAL TAX I.D.',c.tax_id)+box('26','PATIENT ACCOUNT NO.',m.acct||c.patient_mid)+
+          box('27','ACCEPT ASSIGNMENT',m.assign==='N'?'NO':'YES')+
+          box('28','TOTAL CHARGE',money(c.total))+box('29','AMOUNT PAID',money(m.paid||0))+'</div>'+
+        '<div class="fr">'+
+          '<div class="fc w2"><u>31. SIGNATURE OF PHYSICIAN OR SUPPLIER</u><span>'+
+            esc(c.provider_name)+' · '+fmtS(c.dos)+'</span></div>'+
+          '<div class="fc w2"><u>32. SERVICE FACILITY LOCATION</u><span>'+esc(m.fac||c.org_name)+'</span></div>'+
+          '<div class="fc w2"><u>33. BILLING PROVIDER INFO &amp; PH #</u><span>'+esc(c.org_name)+
+            (m.bphone?'<br>'+esc(m.bphone):'')+'<br>NPI '+esc(m.bnpi||c.org_npi||'—')+'</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<p class="foot-note">Created by '+esc(c.created_name||c.created_by)+' on '+fmtD(c.created_at)+
+        ' · NUCC Instruction Manual available at www.nucc.org</p>'+
+    '</div>';
+  }
+
+  function ub04(c){
+    var u=c.ub||{},L=c.lines||[],dx=(c.dx||[]);
+    return '<div class="paper form" style="position:relative">'+
+      '<span class="stamp">'+(c.status||'submitted').toUpperCase()+'</span>'+
+      '<div class="frm-h"><b>UB-04 · CMS-1450</b>'+
+        '<small>'+esc(c.claim_no)+' · TYPE OF BILL '+esc(u.tob||'—')+' · '+fmtD(c.created_at)+'</small></div>'+
+      '<div class="fbox">'+
+        '<div class="fr">'+box('1','BILLING PROVIDER',u.prov||c.org_name,'w3')+
+          box('3a','PATIENT CONTROL NO.',u.ctrl||c.patient_mid)+box('3b','MEDICAL RECORD NO.',u.mrn)+'</div>'+
+        '<div class="fr">'+box('4','TYPE OF BILL',u.tob)+box('5','FEDERAL TAX NO.',c.tax_id)+
+          box('6','STATEMENT COVERS',(u.from?fmtS(u.from):'—')+' – '+(u.through?fmtS(u.through):'—'),'w2')+'</div>'+
+        '<div class="fr">'+box('8','PATIENT NAME',c.patient_last+', '+c.patient_first,'w2')+
+          box('9','PATIENT ADDRESS',u.paddr,'w2')+box('10','BIRTH DATE',fmtS(c.patient_dob))+
+          box('11','SEX',u.sex)+'</div>'+
+        '<div class="fr">'+box('12','ADMISSION DATE',fmtS(u.adm))+box('13','HR',u.admhr)+
+          box('14','TYPE',u.admtype)+box('15','SRC',u.admsrc)+box('17','DISCHARGE STATUS',u.disch)+'</div>'+
+        '<div class="fr">'+box('18–28','CONDITION CODES',u.cond,'w2')+
+          box('31','OCCURRENCE',(u.occ||'—')+(u.occdt?' · '+fmtS(u.occdt):''))+
+          box('39','VALUE CODE',(u.val||'—')+(u.valamt?' · '+money(u.valamt):''),'w2')+'</div>'+
+      '</div>'+
+      '<table class="svct"><thead><tr>'+
+        '<th style="width:9%">42. REV. CD.</th><th style="width:31%">43. DESCRIPTION</th>'+
+        '<th style="width:14%">44. HCPCS / RATE</th><th style="width:14%">45. SERV. DATE</th>'+
+        '<th style="width:9%">46. UNITS</th><th style="width:15%">47. TOTAL CHARGES</th></tr></thead><tbody>'+
+      L.map(function(l){
+        return '<tr><td>'+esc(l.rev||'')+'</td><td>'+esc(l.desc||'')+'</td>'+
+          '<td>'+esc(l.cpt||'')+'</td><td>'+fmtS(l.date)+'</td>'+
+          '<td>'+(l.units||1)+'</td><td>'+money((+l.charge||0)*(+l.units||1))+'</td></tr>';
+      }).join('')+
+      '<tr><td colspan="4" style="text-align:right"><b>TOTALS</b></td>'+
+        '<td>'+L.reduce(function(x,l){return x+(+l.units||1);},0)+'</td>'+
+        '<td><b>'+money(c.total)+'</b></td></tr></tbody></table>'+
+      '<div class="fbox" style="margin-top:-1px">'+
+        '<div class="fr">'+box('50','PAYER NAME',c.payer,'w2')+box('51','HEALTH PLAN ID',u.planid)+
+          box('54','PRIOR PAYMENTS',u.prior?money(u.prior):'—')+
+          box('55','EST. AMOUNT DUE',u.due?money(u.due):money(c.total))+
+          box('56','NPI',u.npi||c.org_npi)+'</div>'+
+        '<div class="fr">'+box('58',"INSURED'S NAME",u.iname,'w2')+box('59','P. REL',u.rel)+
+          box('60',"INSURED'S UNIQUE ID",c.member_id,'w2')+box('62','INS. GROUP NO.',c.group_id)+'</div>'+
+        '<div class="fr">'+box('63','TREATMENT AUTHORISATION',c.prior_auth,'w2')+
+          box('66','DX VER.',u.dxq||'0')+
+          '<div class="fc w3"><u>67. PRINCIPAL DIAGNOSIS &amp; OTHER</u><span>'+
+            (dx.length?esc(dx[0])+(dx.length>1?'   '+dx.slice(1).map(function(d,i){
+              return String.fromCharCode(65+i)+'. '+esc(d);}).join('  '):''):'—')+'</span></div>'+
+          box('69','ADMITTING DX',u.adx)+'</div>'+
+        '<div class="fr">'+box('74','PRINCIPAL PROCEDURE',(u.proc||'—')+(u.procdt?' · '+fmtS(u.procdt):''),'w2')+
+          box('76','ATTENDING',c.provider_name+(u.attnpi?' · NPI '+u.attnpi:''),'w2')+
+          box('77','OPERATING',u.oper)+'</div>'+
+        (u.rem?'<div class="fr">'+box('80','REMARKS',u.rem,'w3')+'</div>':'')+
+      '</div>'+
+      '<p class="foot-note">Created by '+esc(c.created_name||c.created_by)+' on '+fmtD(c.created_at)+'</p>'+
+    '</div>';
+  }
+
+  function claimHTML(c){ return c.form==='UB-04' ? ub04(c) : cms1500(c); }
+  /* the shared editor renders its preview through this */
+  window.RFClaimPreview=claimHTML;
+
+  $('rows').addEventListener('click',async function(e){
+    var row=e.target.closest('[data-v]');if(!row)return;
+    var c=await RFStore.claim(+row.dataset.v);if(!c)return;
+    openView(c);
+  });
+
+  function openView(c){
+    VIEW=c;
+    $('vTitle').textContent=c.claim_no;
+
+    /* the payer's own reference, which is what support and appeals ask for */
+    var ref=$('vRef'), rn=c.stedi_claim_no||c.correlationId||c.claim_ref||'';
+    var rej=(c.rejections&&c.rejections.length)?c.rejections:null;
+    if(rn||rej){
+      ref.hidden=false;
+      ref.innerHTML=
+        (rn?'<span class="rl">'+(c.status==='rejected'?'Rejection reference':'Payer claim number')+'</span>'+
+            '<span class="rv'+(c.status==='rejected'?' bad':'')+'">'+esc(rn)+'</span>'+
+            '<button type="button" data-copyref="'+esc(rn)+'">copy</button>':'')+
+        (rej?'<span class="rej">'+rej.length+' ERROR'+(rej.length===1?'':'S')+'</span>':'');
+    }else{ ref.hidden=true; ref.innerHTML=''; }
+    $('vSub').textContent=c.form+' · '+c.patient_last+', '+c.patient_first+' · DOS '+fmtS(c.dos);
+    $('vStatus').value=c.status||'submitted';
+    $('vBody').innerHTML=claimHTML(c);
+    scrim.classList.add('on');$('mView').classList.add('on');document.body.style.overflow='hidden';
+  }
+
+  $('vSave').addEventListener('click',async function(){
+    if(!VIEW)return;
+    var r=await RFStore.setClaimStatus(VIEW.id,$('vStatus').value);
+    if(r.ok){closeM();await refresh();toast('Claim updated',VIEW.claim_no+' · '+$('vStatus').value);}
+  });
+  $('vPrint').addEventListener('click',function(){window.print();});
+
+  /* Confirm the endpoint exists before anyone tries to submit. A 404 here
+     means the function was never deployed, and nothing would reach Stedi. */
+  function clearBanners(){
+    document.querySelectorAll('.epwarn').forEach(function(b){ b.remove(); });
+  }
+
+  async function checkEndpoint(){
+    clearBanners();
+    try{
+      var r=await fetch('/api/claims',{method:'GET',credentials:'same-origin'});
+      if(r.status===404){
+        var b=document.createElement('div');
+        b.className='epwarn';
+        b.innerHTML='<svg viewBox="0 0 24 24" stroke-linecap="round">'+
+          '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>'+
+          '<span><b>Claim submission is not available</b>'+
+          '<small>/api/claims returned 404, so nothing can reach Stedi. '+
+          'The file must be saved as <code>netlify/functions/claims.js</code> — '+
+          'exactly that name. If it was copied in as <code>functions-claims.js</code>, '+
+          'rename it, then redeploy.</small></span>';
+        var host=document.querySelector('.wrap')||document.body;
+        host.insertBefore(b,host.firstChild);
+        return false;
+      }
+      var info={};try{ info=await r.json(); }catch(e){}
+      if(r.ok && info.configured===false){
+        var b2=document.createElement('div');
+        b2.className='epwarn amber';
+        b2.innerHTML='<svg viewBox="0 0 24 24" stroke-linecap="round">'+
+          '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>'+
+          '<span><b>Stedi is not configured</b>'+
+          '<small>The endpoint is live but <code>STEDI_API_KEY</code> is not set. '+
+          'Add it under Site settings → Environment variables, then redeploy.</small></span>';
+        var host2=document.querySelector('.wrap')||document.body;
+        host2.insertBefore(b2,host2.firstChild);
+      }else if(r.ok&&info.submitterId&&info.submitterId.indexOf('not set')===0){
+        console.info('ReviFlow: STEDI_SUBMITTER_ID is not set. This is optional — '+
+          'Stedi builds the interchange headers itself. Only set it if Stedi '+
+          'issued you a submitter identification, or if a payer asks for one.');
+      }
+      if(r.ok&&info.usage==='P'){
+        var lb=document.createElement('div');
+        lb.className='epwarn amber';
+        lb.innerHTML='<svg viewBox="0 0 24 24" stroke-linecap="round">'+
+          '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>'+
+          '<span><b>Live submission mode · this is a notice, not an error</b><small>'+
+          'Claims submitted here are transmitted to real payers for payment. '+
+          'To rehearse, set a claim\'s payer to the <b>Stedi Test Payer</b> '+
+          '(payer ID <code>STEDITEST</code>) — those are processed and '+
+          'acknowledged without reaching an insurer.</small></span>';
+        var lh=document.querySelector('.wrap')||document.body;
+        lh.insertBefore(lb,lh.firstChild);
+      }
+      if(r.ok&&info.key){
+        var k=info.key;
+        console.info('ReviFlow: Stedi key present · '+k.length+' characters · '+
+          k.starts+'…'+k.ends+
+          (k.hadWhitespace?' · whitespace was trimmed':'')+
+          (k.hadQuotes?' · surrounding quotes were removed':'')+
+          (k.hadBearer?' · a Bearer prefix was removed':''));
+      }
+      return true;
+    }catch(e){ return true; }
+  }
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(checkEndpoint,900); });
+
+  /* submit to the payer through Stedi */
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-copyref]');
+    if(!b)return;
+    navigator.clipboard.writeText(b.dataset.copyref);
+    toast('Copied',b.dataset.copyref);
+  });
+
+  /* Editing opens the same editor the chart uses, so a claim is corrected in
+     one place and the chart stays in step. */
+  $('vEdit').addEventListener('click',function(){
+    if(!VIEW)return;
+    if(VIEW.status==='paid'&&!confirm(
+      'This claim has been paid. Editing it will not change the payment.\n\n'+
+      'To correct a paid claim, submit a corrected claim instead. Continue?'))return;
+    editClaim(VIEW);
+  });
+
+  /* Opens the shared editor over this page. The claim is the FIRST argument;
+     the second is options. Passing it inside the options object hands the
+     editor an empty claim, which is exactly how every field came up blank. */
+  async function editClaim(c){
+    if(!c)return;
+    var provs=[],orgs=[];
+    try{ provs=await RFStore.providers(); orgs=await RFStore.orgs(); }catch(e){}
+
+    closeM();
+    RFClaimForm.open(c,{
+      title:c.claim_no||'Claim',
+      subtitle:[c.patient_last,c.patient_first].filter(Boolean).join(', ')+
+        ' · date of service '+fmtS(c.dos)+
+        (c.status&&c.status!=='draft'?' · '+String(c.status).toUpperCase():''),
+      section:(c.rejections&&c.rejections.length)?'review':'payer',
+      context:{ provs:provs, orgs:orgs },
+      preview:claimHTML,
+      onNotify:function(t,sub){ toast(t,sub,true); },
+      onSave:async function(updated){
+        var r=await RFStore.saveClaim(updated);
+        if(!r.ok){ toast('Could not save',r.error||'',true); return; }
+
+        if(updated.frequency==='7'||updated.frequency==='8'){
+          await RFStore.setClaimStatus(updated.id,'ready',
+            (updated.frequency==='7'?'Corrected claim prepared':'Void prepared')+
+            ' · replaces '+(updated.orig_ref||'the original'));
+        }
+
+        RFClaimForm.close();
+        /* ready means ready to go out tonight */
+        if(['ready','draft'].indexOf(String(updated.status||'draft').toLowerCase())>-1){
+          await enqueue(updated);
+        }
+        await refresh(); await paintAuto();
+        toast('Claim saved',
+          updated.frequency==='7'?'Corrected claim ready to submit'
+          :updated.frequency==='8'?'Void ready to submit'
+          :(updated.claim_no||'')+' updated · live in the patient chart too');
+      }
+    });
+  }
+
+  /* edit straight from a row, without opening the viewer first */
+  document.addEventListener('click',async function(e){
+    var b=e.target.closest('[data-edit]');
+    if(!b)return;
+    e.stopPropagation();
+    var c=await RFStore.claim(+b.dataset.edit);
+    if(c)editClaim(c);
+    else toast('Claim not found','It may have been removed',true);
+  });
+
+
+  /* ── real-time claim status (276/277) ──
+     Asks the payer where the claim is. Only works once the payer has taken the
+     claim into its system, which is why the button explains itself when empty. */
+
+  /* the first letter of a status category code is standardised in X12 */
+  var CAT = {
+    A:['Acknowledged','info','The payer has the claim but has not finished processing it.'],
+    P:['Pending','warn','The payer is still working the claim.'],
+    F:['Finalized','ok','The payer has finished with the claim.'],
+    R:['Information needed','warn','The payer wants something more before it can proceed.'],
+    E:['Error','bad','The payer could not process the request as sent.'],
+    D:['Not found','off','The payer has no claim matching these details.']
+  };
+
+  function statusTone(code){
+    var c = CAT[String(code||'').charAt(0).toUpperCase()];
+    return c || ['Reported','info',''];
+  }
+
+  function statusRows(j){
+    /* Stedi returns claims nested under the subscriber or dependent */
+    var out = [];
+    function walk(node, who){
+      if(!node) return;
+      (node.claims||[]).forEach(function(c){ out.push({ who:who, claim:c }); });
+      (node.patients||[]).forEach(function(p){
+        walk(p, [p.lastName,p.firstName].filter(Boolean).join(', ')); });
+    }
+    walk(j.subscriber, [j.subscriber&&j.subscriber.lastName,
+                        j.subscriber&&j.subscriber.firstName].filter(Boolean).join(', '));
+    walk(j.dependent, [j.dependent&&j.dependent.lastName,
+                       j.dependent&&j.dependent.firstName].filter(Boolean).join(', '));
+    (j.claims||[]).forEach(function(c){ out.push({ who:'', claim:c }); });
+    return out;
+  }
+
+  function statusHTML(j){
+    var rows = statusRows(j);
+    if(!rows.length){
+      var errs = j.errors || (j.subscriber && j.subscriber.errors) || [];
+      return '<div class="stwrap"><div class="stnone">'+
+        '<b>The payer returned no matching claim</b>'+
+        (errs.length
+          ? '<ul>'+errs.map(function(e){
+              return '<li>'+esc((e.code?e.code+' · ':'')+(e.description||e.message||''))+'</li>';
+            }).join('')+'</ul>'
+          : '<span>This usually means the claim has not entered the payer\'s system yet. '+
+            'A claim normally takes a day or two to appear, and test claims never will.</span>')+
+        '</div></div>';
+    }
+
+    return '<div class="stwrap">'+rows.map(function(r){
+      var c = r.claim;
+      var st = (c.claimStatus)||{};
+      var tone = statusTone(st.statusCategoryCode);
+      var lines = c.serviceLines||[];
+      return '<div class="stcard">'+
+        '<div class="sthead">'+
+          '<span class="pill '+tone[1]+'"><i></i>'+esc(tone[0])+'</span>'+
+          '<b>'+esc(st.statusCategoryCodeValue||st.statusCategoryCode||'')+'</b>'+
+          (c.claimStatus&&c.claimStatus.totalClaimChargeAmount
+            ? '<span class="amt">'+money(c.claimStatus.totalClaimChargeAmount)+'</span>':'')+
+        '</div>'+
+        (st.statusCodeValue||st.statusCode
+          ? '<p class="stmsg">'+esc(st.statusCodeValue||('Status '+st.statusCode))+'</p>' : '')+
+        '<p class="sthint">'+esc(tone[2])+'</p>'+
+        '<dl class="stgrid">'+
+          dl2('Payer claim number', c.claimStatus&&c.claimStatus.payerClaimControlNumber)+
+          dl2('Our reference', c.patientAccountNumber||c.trackingNumber)+
+          dl2('Service dates', fmtRange(c.claimStatus))+
+          dl2('Charged', c.claimStatus&&c.claimStatus.totalClaimChargeAmount
+            ? money(c.claimStatus.totalClaimChargeAmount):'')+
+          dl2('Paid', c.claimStatus&&c.claimStatus.claimPaymentAmount
+            ? money(c.claimStatus.claimPaymentAmount):'')+
+          dl2('Paid on', fmtS(iso8(c.claimStatus&&c.claimStatus.paymentDate)))+
+          dl2('Cheque or EFT', c.claimStatus&&c.claimStatus.checkIssueOrEFTEffectiveDate
+            ? fmtS(iso8(c.claimStatus.checkIssueOrEFTEffectiveDate)):'')+
+          dl2('Patient', r.who)+
+        '</dl>'+
+        (lines.length
+          ? '<div class="stlines"><b>Service lines</b>'+lines.map(function(l){
+              var ls=(l.serviceLineStatus)||{}, lt=statusTone(ls.statusCategoryCode);
+              return '<div class="stline"><span class="pill '+lt[1]+'">'+esc(lt[0])+'</span>'+
+                '<span class="pc">'+esc((l.service&&l.service.procedureCode)||'')+'</span>'+
+                '<span class="ld">'+esc(ls.statusCodeValue||ls.statusCategoryCodeValue||'')+'</span>'+
+                '<span class="la">'+((l.service&&l.service.lineItemChargeAmount)
+                  ? money(l.service.lineItemChargeAmount):'')+'</span></div>';
+            }).join('')+'</div>' : '')+
+      '</div>';
+    }).join('')+'</div>';
+  }
+
+  function dl2(label,val){
+    if(!val) return '';
+    return '<div><dt>'+esc(label)+'</dt><dd>'+esc(val)+'</dd></div>';
+  }
+  function iso8(v){
+    var d=String(v||'').replace(/\D/g,'');
+    return d.length===8 ? d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8) : '';
+  }
+  function fmtRange(cs){
+    if(!cs) return '';
+    var a=iso8(cs.beginningDateOfService||cs.serviceDate), b=iso8(cs.endDateOfService);
+    if(!a) return '';
+    return b&&b!==a ? fmtS(a)+' – '+fmtS(b) : fmtS(a);
+  }
+
+  $('vAskPayer').addEventListener('click',async function(){
+    if(!VIEW)return;
+    var btn=this;
+    btn.disabled=true;
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9"/></svg>Asking the payer…';
+
+    try{
+      var res=await fetch('/api/claim-status',{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        credentials:'same-origin',
+        body:JSON.stringify({claim:VIEW})});
+      var j={};try{ j=await res.json(); }catch(e){}
+
+      if(res.status===404){
+        toast('Status endpoint not deployed',
+          'Add netlify/functions/claim-status.js and the /api/claim-status redirect',true);
+      }else if(res.status===503){
+        toast('Stedi is not configured','STEDI_API_KEY is not set on this deployment',true);
+      }else if(!res.ok&&!j.subscriber&&!j.claims){
+        toast('Could not check status',
+          j.message||j.error||('The payer returned '+res.status),true);
+        console.error('Claim status error:',j);
+      }else{
+        $('vBody').innerHTML=statusHTML(j)+
+          '<div style="padding:14px 18px"><button class="btn sec" id="vBackForm">'+
+          '<svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>Back to the claim form</button></div>';
+        $('vTitle').textContent=VIEW.claim_no+' · status';
+
+        /* record what the payer said, so the list reflects it */
+        var first=statusRows(j)[0];
+        if(first){
+          var cs=(first.claim.claimStatus)||{};
+          var cat=String(cs.statusCategoryCode||'').charAt(0).toUpperCase();
+          var mapped= cat==='F' ? (cs.claimPaymentAmount>0?'paid':'denied')
+                    : cat==='P' ? 'pending'
+                    : cat==='A' ? 'accepted'
+                    : cat==='D' ? VIEW.status
+                    : VIEW.status;
+          VIEW.payer_status=cs.statusCodeValue||cs.statusCategoryCodeValue||'';
+          VIEW.payer_claim_no=cs.payerClaimControlNumber||VIEW.payer_claim_no||'';
+          VIEW.status_checked_at=new Date().toISOString();
+          if(cs.claimPaymentAmount!=null)VIEW.paid_amount=+cs.claimPaymentAmount;
+          await RFStore.saveClaim(VIEW);
+          if(mapped&&mapped!==VIEW.status)
+            await RFStore.setClaimStatus(VIEW.id,mapped,'From the payer · '+VIEW.payer_status);
+          await refresh();
+        }
+        toast('Status received',
+          first?(statusTone((first.claim.claimStatus||{}).statusCategoryCode)[0]):'No matching claim');
+      }
+    }catch(err){
+      toast('Status service unreachable','Deploy /api/claim-status to use this',true);
+    }
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9"/><path d="M12 7v5l3 2"/></svg>Check status';
+  });
+
+  /* Make the two controls read differently, since they do different things:
+     the dropdown records what you know, the button asks the payer. */
+  (function(){
+    var sel=$('vStatus');
+    if(sel&&!sel.dataset.labelled){
+      sel.dataset.labelled='1';
+      sel.title='Set the status yourself. Use Check status to ask the payer instead.';
+    }
+  })();
+
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('#vBackForm'))return;
+    if(VIEW)openView(VIEW);
+  });
+
+  $('vStedi').addEventListener('click',async function(){
+    if(!VIEW)return;
+    var btn=this;
+    if(VIEW.status==='paid'||VIEW.status==='denied'){
+      toast('Already adjudicated',VIEW.claim_no+' has come back from the payer');
+      return;
+    }
+    /* With a production key the transaction is real, so say so plainly. */
+    var testPayer=['STEDITEST','STEDI'].indexOf(
+      String(VIEW.payer_id||'').toUpperCase())>-1;
+    var msg = testPayer
+      ? 'Submit '+VIEW.claim_no+' to the Stedi Test Payer for '+money(VIEW.total)+'?\n\n'+
+        'This is Stedi\'s test payer, so nothing reaches a real insurer. '+
+        'You will get a 277CA acknowledgment and, shortly after, a test 835 remittance.'
+      : 'Submit '+VIEW.claim_no+' to '+(VIEW.payer||'the payer')+' for '+
+        money(VIEW.total)+'?\n\n'+
+        'THIS IS A LIVE CLAIM. It will be transmitted to '+(VIEW.payer||'the payer')+
+        ' for adjudication and payment.\n\n'+
+        'To rehearse without touching a real payer, change the payer on this '+
+        'claim to the Stedi Test Payer (payer ID STEDITEST) instead.';
+    if(!confirm(msg))return;
+    clearBanners();
+
+    btn.disabled=true;
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9"/></svg>Submitting…';
+    try{
+      var res=await fetch('/api/claims',{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        credentials:'same-origin',
+        body:JSON.stringify({claim:VIEW})});
+      var j={};try{j=await res.json();}catch(e){}
+
+      if(res.ok){
+        /* Stedi answers with an acknowledgement, not an adjudication */
+        var ack=j.claimReference||{};
+        var trace=ack.correlationId||ack.rhclaimNumber||j.controlNumber||'';
+        var mode=(j._meta&&j._meta.usage)||'';
+        VIEW.stedi_claim_no=trace||VIEW.stedi_claim_no||'';
+        VIEW.correlationId=(ack.correlationId||'');
+        VIEW.rejections=null;
+        VIEW.submitted_at=new Date().toISOString();
+        await RFStore.saveClaim(VIEW);
+        logManual(VIEW,'sent',trace,null);
+        await RFStore.setClaimStatus(VIEW.id,'submitted',
+          'Sent through Stedi'+(trace?' · '+trace:''));
+        closeM();await refresh();
+        if(j._meta&&j._meta.idempotencyRetry){
+          console.warn('ReviFlow: Stedi refused the idempotency key header and '+
+            'accepted the claim without it. Duplicate protection is off for this '+
+            'submission — avoid pressing submit twice.');
+        }
+        var live=j._meta&&j._meta.live;
+        toast(live?'Submitted to '+(VIEW.payer||'the payer'):'Submitted to the test payer',
+          VIEW.claim_no+(trace?' · '+trace:'')+
+          (live?' · LIVE CLAIM':' · test payer, no insurer involved')+
+          ' · awaiting the 277 acknowledgement');
+      }else if(j.error==='claim_rejected'){
+        /* The claim reached the payer's validator and came back with reasons. */
+        var list=(j.claimErrors||[]);
+        var b0=document.createElement('div');
+        b0.className='epwarn amber';
+        b0.innerHTML='<svg viewBox="0 0 24 24" stroke-linecap="round">'+
+          '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>'+
+          '<span><b>Claim rejected by the payer'+
+            (j.claimNumber?' · '+esc(j.claimNumber):'')+'</b><small>'+
+          (list.length
+            ? '<ul style="margin:5px 0 0 15px;padding:0">'+
+              list.slice(0,8).map(function(e){
+                return '<li>'+(e.code?'<code>'+esc(e.code)+'</code> ':'')+
+                  esc(e.message||'')+'</li>';
+              }).join('')+'</ul>'
+            : esc(j.message||'No detail was given.'))+
+          '<br>Correct the claim and submit again.'+
+          (j.correlationId?' Reference <code>'+esc(j.correlationId)+'</code>':'')+
+          '</small></span>';
+        var h0=document.querySelector('.wrap')||document.body;
+        h0.insertBefore(b0,h0.firstChild);
+        VIEW.stedi_claim_no=j.claimNumber||j.correlationId||VIEW.stedi_claim_no||'';
+        VIEW.rejections=list;
+        VIEW.rejected_at=new Date().toISOString();
+        await RFStore.saveClaim(VIEW);
+        logManual(VIEW,'rejected',j.claimNumber||'',
+          list.map(function(e){return (e.code||'')+' '+(e.message||'');}));
+        await RFStore.setClaimStatus(VIEW.id,'rejected',
+          list.map(function(e){return (e.code||'')+' '+(e.message||'');}).join(' · ').slice(0,300));
+        closeM();await refresh();
+        toast('Claim rejected',
+          list.length?(list[0].code||'')+' '+(list[0].message||''):'See the banner',true);
+        console.error('Stedi claim errors:',j.claimErrors);
+      }else if(res.status===401||res.status===403){
+        var b=document.createElement('div');
+        b.className='epwarn';
+        b.innerHTML='<svg viewBox="0 0 24 24" stroke-linecap="round">'+
+          '<rect x="4" y="10.5" width="16" height="10" rx="2.5"/>'+
+          '<path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>'+
+          '<span><b>'+(j.keyType==='test'
+            ? 'A test mode key cannot submit claims'
+            : j.triedWithoutIdempotencyKey
+              ? 'Stedi refused this request twice'
+              : 'Stedi rejected the API key')+'</b><small>'+
+          esc(j.message||'The key was not accepted.')+
+          (j.keyFingerprint?'<br>Key used by this submission: <code>'+
+            esc(j.keyFingerprint)+'</code>. ':' ')+
+          '<a href="/api/claims?test=1" target="_blank" style="color:inherit">'+
+          'Run the key test</a> and compare the fingerprint — if they differ, '+
+          'the page and the function are on different deploys.'+
+          (j.stediSaid?'<br>Stedi said: <code>'+esc(j.stediSaid)+'</code>':'')+
+          '</small></span>';
+        var host3=document.querySelector('.wrap')||document.body;
+        if(!document.querySelector('.epwarn'))host3.insertBefore(b,host3.firstChild);
+        toast('Unauthorized','Stedi did not accept the API key — see the banner',true);
+        console.error('Stedi auth failed:',j);
+      }else if(res.status===404){
+        /* A 404 comes from this site, not Stedi — the function is not deployed.
+           Stedi answers 400 or 422 when it dislikes a claim. */
+        toast('The claims endpoint is not deployed',
+          '/api/claims returned 404, so nothing reached Stedi. '+
+          'Deploy netlify/functions/claims.js and the /api/claims redirect.',true);
+        console.error('POST /api/claims → 404. The Netlify function is missing or the '+
+          'redirect in netlify.toml was not published. Nothing was sent to Stedi.');
+      }else{
+        var msg=j.message||j.error||('The payer returned '+res.status);
+        /* show what was actually wrong rather than a generic failure */
+        var det='';
+        if(j.errors&&j.errors.length){
+          det=j.errors.map(function(e){
+            return (e.field||e.path?((e.field||e.path)+': '):'')+
+                   (e.description||e.message||e.code||'');
+          }).filter(Boolean).slice(0,4).join(' · ');
+        }else if(j.fieldErrors){
+          det=Object.keys(j.fieldErrors).slice(0,4).map(function(k){
+            return k+': '+j.fieldErrors[k]; }).join(' · ');
+        }
+        toast('Not accepted',det||msg,true);
+        console.error('Claim rejected:',j);
+        if(j.error==='not_configured'){
+          toast('Stedi is not configured',
+            'Set STEDI_API_KEY on the deployment, then try again',true);
+        }
+      }
+    }catch(err){
+      toast('Could not reach the claims service',
+        'The endpoint is only available once deployed',true);
+    }
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>Submit to payer';
+  });
+})();
+</script>
+
+
+<script>
+/* Section access: a grant, not just a role. Shows a notice rather than
+   signing anyone out. */
+(function(){
+  var SECTION='claims';
+  document.addEventListener('DOMContentLoaded',async function(){
+    try{
+      if(typeof RFStore==='undefined'||!RFStore.can)return;
+      await RFStore.ready();
+      var lvl=await RFStore.can(SECTION);
+      if(lvl==='none'){
+        if(window.RFSession&&RFSession.denied)
+          RFSession.denied({section:'claims'});
+        return;
+      }
+      if(lvl==='view'){
+        /* read only: the page still loads, but nothing that writes is usable */
+        document.body.classList.add('rf-viewonly');
+        var css=document.createElement('style');
+        css.textContent=
+          '.rf-viewonly [data-write],.rf-viewonly .ib.del{opacity:.4;pointer-events:none}'+
+          '.rf-viewonly .rf-ro{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);'+
+            'z-index:900;display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:11px;'+
+            'background:#0D1A16;color:#F2FBF7;font:600 12px Manrope,system-ui,sans-serif;'+
+            'box-shadow:0 18px 40px -18px rgba(13,26,22,.8)}';
+        document.head.appendChild(css);
+        var note=document.createElement('div');
+        note.className='rf-ro';
+        note.textContent='View only — contact your practice manager to make changes';
+        document.body.appendChild(note);
+        setTimeout(function(){ note.style.display='none'; },6000);
+      }
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

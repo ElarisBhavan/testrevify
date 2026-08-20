@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attendance — ReviFlow</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<meta name="description" content="Provider attendance, leave and working hours in ReviFlow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF8F3;--paper-2:#F2EFE7;--ink:#0D1A16;--muted:#5D6B67;--dim:#93A19D;
+  --line:rgba(13,26,22,.08);--line-2:rgba(13,26,22,.14);
+  --green:#0E9D73;--green-d:#0A5C46;--green-s:#E2F4EC;
+  --blue:#3B6FF5;--blue-s:#E8EFFE;
+  --amber:#C98A18;--amber-s:#FCF3DA;
+  --coral:#D0603F;--coral-s:#FBEAE4;
+  --teal:#1F93AE;--teal-s:#E3F2F6;
+  --violet:#8B5CF6;--violet-s:#F1EBFE;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --e:cubic-bezier(.22,1,.36,1);--card:rgba(255,255,255,.74);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+input,select,textarea{font:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px;border-radius:9px}
+
+/* background */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aur{position:absolute;border-radius:50%;filter:blur(92px);mix-blend-mode:multiply;opacity:.46}
+.a1{width:54vw;height:54vw;min-width:480px;min-height:480px;top:-26%;left:-12%;background:radial-gradient(circle,rgba(14,157,115,.4),transparent 66%);animation:f1 30s ease-in-out infinite}
+.a2{width:42vw;height:42vw;min-width:380px;min-height:380px;top:-18%;right:-9%;background:radial-gradient(circle,rgba(59,111,245,.3),transparent 66%);animation:f2 36s ease-in-out infinite}
+.a3{width:36vw;height:36vw;min-width:340px;min-height:340px;bottom:-24%;left:32%;background:radial-gradient(circle,rgba(139,92,246,.22),transparent 66%);animation:f3 42s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,6vh) scale(1.1)}}
+@keyframes f2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-7vw,5vh) scale(1.12)}}
+@keyframes f3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(7vw,-6vh) scale(1.08)}}
+.mesh{position:absolute;inset:-2px;background-image:linear-gradient(rgba(13,26,22,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(13,26,22,.04) 1px,transparent 1px);background-size:46px 46px;animation:meshD 36s linear infinite;-webkit-mask-image:radial-gradient(120% 72% at 50% 0%,#000,transparent 74%);mask-image:radial-gradient(120% 72% at 50% 0%,#000,transparent 74%)}
+@keyframes meshD{to{background-position:46px 46px}}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);background:rgba(250,248,243,.8);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%)}
+.hin{max-width:1360px;margin:0 auto;padding:11px clamp(14px,2.6vw,32px);display:flex;align-items:center;gap:11px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mk{width:29px;height:29px;border-radius:9px;display:flex;place-items:center}
+.brand .mk svg{width:16px;height:16px}
+.brand span{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.036em}
+.brand em{font-style:normal;color:var(--green);font-weight:400;font-size:.9em;margin-left:3px}
+.crumb{margin-left:12px;padding-left:12px;border-left:1px solid var(--line-2);font-size:12.4px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.hact{margin-left:auto;display:flex;gap:8px}
+.hbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-size:12.4px;font-weight:600;transition:all .3s var(--e)}
+.hbtn svg{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--e)}
+.hbtn:hover{border-color:var(--green);background:#fff}
+.hbtn.back:hover{transform:translateX(-2px)}.hbtn.back:hover svg{transform:translateX(-3px)}
+.hbtn.out:hover{border-color:var(--coral);background:var(--coral-s);color:#9B3F24}
+.hbtn.out:hover svg{stroke:var(--coral);transform:translateX(3px)}
+
+/* layout */
+.wrap{position:relative;z-index:2;max-width:1360px;margin:0 auto;padding:clamp(18px,2.6vw,30px) clamp(14px,2.6vw,32px) clamp(48px,5vw,76px)}
+.ptop{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:clamp(18px,2.4vw,26px);
+  opacity:0;transform:translateY(16px);animation:up .8s var(--e) .06s forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.ptop h1{font-family:'Sora',sans-serif;font-size:clamp(23px,3vw,34px);line-height:1.06;font-weight:600;letter-spacing:-.042em}
+.ptop h1 em{font-style:normal;color:var(--green)}
+.ptop p{font-size:13.4px;line-height:1.6;color:var(--muted);margin-top:7px;max-width:52ch}
+.ptop .cta{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;padding:11px 19px;border-radius:11px;font-size:13px;font-weight:600;transition:all .34s var(--e)}
+.btn svg{width:15px;height:15px;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.btn.pri{background:linear-gradient(120deg,var(--green-d),var(--green));color:#F3FBF8;box-shadow:0 10px 24px -14px rgba(10,92,70,.95)}
+.btn.pri svg{stroke:#F3FBF8}
+.btn.pri::after{content:'';position:absolute;top:0;left:-120%;width:52%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent);transition:left .8s var(--e)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 16px 32px -14px rgba(14,157,115,.85)}
+.btn.pri:hover::after{left:150%}
+.btn.sec{border:1px solid var(--line-2);background:rgba(255,255,255,.72)}
+.btn.sec svg{stroke:var(--green)}
+.btn.sec:hover{border-color:var(--green);background:#fff;transform:translateY(-2px)}
+
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(10px,1.2vw,15px)}
+.grid>.card.eq{display:flex;flex-direction:column;height:clamp(400px,52vh,560px)}
+.grid>.card.eq>.chead{flex:none}
+.grid>.card.eq>.cbody{flex:1;min-height:0;display:flex;flex-direction:column}
+.req::-webkit-scrollbar,.hours::-webkit-scrollbar{width:7px}
+.req::-webkit-scrollbar-thumb,.hours::-webkit-scrollbar-thumb{background:#D5DCD9;border-radius:4px}
+.card{position:relative;background:var(--card);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+  border:1px solid rgba(255,255,255,.75);border-radius:18px;overflow:hidden;
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 40px -34px rgba(13,26,22,.5);
+  opacity:0;transform:translateY(20px);animation:up .78s var(--e) forwards}
+.card::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(14,157,115,.5),transparent);opacity:0;transition:opacity .45s var(--e)}
+.card:hover::before{opacity:1}
+.chead{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line)}
+.chead h2{font-family:'Sora',sans-serif;font-size:14.2px;font-weight:600;letter-spacing:-.03em}
+.chead .sub{margin-left:auto;font-family:var(--mono);font-size:9.8px;color:var(--dim);letter-spacing:.08em}
+.cbody{padding:18px}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}
+.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+
+/* balance rings */
+.bal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1.2vw,15px)}
+.bcell{position:relative;display:flex;align-items:center;gap:14px;padding:16px 17px;border-radius:16px;
+  background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 16px 36px -32px rgba(13,26,22,.5);
+  opacity:0;transform:translateY(20px);animation:up .78s var(--e) forwards;
+  transition:transform .4s var(--e),border-color .4s var(--e),box-shadow .4s var(--e)}
+.bcell:hover{transform:translateY(-4px);border-color:rgba(14,157,115,.36);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 26px 48px -28px rgba(13,26,22,.5)}
+.dial{position:relative;width:62px;height:62px;flex:none}
+.dial svg{width:62px;height:62px;transform:rotate(-90deg)}
+.dial circle{fill:none;stroke-width:6.5;stroke-linecap:round}
+.dial .bgc{stroke:#E8EDEB}
+.dial .fg{transition:stroke-dasharray 1.25s var(--e)}
+.dial b{position:absolute;inset:0;display:grid;place-items:center;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;letter-spacing:-.03em}
+.bmeta{min-width:0}
+.bmeta small{display:block;font-size:9.6px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.bmeta b{display:block;font-family:'Sora',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.032em;line-height:1.15}
+.bmeta em{display:block;font-style:normal;font-family:var(--mono);font-size:9.8px;color:var(--muted);margin-top:5px}
+
+/* calendar */
+.calhead{display:flex;align-items:center;gap:9px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.calhead h2{font-family:'Sora',sans-serif;font-size:14.2px;font-weight:600;letter-spacing:-.03em}
+.nbtn{width:30px;height:30px;border-radius:9px;border:1px solid var(--line-2);background:rgba(255,255,255,.72);display:grid;place-items:center;transition:all .3s var(--e)}
+.nbtn svg{width:13px;height:13px;stroke:var(--ink);fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.nbtn:hover{border-color:var(--green);background:#fff;transform:translateY(-1px)}
+.mlabel{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;letter-spacing:-.03em;min-width:126px}
+.calhead .lg{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.lgi{display:inline-flex;align-items:center;gap:6px;font-size:10.4px;font-weight:600;color:var(--muted)}
+.lgi i{width:9px;height:9px;border-radius:3px}
+.dows{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;padding:14px 18px 6px}
+.dows span{text-align:center;font-family:var(--mono);font-size:9.2px;letter-spacing:.1em;color:var(--dim)}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;padding:0 18px 18px}
+.day{position:relative;aspect-ratio:1/.92;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.5);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  opacity:0;transform:scale(.9);animation:pop .42s var(--e) forwards;transition:transform .3s var(--e),border-color .3s var(--e),box-shadow .3s var(--e)}
+@keyframes pop{to{opacity:1;transform:none}}
+.day:hover{transform:translateY(-3px) scale(1.04);border-color:rgba(14,157,115,.45);box-shadow:0 14px 26px -16px rgba(13,26,22,.5);z-index:3}
+.day.pad{opacity:.32;pointer-events:none}
+.day b{font-family:'Sora',sans-serif;font-size:13px;font-weight:600;letter-spacing:-.028em;line-height:1}
+.day small{font-family:var(--mono);font-size:8.4px;color:var(--dim);line-height:1}
+.day .fl{position:absolute;left:6px;right:6px;bottom:6px;height:3px;border-radius:2px}
+.day.today{border-color:var(--green);box-shadow:0 0 0 2px rgba(14,157,115,.16)}
+.day.wknd b{color:var(--dim)}
+.day.leave{background:var(--coral-s);border-color:rgba(208,96,63,.35)}
+.day.leave b{color:#9B3F24}
+.day.pend{background:var(--amber-s);border-color:rgba(201,138,24,.38)}
+.day.pend b{color:#7A5507}
+.day.mod{background:var(--blue-s);border-color:rgba(59,111,245,.32)}
+.day.mod b{color:#25489E}
+.day.half{background:var(--violet-s);border-color:rgba(139,92,246,.32)}
+.day.half b{color:#6D3FD4}
+.day.sel{outline:2px solid var(--green);outline-offset:1px}
+
+/* request list */
+.req{display:grid;gap:8px;padding:6px 0;overflow:auto;flex:1;min-height:0;align-content:start}
+.rrow{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+  background:rgba(255,255,255,.6);opacity:0;transform:translateX(-8px);animation:sl .5s var(--e) forwards;
+  transition:transform .35s var(--e),border-color .35s var(--e),box-shadow .35s var(--e)}
+@keyframes sl{to{opacity:1;transform:none}}
+.rrow:hover{transform:translateX(3px);border-color:rgba(14,157,115,.4);box-shadow:0 16px 32px -26px rgba(13,26,22,.5)}
+.rico{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center}
+.rico svg{width:16px;height:16px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rico.leave{background:var(--coral-s)}.rico.leave svg{stroke:var(--coral)}
+.rico.hours{background:var(--blue-s)}.rico.hours svg{stroke:var(--blue)}
+.rico.half{background:var(--violet-s)}.rico.half svg{stroke:var(--violet)}
+.rinfo{min-width:0;flex:1}
+.rinfo b{display:block;font-size:13px;font-weight:600;letter-spacing:-.018em;line-height:1.3}
+.rinfo small{display:block;font-family:var(--mono);font-size:9.8px;color:var(--dim);margin-top:3px}
+.rst{padding:4px 10px;border-radius:7px;font-size:10.2px;font-weight:700;white-space:nowrap}
+.rst.ok{background:var(--green-s);color:var(--green-d)}
+.rst.pending{background:var(--amber-s);color:#8A6108}
+.rst.dec{background:var(--coral-s);color:#9B3F24}
+.rdays{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:52px;text-align:right}
+
+/* hours */
+.hours{display:grid;gap:7px;overflow:auto;flex:1;min-height:0;align-content:start}
+.hrow{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.55);transition:all .32s var(--e)}
+.hrow:hover{border-color:rgba(14,157,115,.4);background:#fff}
+.hrow .dw{width:42px;flex:none;font-family:var(--mono);font-size:10.6px;font-weight:600;color:var(--muted)}
+.hbar{flex:1;position:relative;height:26px;border-radius:8px;background:#EDF1EF;overflow:hidden}
+.hbar i{position:absolute;top:0;bottom:0;border-radius:8px;background:linear-gradient(120deg,var(--green),#3ECFA0);width:0;transition:width .95s var(--e),left .95s var(--e)}
+.hbar.off i{background:#D8DEDB}
+.hbar span{position:absolute;inset:0;display:flex;align-items:center;padding-left:10px;font-family:var(--mono);font-size:9.6px;color:#fff;font-weight:500;opacity:0;transition:opacity .5s var(--e) .5s;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.hbar.on span{opacity:1}
+.hbar.off span{color:var(--dim);text-shadow:none}
+.htot{font-family:var(--mono);font-size:10.6px;color:var(--muted);width:44px;text-align:right;flex:none}
+
+/* stats bars */
+.mstats{display:grid;gap:12px}
+.msrow .lab{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:7px}
+.msrow .lab span{font-size:10.6px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.msrow .lab b{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.032em}
+.mtrack{height:8px;border-radius:99px;background:#E8EDEB;overflow:hidden}
+.mtrack i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.05s var(--e)}
+.msrow .ft{display:flex;justify-content:space-between;margin-top:5px;font-family:var(--mono);font-size:9.6px;color:var(--dim)}
+
+/* notices */
+.notes{display:grid;gap:8px}
+.note{display:flex;gap:11px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.6);transition:all .32s var(--e)}
+.note:hover{border-color:rgba(14,157,115,.4);transform:translateX(3px)}
+.note .ni{width:8px;flex:none;border-radius:99px}
+.note.i .ni{background:var(--blue)}.note.w .ni{background:var(--amber)}.note.g .ni{background:var(--green)}
+.note b{display:block;font-size:12.6px;font-weight:600;letter-spacing:-.018em;margin-bottom:3px}
+.note p{font-size:11.8px;line-height:1.55;color:var(--muted)}
+.note small{display:block;font-family:var(--mono);font-size:9.4px;color:var(--dim);margin-top:5px}
+
+/* ══ MODAL ══ */
+.scrim{position:fixed;inset:0;z-index:90;background:rgba(13,26,22,.32);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;visibility:hidden;transition:opacity .35s var(--e),visibility .35s}
+.scrim.on{opacity:1;visibility:visible}
+.modal{position:fixed;z-index:91;left:50%;top:50%;width:min(560px,calc(100vw - 26px));max-height:calc(100vh - 60px);overflow:auto;
+  transform:translate(-50%,-46%) scale(.96);opacity:0;visibility:hidden;
+  background:#fff;border:1px solid var(--line-2);border-radius:20px;
+  box-shadow:0 40px 90px -30px rgba(13,26,22,.5);
+  transition:opacity .4s var(--e),transform .4s var(--e),visibility .4s}
+.modal.on{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+.mhead{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.mhead .mi{width:36px;height:36px;border-radius:11px;background:var(--green-s);display:grid;place-items:center}
+.mhead .mi svg{width:18px;height:18px;stroke:var(--green-d);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mhead h3{font-family:'Sora',sans-serif;font-size:16.5px;font-weight:600;letter-spacing:-.032em}
+.mhead p{font-size:12px;color:var(--muted);margin-top:2px}
+.mclose{margin-left:auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--muted);transition:all .3s var(--e)}
+.mclose svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round}
+.mclose:hover{background:var(--paper-2);color:var(--ink);transform:rotate(90deg)}
+.mbody{padding:20px}
+.seg{display:flex;gap:3px;padding:3px;border-radius:11px;background:var(--paper-2);border:1px solid var(--line);margin-bottom:18px}
+.seg button{flex:1;padding:9px 10px;border-radius:9px;font-size:12.4px;font-weight:600;color:var(--muted);text-align:center;transition:all .32s var(--e)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 4px 12px -6px rgba(13,26,22,.3)}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.f{display:block}
+.f.full{grid-column:span 2}
+.f span{display:block;font-size:11.2px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.f input,.f select,.f textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line-2);background:var(--paper);font-size:13.2px;color:var(--ink);transition:all .28s var(--e)}
+.f textarea{min-height:74px;resize:vertical}
+.f input:hover,.f select:hover,.f textarea:hover{border-color:#AFBAB6}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(14,157,115,.13)}
+.f select{appearance:none;cursor:pointer;padding-right:32px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235D6B67' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+.hint{margin-top:14px;padding:12px 14px;border-radius:11px;background:var(--green-s);font-size:11.8px;line-height:1.6;color:var(--green-d);display:flex;gap:10px}
+.hint svg{width:15px;height:15px;stroke:var(--green-d);fill:none;stroke-width:2;flex:none;margin-top:1px}
+.hint.warn{background:var(--amber-s);color:#7A5507}
+.hint.warn svg{stroke:var(--amber)}
+.mfoot{display:flex;gap:9px;padding:16px 20px;border-top:1px solid var(--line);background:var(--paper)}
+.mfoot .btn{flex:1;justify-content:center}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:95;display:flex;align-items:center;gap:11px;
+  padding:13px 18px;border-radius:13px;background:var(--green-d);color:#F3FBF8;font-size:13px;font-weight:600;
+  box-shadow:0 22px 44px -20px rgba(10,92,70,.9);opacity:0;pointer-events:none;transition:all .45s var(--e)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast svg{width:16px;height:16px;stroke:#7BE8C0;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+@media (max-width:1050px){
+  .bal{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .c3,.c4,.c5{grid-column:span 6}.c7,.c8{grid-column:span 12}
+  .crumb{display:none}
+}
+@media (max-width:660px){
+  .bal{grid-template-columns:minmax(0,1fr)}
+  .c3,.c4,.c5,.c6{grid-column:span 12}
+  .fgrid{grid-template-columns:minmax(0,1fr)}
+  .f.full{grid-column:span 1}
+  .ptop .cta{width:100%;margin-left:0}
+  .ptop .cta .btn{flex:1;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.card,.bcell,.day,.rrow,.ptop{opacity:1;transform:none}}
+
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+</style>
+<link rel="stylesheet" href="_prefs.css">
+<script src="_prefs.js"></script>
+<script src="../_notify.js"></script>
+<link rel="stylesheet" href="../_session.css">
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_datepicker.js"></script>
+<script src="../_session.js"></script>
+<link rel="stylesheet" href="../_datepicker.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="mesh"></div><div class="aur a1"></div><div class="aur a2"></div><div class="aur a3"></div></div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <img class="mk" src="../assets/logo-64.png" alt="ReviFlow RCM">
+      <span>R&nbsp;e&nbsp;v&nbsp;i&nbsp;F&nbsp;l&nbsp;o&nbsp;w</span>
+    </div>
+    <span class="crumb">Provider workspace / <b>Attendance</b></span>
+    <div class="hact">
+      <span class="rf-who" id="rfWho"></span>
+      <a href="provider-dashboard.html" class="hbtn back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <a href="provider-login.html" class="hbtn out">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="ptop">
+    <div>
+      <h1>Attendance and <em>availability</em></h1>
+      <p>Request time off, adjust your hours for a single day, and see how much leave you have left before the year closes.</p>
+    </div>
+    <div class="cta">
+      <button class="btn pri" id="openLeave"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Apply for leave</button>
+      <button class="btn sec" id="openHours"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Change hours</button>
+    </div>
+  </div>
+
+  <!-- balances -->
+  <div class="bal" id="bal"></div>
+
+  <div class="grid" style="margin-top:clamp(10px,1.2vw,15px)">
+
+    <!-- calendar -->
+    <section class="card c7" style="animation-delay:.16s">
+      <div class="calhead">
+        <button class="nbtn" id="mPrev" aria-label="Previous month"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <span class="mlabel" id="mLabel">—</span>
+        <button class="nbtn" id="mNext" aria-label="Next month"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+        <span class="lg">
+          <span class="lgi"><i style="background:var(--coral)"></i>Leave</span>
+          <span class="lgi"><i style="background:var(--amber)"></i>Pending</span>
+          <span class="lgi"><i style="background:var(--blue)"></i>Modified</span>
+          <span class="lgi"><i style="background:var(--violet)"></i>Half day</span>
+        </span>
+      </div>
+      <div class="dows"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+      <div class="days" id="days"></div>
+    </section>
+
+    <!-- month stats -->
+    <section class="card c5" style="animation-delay:.2s">
+      <div class="chead"><h2>This month</h2><span class="sub" id="msSub">—</span></div>
+      <div class="cbody">
+        <div class="mstats" id="mstats"></div>
+      </div>
+    </section>
+
+    <!-- requests -->
+    <section class="card c7 eq" style="animation-delay:.24s">
+      <div class="chead"><h2>Leave and schedule requests</h2><span class="sub" id="reqSub">—</span></div>
+      <div class="cbody"><div class="req" id="req"></div></div>
+    </section>
+
+    <!-- weekly hours -->
+    <section class="card c5 eq" style="animation-delay:.28s">
+      <div class="chead"><h2>Standard weekly hours</h2><span class="sub" id="hrSub">—</span></div>
+      <div class="cbody"><div class="hours" id="hours"></div></div>
+    </section>
+
+    <!-- notices -->
+    <section class="card c12" style="animation-delay:.32s">
+      <div class="chead"><h2>Worth knowing</h2><span class="sub">POLICY &amp; COVERAGE</span></div>
+      <div class="cbody"><div class="notes" id="notes"></div></div>
+    </section>
+
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<!-- LEAVE MODAL -->
+<div class="modal" id="mLeave" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+    <div><h3>Apply for leave</h3><p>Requests are routed to the practice administrator.</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="seg" id="lType">
+      <button class="on" data-t="Annual leave">Annual</button>
+      <button data-t="Sick leave">Sick</button>
+      <button data-t="Conference">Conference</button>
+      <button data-t="Personal">Personal</button>
+    </div>
+    <div class="fgrid">
+      <label class="f"><span>From</span><input type="date" id="lFrom"></label>
+      <label class="f"><span>To</span><input type="date" id="lTo"></label>
+      <label class="f"><span>Duration</span>
+        <select id="lDur"><option>Full day</option><option>Morning only</option><option>Afternoon only</option></select></label>
+      <label class="f"><span>Cover provider</span>
+        <select id="lCover">
+          <option>Dr. Alan Reyes</option><option>Dr. Ngozi Okafor</option>
+          <option>Sara Lindqvist, NP</option><option>No cover required</option>
+        </select></label>
+      <label class="f full"><span>Reason (optional)</span><textarea id="lNote" placeholder="Anything the administrator should know"></textarea></label>
+    </div>
+    <div class="hint" id="lHint">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span id="lHintText">Select dates to see how many appointments need rebooking.</span>
+    </div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <button class="btn pri" id="lSubmit"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Submit request</button>
+  </div>
+</div>
+
+<!-- HOURS MODAL -->
+<div class="modal" id="mHours" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+    <div><h3>Change working hours</h3><p>Adjust a single day or set a recurring pattern.</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="seg" id="hType">
+      <button class="on" data-t="single">Single day</button>
+      <button data-t="range">Date range</button>
+      <button data-t="recurring">Recurring</button>
+    </div>
+    <div class="fgrid">
+      <label class="f"><span>Date</span><input type="date" id="hDate"></label>
+      <label class="f"><span>Location</span>
+        <select id="hLoc"><option>Suite 210 — Austin</option><option>Suite 118 — Round Rock</option><option>Telehealth only</option></select></label>
+      <label class="f"><span>Start time</span><input type="time" id="hStart" value="08:00"></label>
+      <label class="f"><span>End time</span><input type="time" id="hEnd" value="17:00"></label>
+      <label class="f"><span>Break</span>
+        <select id="hBreak"><option>12:00 – 13:00</option><option>12:30 – 13:30</option><option>No break</option></select></label>
+      <label class="f"><span>Slot length</span>
+        <select id="hSlot"><option>20 minutes</option><option>30 minutes</option><option>15 minutes</option><option>40 minutes</option></select></label>
+      <label class="f full"><span>Note for scheduling team (optional)</span><textarea id="hNote" placeholder="e.g. telehealth only, no new patients"></textarea></label>
+    </div>
+    <div class="hint warn" id="hHint">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+      <span id="hHintText">Shortening a day may affect appointments already booked in the removed hours.</span>
+    </div>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <button class="btn pri" id="hSubmit"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save hours</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span id="toastText">Saved</span></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var iso=function(d){
+    /* local date parts — toISOString is UTC and can shift the day */
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+
+           '-'+String(d.getDate()).padStart(2,'0');
+  };
+  var today=new Date(),view=new Date(today.getFullYear(),today.getMonth(),1);
+
+  /* ── seeded events ── */
+  function seed(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+  function rng(s){return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+
+  var EVENTS={};
+  (function build(){
+    var r=rng(seed('whitfield-2026'));
+    function add(d,type,label,status){EVENTS[iso(d)]={type:type,label:label,status:status||'approved'};}
+    function mk(off,type,label,status){var d=new Date(today);d.setDate(d.getDate()+off);add(d,type,label,status);}
+    mk(-26,'leave','Annual leave');mk(-25,'leave','Annual leave');
+    mk(-12,'leave','Sick leave');
+    mk(-8,'mod','Late start · 10:00 – 17:00');
+    mk(-3,'half','Half day · morning only');
+    mk(4,'pend','Conference · AAFP Austin','pending');
+    mk(5,'pend','Conference · AAFP Austin','pending');
+    mk(6,'pend','Conference · AAFP Austin','pending');
+    mk(11,'mod','Telehealth only · 09:00 – 15:00');
+    mk(18,'leave','Annual leave');mk(19,'leave','Annual leave');mk(20,'leave','Annual leave');
+    mk(27,'half','Half day · afternoon only');
+    mk(33,'pend','Personal leave','pending');
+  })();
+
+  var REQUESTS=[
+    {t:'leave',n:'Conference — AAFP Austin',d:'3 days',w:'Aug 4 – Aug 6',s:'pending'},
+    {t:'leave',n:'Annual leave',d:'3 days',w:'Aug 18 – Aug 20',s:'ok'},
+    {t:'hours',n:'Telehealth only, 09:00 – 15:00',d:'1 day',w:'Aug 11',s:'ok'},
+    {t:'half',n:'Half day — afternoon off',d:'0.5 day',w:'Aug 27',s:'pending'},
+    {t:'hours',n:'Late start, 10:00 – 17:00',d:'1 day',w:'Jul 23',s:'ok'},
+    {t:'leave',n:'Sick leave',d:'1 day',w:'Jul 19',s:'ok'},
+    {t:'leave',n:'Personal leave',d:'1 day',w:'Sep 2',s:'dec'}
+  ];
+
+  var HOURS=[['MON',8,17,1],['TUE',8,17,1],['WED',8,17,1],['THU',9,18,1],['FRI',8,15,.5],['SAT',0,0,0],['SUN',0,0,0]];
+
+  var BAL=[
+    {k:'Annual leave',used:9,total:24,c:'var(--green)',note:'15 days remaining'},
+    {k:'Sick leave',used:3,total:10,c:'var(--coral)',note:'7 days remaining'},
+    {k:'CME / conference',used:3,total:5,c:'var(--blue)',note:'2 days remaining'},
+    {k:'Modified days',used:4,total:12,c:'var(--violet)',note:'this quarter'}
+  ];
+
+  /* ── balances ── */
+  function renderBal(){
+    var C=2*Math.PI*27;
+    $('bal').innerHTML=BAL.map(function(b,i){
+      return '<div class="bcell" style="animation-delay:'+(0.06+i*0.05)+'s">'+
+        '<div class="dial"><svg viewBox="0 0 62 62"><circle class="bgc" cx="31" cy="31" r="27"/>'+
+        '<circle class="fg" cx="31" cy="31" r="27" stroke="'+b.c+'" stroke-dasharray="0 '+C+'" data-l="'+(b.used/b.total*C)+'"/></svg>'+
+        '<b>'+b.used+'</b></div>'+
+        '<div class="bmeta"><small>'+b.k+'</small><b>'+b.used+' / '+b.total+' days</b><em>'+b.note+'</em></div></div>';
+    }).join('');
+    setTimeout(function(){
+      document.querySelectorAll('.dial .fg').forEach(function(c){
+        var l=parseFloat(c.dataset.l);c.setAttribute('stroke-dasharray',l+' '+(C-l));
+      });
+    },160);
+  }
+
+  /* ── calendar ── */
+  var selected=null;
+  function renderCal(){
+    var y=view.getFullYear(),m=view.getMonth();
+    $('mLabel').textContent=view.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+    var first=new Date(y,m,1),dow=(first.getDay()+6)%7,
+        dim=new Date(y,m+1,0).getDate(),
+        prevDim=new Date(y,m,0).getDate(),html='';
+    for(var i=dow-1;i>=0;i--)html+='<div class="day pad"><b>'+(prevDim-i)+'</b></div>';
+    var mLeave=0,mPend=0,mMod=0;
+    for(var d=1;d<=dim;d++){
+      var dt=new Date(y,m,d),s=iso(dt),ev=EVENTS[s],
+          wknd=(dt.getDay()===0||dt.getDay()===6),
+          isToday=(s===iso(today)),cls='day';
+      if(wknd)cls+=' wknd';
+      if(isToday)cls+=' today';
+      if(ev){cls+=' '+ev.type;
+        if(ev.type==='leave')mLeave++;
+        if(ev.type==='pend')mPend++;
+        if(ev.type==='mod'||ev.type==='half')mMod++;}
+      if(s===selected)cls+=' sel';
+      html+='<div class="'+cls+'" data-d="'+s+'" style="animation-delay:'+(d*0.012)+'s" '+
+        (ev?'title="'+ev.label+'"':'')+'>'+
+        '<b>'+d+'</b>'+(ev?'<small>'+(ev.type==='leave'?'LEAVE':ev.type==='pend'?'PENDING':ev.type==='half'?'½ DAY':'HOURS')+'</small>':'')+
+        '</div>';
+    }
+    var tail=(7-((dow+dim)%7))%7;
+    for(var t=1;t<=tail;t++)html+='<div class="day pad"><b>'+t+'</b></div>';
+    $('days').innerHTML=html;
+
+    document.querySelectorAll('#days .day:not(.pad)').forEach(function(el){
+      el.addEventListener('click',function(){
+        selected=el.dataset.d;
+        document.querySelectorAll('#days .day').forEach(function(x){x.classList.remove('sel');});
+        el.classList.add('sel');
+        $('lFrom').value=selected;$('lTo').value=selected;$('hDate').value=selected;
+      });
+    });
+
+    /* month stats */
+    var workDays=0;
+    for(var q=1;q<=dim;q++){var dd=new Date(y,m,q);if(dd.getDay()!==0&&dd.getDay()!==6)workDays++;}
+    var worked=Math.max(0,workDays-mLeave);
+    $('msSub').textContent=view.toLocaleDateString(undefined,{month:'short'}).toUpperCase()+' · '+workDays+' WORKING DAYS';
+    var stats=[
+      ['Days worked',worked+' / '+workDays,worked/workDays*100,'linear-gradient(90deg,var(--green-d),#3ECFA0)',worked+' completed','out of '+workDays],
+      ['Leave taken',mLeave+' days',mLeave/workDays*100,'linear-gradient(90deg,#D8875F,var(--coral))',mLeave+' days off',(mLeave/workDays*100).toFixed(0)+'% of month'],
+      ['Pending approval',mPend+' days',mPend/workDays*100,'linear-gradient(90deg,#D8A32C,var(--amber))',mPend+' awaiting','administrator review'],
+      ['Modified schedule',mMod+' days',mMod/workDays*100,'linear-gradient(90deg,#7C5AE0,var(--violet))',mMod+' adjusted','hours changed']
+    ];
+    $('mstats').innerHTML=stats.map(function(s){
+      return '<div class="msrow"><div class="lab"><span>'+s[0]+'</span><b>'+s[1]+'</b></div>'+
+        '<div class="mtrack"><i data-w="'+Math.min(100,s[2]).toFixed(1)+'" style="background:'+s[3]+'"></i></div>'+
+        '<div class="ft"><span>'+s[4]+'</span><span>'+s[5]+'</span></div></div>';
+    }).join('');
+    setTimeout(function(){
+      document.querySelectorAll('#mstats .mtrack i').forEach(function(b){b.style.width=b.dataset.w+'%';});
+    },180);
+  }
+
+  /* ── requests ── */
+  function renderReq(){
+    var pend=REQUESTS.filter(function(r){return r.s==='pending';}).length;
+    $('reqSub').textContent=pend+' AWAITING APPROVAL';
+    $('req').innerHTML=REQUESTS.map(function(r,i){
+      var ic=r.t==='leave'
+        ?'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'
+        :r.t==='half'
+        ?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 010 18z" fill="currentColor" stroke="none" opacity=".25"/></svg>'
+        :'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+      var st=r.s==='ok'?'<span class="rst ok">Approved</span>':r.s==='pending'?'<span class="rst pending">Pending</span>':'<span class="rst dec">Declined</span>';
+      return '<div class="rrow" style="animation-delay:'+(0.05+i*0.05)+'s">'+
+        '<span class="rico '+r.t+'">'+ic+'</span>'+
+        '<span class="rinfo"><b>'+r.n+'</b><small>'+r.w+'</small></span>'+
+        '<span class="rdays">'+r.d+'</span>'+st+'</div>';
+    }).join('');
+  }
+
+  /* ── weekly hours ── */
+  function renderHours(){
+    var tot=HOURS.reduce(function(a,b){return a+(b[2]-b[1]-(b[3]||0));},0);
+    $('hrSub').textContent=tot.toFixed(1)+' HRS / WEEK';
+    var DAY_START=7,DAY_END=19,span=DAY_END-DAY_START;
+    $('hours').innerHTML=HOURS.map(function(h){
+      var off=h[2]===0;
+      var left=off?0:((h[1]-DAY_START)/span*100),
+          w=off?100:((h[2]-h[1])/span*100),
+          net=off?0:(h[2]-h[1]-(h[3]||0));
+      return '<div class="hrow"><span class="dw">'+h[0]+'</span>'+
+        '<span class="hbar '+(off?'off':'on')+'"><i data-l="'+left+'" data-w="'+w+'"></i>'+
+        '<span>'+(off?'Not scheduled':(h[1]+':00 – '+h[2]+':00'+(h[3]?' · '+h[3]+'h break':'')))+'</span></span>'+
+        '<span class="htot">'+(off?'—':net+'h')+'</span></div>';
+    }).join('');
+    setTimeout(function(){
+      document.querySelectorAll('#hours .hbar i').forEach(function(b){
+        b.style.left=b.dataset.l+'%';b.style.width=b.dataset.w+'%';
+      });
+    },200);
+  }
+
+  /* ── notices ── */
+  var NOTES=[
+    ['g','Cover is arranged for your August leave','Dr. Reyes is accepting your follow-ups on Aug 18–20. New patients are being routed to Sara Lindqvist, NP.','Updated 2 days ago'],
+    ['i','Leave requests close 14 days before the date','Anything inside that window needs administrator approval and may require you to arrange cover directly.','Practice policy'],
+    ['w','11 appointments sit inside your pending conference dates','If the request is approved they will need rebooking. The scheduling team can start outreach as soon as you confirm.','Action may be needed'],
+    ['i','Unused annual leave does not carry past Dec 31','You have 15 days remaining. At your current rate you would finish the year with 6 unused.','Year-end reminder'],
+    ['g','Your CME allowance renews Jan 1','2 of 5 days remain this year. Conference travel booked through the practice is reimbursed separately.','Benefits']
+  ];
+  $('notes').innerHTML=NOTES.map(function(n){
+    return '<div class="note '+n[0]+'"><span class="ni"></span><div><b>'+n[1]+'</b><p>'+n[2]+'</p><small>'+n[3]+'</small></div></div>';
+  }).join('');
+
+  /* ── modals ── */
+  var scrim=$('scrim'),toastT;
+  function open(id){scrim.classList.add('on');$(id).classList.add('on');document.body.style.overflow='hidden';}
+  function closeAll(){scrim.classList.remove('on');
+    document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on');});
+    document.body.style.overflow='';}
+  $('openLeave').addEventListener('click',function(){
+    var d=selected||iso(today);$('lFrom').value=d;$('lTo').value=d;open('mLeave');updateLeaveHint();
+  });
+  $('openHours').addEventListener('click',function(){
+    $('hDate').value=selected||iso(today);open('mHours');
+  });
+  scrim.addEventListener('click',closeAll);
+  document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',closeAll);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll();});
+
+  document.querySelectorAll('.seg').forEach(function(seg){
+    seg.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b)return;
+      seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      if(seg.id==='lType')updateLeaveHint();
+    });
+  });
+
+  function updateLeaveHint(){
+    var f=$('lFrom').value,t=$('lTo').value;
+    if(!f||!t){return;}
+    var days=Math.max(1,Math.round((new Date(t)-new Date(f))/864e5)+1);
+    var r=rng(seed(f+t)),appts=Math.round(days*(7+r()*6));
+    $('lHintText').innerHTML='<b>'+days+' day'+(days>1?'s':'')+'</b> requested · about <b>'+appts+
+      ' appointments</b> would need rebooking. Remaining annual leave after approval: <b>'+
+      Math.max(0,15-days)+' days</b>.';
+  }
+  ['lFrom','lTo'].forEach(function(id){$(id).addEventListener('change',updateLeaveHint);});
+
+  function toast(msg){
+    $('toastText').textContent=msg;
+    $('toast').classList.add('on');
+    clearTimeout(toastT);
+    toastT=setTimeout(function(){$('toast').classList.remove('on');},3200);
+  }
+
+  $('lSubmit').addEventListener('click',function(){
+    var type=$('lType').querySelector('.on').dataset.t,
+        f=$('lFrom').value,t=$('lTo').value;
+    if(!f||!t){toast('Select a start and end date');return;}
+    var days=Math.max(1,Math.round((new Date(t)-new Date(f))/864e5)+1);
+    var fmt=function(d){return new Date(d+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});};
+    REQUESTS.unshift({t:'leave',n:type,d:days+(days>1?' days':' day'),w:fmt(f)+(f!==t?' – '+fmt(t):''),s:'pending'});
+    var c=new Date(f+'T12:00:00'),end=new Date(t+'T12:00:00');
+    while(c<=end){EVENTS[iso(c)]={type:'pend',label:type,status:'pending'};c.setDate(c.getDate()+1);}
+    closeAll();renderReq();renderCal();
+    toast(type+' requested — '+days+' day'+(days>1?'s':''));
+  });
+
+  $('hSubmit').addEventListener('click',function(){
+    var d=$('hDate').value;
+    if(!d){toast('Pick a date to change');return;}
+    EVENTS[d]={type:'mod',label:$('hStart').value+' – '+$('hEnd').value,status:'approved'};
+    var fmt=new Date(d+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});
+    REQUESTS.unshift({t:'hours',n:$('hStart').value+' – '+$('hEnd').value+' · '+$('hLoc').value.split(' —')[0],d:'1 day',w:fmt,s:'pending'});
+    closeAll();renderReq();renderCal();
+    toast('Hours updated for '+fmt);
+  });
+
+  $('mPrev').addEventListener('click',function(){view.setMonth(view.getMonth()-1);renderCal();});
+  $('mNext').addEventListener('click',function(){view.setMonth(view.getMonth()+1);renderCal();});
+
+  renderBal();renderCal();renderReq();renderHours();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule — ReviFlow</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<meta name="description" content="Provider appointment calendar in ReviFlow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF8F3;--paper-2:#F2EFE7;--ink:#0D1A16;--muted:#5D6B67;--dim:#93A19D;
+  --line:rgba(13,26,22,.08);--line-2:rgba(13,26,22,.14);
+  --green:#0E9D73;--green-d:#0A5C46;--green-s:#E2F4EC;
+  --indigo:#5A6CFF;--indigo-s:#EBEDFF;
+  --amber:#C98A18;--amber-s:#FAF0DA;
+  --coral:#D0603F;--coral-s:#FBEAE4;
+  --teal:#1F93AE;--violet:#8B5CF6;
+
+  /* status palette */
+  --est:#0E9D73;--est-bg:#E6F6EF;--est-bd:#9EDCC4;
+  --new:#3B6FF5;--new-bg:#E8EFFE;--new-bd:#A6C1FA;
+  --can:#C99012;--can-bg:#FCF3DA;--can-bd:#EBD08A;
+  --nos:#7A8783;--nos-bg:#EEF0EF;--nos-bd:#C6CECB;
+
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --e:cubic-bezier(.22,1,.36,1);
+  --rowH:62px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+input{font:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:8px}
+
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aur{position:absolute;border-radius:50%;filter:blur(92px);mix-blend-mode:multiply;opacity:.42}
+.a1{width:54vw;height:54vw;min-width:480px;min-height:480px;top:-28%;left:-12%;background:radial-gradient(circle,rgba(14,157,115,.38),transparent 66%);animation:f1 30s ease-in-out infinite}
+.a2{width:42vw;height:42vw;min-width:380px;min-height:380px;top:-20%;right:-8%;background:radial-gradient(circle,rgba(59,111,245,.3),transparent 66%);animation:f2 36s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,6vh) scale(1.1)}}
+@keyframes f2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-6vw,5vh) scale(1.1)}}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:60;border-bottom:1px solid var(--line);background:rgba(250,248,243,.82);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%)}
+.hin{max-width:1600px;margin:0 auto;padding:11px clamp(12px,2vw,26px);display:flex;align-items:center;gap:11px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mk{width:29px;height:29px;border-radius:9px;background:linear-gradient(140deg,var(--green),var(--indigo));display:grid;place-items:center;box-shadow:0 6px 16px -8px rgba(14,157,115,.8)}
+.brand .mk svg{width:16px;height:16px}
+.brand span{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.036em}
+.brand em{font-style:normal;color:var(--green);font-weight:400;font-size:.9em;margin-left:3px}
+.crumb{margin-left:12px;padding-left:12px;border-left:1px solid var(--line-2);font-size:12.4px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.hact{margin-left:auto;display:flex;gap:8px}
+.hbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-size:12.4px;font-weight:600;transition:all .3s var(--e)}
+.hbtn svg{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--e)}
+.hbtn:hover{border-color:var(--green);background:#fff}
+.hbtn.back:hover{transform:translateX(-2px)}.hbtn.back:hover svg{transform:translateX(-3px)}
+.hbtn.out:hover{border-color:var(--coral);background:var(--coral-s);color:#9B3F24}
+.hbtn.out:hover svg{stroke:var(--coral);transform:translateX(3px)}
+
+/* toolbar */
+.tools{position:sticky;top:47px;z-index:59;border-bottom:1px solid var(--line);background:rgba(250,248,243,.86);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%)}
+.tin{max-width:1600px;margin:0 auto;padding:10px clamp(12px,2vw,26px);display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.today{padding:8px 14px;border-radius:10px;border:1px solid var(--line-2);background:rgba(255,255,255,.75);font-size:12.4px;font-weight:600;transition:all .3s var(--e)}
+.today:hover{border-color:var(--green);background:#fff}
+.nbtn{width:32px;height:32px;border-radius:9px;border:1px solid var(--line-2);background:rgba(255,255,255,.75);display:grid;place-items:center;transition:all .3s var(--e)}
+.nbtn svg{width:14px;height:14px;stroke:var(--ink);fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.nbtn:hover{border-color:var(--green);background:#fff;transform:translateY(-1px)}
+.dtitle{font-family:'Sora',sans-serif;font-size:clamp(16px,1.7vw,21px);font-weight:600;letter-spacing:-.036em;white-space:nowrap}
+.dtitle em{font-style:normal;color:var(--dim);font-weight:400}
+.dpick{position:relative;display:flex;align-items:center}
+.dpick input{width:38px;height:32px;padding:0;border-radius:9px;border:1px solid var(--line-2);background:rgba(255,255,255,.75);cursor:pointer;color:transparent}
+.dpick input::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.dpick svg{position:absolute;left:11px;width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.9;pointer-events:none}
+.dpick:hover input{border-color:var(--green)}
+.seg{display:flex;gap:2px;padding:3px;border-radius:99px;background:rgba(255,255,255,.75);border:1px solid var(--line-2)}
+.seg button{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;color:var(--muted);transition:all .3s var(--e)}
+.seg button.on{background:var(--green-d);color:#F3FBF8}
+.tin .sp{flex:1}
+.legend{display:flex;gap:5px;flex-wrap:wrap}
+.lg{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:8px;font-size:11px;font-weight:600;border:1px solid transparent;transition:all .28s var(--e)}
+.lg i{width:9px;height:9px;border-radius:3px}
+.lg.off{opacity:.4}
+.lg.est{background:var(--est-bg);color:var(--green-d);border-color:var(--est-bd)}
+.lg.est i{background:var(--est)}
+.lg.new{background:var(--new-bg);color:#2A55C9;border-color:var(--new-bd)}
+.lg.new i{background:var(--new)}
+.lg.can{background:var(--can-bg);color:#8A6108;border-color:var(--can-bd)}
+.lg.can i{background:var(--can)}
+.lg.nos{background:var(--nos-bg);color:#4E5956;border-color:var(--nos-bd)}
+.lg.nos i{background:var(--nos)}
+.stat{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:99px;background:rgba(255,255,255,.75);border:1px solid var(--line-2);font-family:var(--mono);font-size:10.4px;color:var(--muted)}
+.stat b{color:var(--ink);font-weight:600}
+
+/* ══ CALENDAR ══ */
+.calwrap{position:relative;z-index:2;max-width:1600px;margin:0 auto;padding:clamp(12px,1.6vw,18px) clamp(12px,2vw,26px) clamp(40px,5vw,70px)}
+.cal{border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.8);
+  background:rgba(255,255,255,.68);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 20px 46px -34px rgba(13,26,22,.5)}
+.scroller{overflow:auto;max-height:calc(100vh - 210px);scrollbar-width:thin}
+.scroller::-webkit-scrollbar{width:9px;height:9px}
+.scroller::-webkit-scrollbar-thumb{background:#D5DCD9;border-radius:5px}
+.grid{display:grid;min-width:920px;position:relative}
+
+.colhead{position:sticky;top:0;z-index:20;background:rgba(250,248,243,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-2);padding:11px 8px;text-align:center}
+.colhead.tz{z-index:22;left:0;position:sticky;border-right:1px solid var(--line-2)}
+.chav{width:32px;height:32px;margin:0 auto 7px;border-radius:10px;display:grid;place-items:center;font-family:'Sora',sans-serif;font-size:11.4px;font-weight:700;color:#fff;transition:transform .4s var(--e)}
+.colhead:hover .chav{transform:scale(1.09) rotate(-5deg)}
+.colhead b{display:block;font-size:12.6px;font-weight:600;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.colhead small{display:block;font-family:var(--mono);font-size:9.2px;color:var(--dim);margin-top:3px}
+.colhead .cnt{display:inline-block;margin-top:6px;padding:2px 8px;border-radius:6px;background:var(--paper-2);font-family:var(--mono);font-size:9.4px;color:var(--muted)}
+
+.tzcol{position:sticky;left:0;z-index:15;background:rgba(250,248,243,.94);border-right:1px solid var(--line-2)}
+.tcell{height:var(--rowH);position:relative;padding:0 10px}
+.tcell span{position:absolute;top:-7px;right:10px;font-family:var(--mono);font-size:9.8px;color:var(--dim);background:rgba(250,248,243,.94);padding:0 3px}
+.tcell.hr span{color:var(--muted);font-weight:600;font-size:10.4px}
+
+.pcol{position:relative;border-right:1px solid var(--line)}
+.pcol:last-child{border-right:none}
+.pcol .cell{height:var(--rowH);border-bottom:1px solid var(--line)}
+.pcol .cell.hr{border-bottom-color:var(--line-2)}
+.pcol .cell:hover{background:rgba(14,157,115,.035)}
+.pcol.wknd{background:repeating-linear-gradient(45deg,rgba(13,26,22,.014) 0 6px,transparent 6px 12px)}
+
+.nowline{position:absolute;left:0;right:0;height:2px;background:var(--coral);z-index:12;pointer-events:none;box-shadow:0 0 10px 1px rgba(208,96,63,.4)}
+.nowline::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--coral);animation:ping 2.2s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(208,96,63,.5)}70%{box-shadow:0 0 0 9px rgba(208,96,63,0)}100%{box-shadow:0 0 0 0 rgba(208,96,63,0)}}
+
+/* appointment block */
+.ev{position:absolute;left:4px;right:4px;border-radius:9px;padding:6px 8px;overflow:hidden;
+  border:1px solid;border-left-width:3px;cursor:pointer;z-index:5;
+  opacity:0;transform:translateY(8px) scale(.98);
+  animation:evIn .5s var(--e) forwards;
+  transition:transform .3s var(--e),box-shadow .3s var(--e),z-index 0s}
+@keyframes evIn{to{opacity:1;transform:none}}
+.ev:hover{transform:scale(1.025);box-shadow:0 14px 28px -14px rgba(13,26,22,.5);z-index:9}
+.ev .t{display:block;font-family:var(--mono);font-size:9.4px;font-weight:500;opacity:.82;margin-bottom:2px;display:flex;align-items:center;gap:5px}
+.ev .t svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ev .n{display:block;font-size:11.6px;font-weight:700;letter-spacing:-.015em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev .r{display:block;font-size:10px;opacity:.75;line-height:1.3;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev.short{padding:4px 8px}
+.ev.short .r{display:none}
+.ev.est{background:var(--est-bg);border-color:var(--est-bd);border-left-color:var(--est);color:#0A5C46}
+.ev.new{background:var(--new-bg);border-color:var(--new-bd);border-left-color:var(--new);color:#25489E}
+.ev.can{background:var(--can-bg);border-color:var(--can-bd);border-left-color:var(--can);color:#7A5507}
+.ev.can .n{text-decoration:line-through;opacity:.72}
+.ev.nos{background:var(--nos-bg);border-color:var(--nos-bd);border-left-color:var(--nos);color:#4E5956}
+.ev.nos .n{opacity:.75}
+.ev.hidden{display:none}
+.ev .cp{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5}
+.ev .cp.due{background:var(--coral);opacity:1;animation:pulse2 2.4s infinite}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ══ POPOVER ══ */
+.pop{position:fixed;z-index:80;width:326px;border-radius:16px;overflow:hidden;background:#fff;
+  border:1px solid var(--line-2);box-shadow:0 30px 64px -24px rgba(13,26,22,.4);
+  opacity:0;transform:translateY(8px) scale(.97);pointer-events:none;
+  transition:opacity .26s var(--e),transform .26s var(--e)}
+.pop.on{opacity:1;transform:none;pointer-events:auto}
+.pophead{padding:14px 16px;border-bottom:1px solid var(--line);position:relative}
+.pophead::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.pop.est .pophead::before{background:var(--est)}
+.pop.new .pophead::before{background:var(--new)}
+.pop.can .pophead::before{background:var(--can)}
+.pop.nos .pophead::before{background:var(--nos)}
+.poptop{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+.popav{width:36px;height:36px;flex:none;border-radius:11px;display:grid;place-items:center;font-family:var(--mono);font-size:11.6px;font-weight:600}
+.popname{min-width:0;flex:1}
+.popname b{display:block;font-family:'Sora',sans-serif;font-size:14.6px;font-weight:600;letter-spacing:-.028em;line-height:1.2}
+.popname small{display:block;font-family:var(--mono);font-size:9.8px;color:var(--dim);margin-top:3px}
+.popstat{padding:4px 9px;border-radius:7px;font-size:10px;font-weight:700;white-space:nowrap}
+.popstat.est{background:var(--est-bg);color:var(--green-d)}
+.popstat.new{background:var(--new-bg);color:#2A55C9}
+.popstat.can{background:var(--can-bg);color:#8A6108}
+.popstat.nos{background:var(--nos-bg);color:#4E5956}
+.poptags{display:flex;flex-wrap:wrap;gap:5px}
+.ptag{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:7px;font-size:10px;font-weight:700;background:var(--paper-2);color:var(--muted)}
+.ptag svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ptag.vid{background:#F1EBFE;color:var(--violet)}
+.ptag.off{background:#E3F2F6;color:var(--teal)}
+.ptag.paid{background:var(--est-bg);color:var(--green-d)}
+.ptag.due{background:var(--coral-s);color:var(--coral)}
+
+.popbody{padding:13px 16px}
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 14px}
+.pgrid>div{opacity:0;transform:translateY(6px)}
+.pop.on .pgrid>div{animation:fadeUp .4s var(--e) forwards}
+.pop.on .pgrid>div:nth-child(2){animation-delay:.04s}
+.pop.on .pgrid>div:nth-child(3){animation-delay:.08s}
+.pop.on .pgrid>div:nth-child(4){animation-delay:.12s}
+.pop.on .pgrid>div:nth-child(5){animation-delay:.16s}
+.pop.on .pgrid>div:nth-child(6){animation-delay:.2s}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+.pgrid dt{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.pgrid dd{font-size:12.2px;font-weight:600;letter-spacing:-.014em}
+.pgrid dd.mono{font-family:var(--mono);font-size:11.2px;font-weight:500}
+.pgrid dd.ok{color:var(--green-d)}
+.pgrid dd.warn{color:var(--amber)}
+.pgrid dd.bad{color:var(--coral)}
+.copayrow{margin-top:12px;padding:11px 12px;border-radius:11px;display:flex;align-items:center;gap:10px}
+.copayrow.paid{background:var(--est-bg)}
+.copayrow.due{background:var(--coral-s)}
+.copayrow.none{background:var(--paper-2)}
+.copayrow .ci{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;background:rgba(255,255,255,.75)}
+.copayrow .ci svg{width:15px;height:15px;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.copayrow.paid .ci svg{stroke:var(--green-d)}
+.copayrow.due .ci svg{stroke:var(--coral)}
+.copayrow.none .ci svg{stroke:var(--dim)}
+.copayrow small{display:block;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.copayrow b{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.034em}
+.copayrow .st{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:600}
+.popacts{display:flex;gap:6px;padding:12px 16px;border-top:1px solid var(--line);background:var(--paper);flex-wrap:wrap}
+.pbtn{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:9px;border:1px solid var(--line-2);background:#fff;font-size:11px;font-weight:600;white-space:nowrap;transition:all .3s var(--e)}
+.pbtn svg{width:12px;height:12px;stroke:var(--green);fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pbtn:hover{border-color:var(--green);background:var(--green-s);transform:translateY(-2px)}
+.pbtn.pri{background:var(--green-d);border-color:var(--green-d);color:#F3FBF8}
+.pbtn.pri svg{stroke:#F3FBF8}
+.pbtn.pri:hover{background:var(--green)}
+
+@media (max-width:1000px){.crumb{display:none}.legend{order:3;width:100%}}
+@media (max-width:760px){
+  .tools{top:45px}
+  .scroller{max-height:calc(100vh - 250px)}
+  .pop{width:calc(100vw - 26px);left:13px!important}
+  .tin .sp{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.ev{opacity:1;transform:none}}
+
+/* editable slots */
+.pcol .cell{cursor:pointer;transition:background .18s ease}
+.pcol .cell:hover{background:rgba(14,157,115,.09);box-shadow:inset 0 0 0 1px rgba(14,157,115,.28)}
+.pcol.locked .cell{cursor:default}
+.pcol.locked .cell:hover{background:transparent;box-shadow:none}
+.pcol.locked{background:repeating-linear-gradient(45deg,rgba(13,26,22,.02) 0 7px,transparent 7px 14px)}
+.colhead.locked b{color:var(--dim)}
+.lockchip{display:inline-block;margin-top:5px;padding:2px 7px;border-radius:5px;background:var(--paper-2);
+  font-family:var(--mono);font-size:8.2px;letter-spacing:.06em;color:var(--dim)}
+.scrim{position:fixed;inset:0;z-index:88;background:rgba(13,26,22,.34);backdrop-filter:blur(7px);
+  opacity:0;visibility:hidden;transition:all .3s var(--e)}
+.scrim.on{opacity:1;visibility:visible}
+.amodal{position:fixed;z-index:89;left:50%;top:50%;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 48px);
+  overflow:auto;transform:translate(-50%,-46%) scale(.96);opacity:0;visibility:hidden;
+  background:rgba(255,255,255,.58);backdrop-filter:blur(26px) saturate(180%);
+  border:1px solid rgba(255,255,255,.62);border-radius:20px;
+  box-shadow:0 40px 90px -30px rgba(13,26,22,.55);transition:all .38s var(--e)}
+.amodal.on{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+.amh{display:flex;align-items:center;gap:12px;padding:16px 19px;border-bottom:1px solid rgba(13,26,22,.1)}
+.amh .mi{width:33px;height:33px;border-radius:11px;background:rgba(14,157,115,.16);display:grid;place-items:center;flex:none}
+.amh .mi svg{width:16px;height:16px;stroke:var(--green-d);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.amh h3{font-family:'Sora',sans-serif;font-size:15.4px;font-weight:600;letter-spacing:-.032em}
+.amh p{font-size:11.4px;color:var(--muted);margin-top:2px}
+.amx{margin-left:auto;width:31px;height:31px;border-radius:9px;display:grid;place-items:center;color:var(--muted);transition:all .3s var(--e)}
+.amx svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round}
+.amx:hover{background:rgba(255,255,255,.8);transform:rotate(90deg)}
+.amb{padding:18px 19px}
+.afg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.af{display:block}.af.full{grid-column:span 2}
+.af>span{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.af>span u{color:var(--coral);text-decoration:none}
+.af input,.af select,.af textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(13,26,22,.16);
+  background:rgba(255,255,255,.78);font-size:12.8px;transition:all .26s var(--e)}
+.af input:focus,.af select:focus,.af textarea:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(14,157,115,.14)}
+.af select{appearance:none;cursor:pointer;padding-right:30px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235D6B67' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 11px center}
+.af textarea{min-height:58px;resize:vertical}
+.amf{display:flex;gap:9px;padding:14px 19px;border-top:1px solid rgba(13,26,22,.1);background:rgba(255,255,255,.34)}
+.amf .sp{flex:1}
+.abtn{display:inline-flex;align-items:center;gap:8px;padding:10px 17px;border-radius:11px;font-size:12.6px;font-weight:600;transition:all .3s var(--e)}
+.abtn svg{width:15px;height:15px;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.abtn.pri{background:linear-gradient(120deg,var(--green-d),var(--green));color:#F3FBF8}
+.abtn.pri svg{stroke:#F3FBF8}
+.abtn.pri:hover{transform:translateY(-2px)}
+.abtn.sec{border:1px solid var(--line-2);background:rgba(255,255,255,.74)}
+.abtn.sec:hover{border-color:var(--green);background:#fff}
+.abtn.dang{border:1px solid rgba(208,96,63,.34);background:var(--coral-s);color:#9B3F24}
+.abtn.dang svg{stroke:var(--coral)}
+.abtn.dang:hover{background:#FBD9CE}
+.slotnote{margin-bottom:14px;padding:11px 13px;border-radius:11px;background:var(--green-s);
+  border:1px solid rgba(14,157,115,.24);font-size:11.8px;color:var(--green-d);display:flex;gap:9px;line-height:1.55}
+.slotnote svg{width:15px;height:15px;stroke:var(--green-d);fill:none;stroke-width:2;flex:none;margin-top:1px}
+.slotnote.warn{background:var(--coral-s);border-color:rgba(208,96,63,.26);color:#9B3F24}
+.slotnote.warn svg{stroke:var(--coral)}
+
+.ev.guest{border-style:dashed}
+.ev.guest .n::after{content:' · invited';font-weight:400;opacity:.7;font-size:.9em}
+/* non-patient blocks */
+.ev.blk{background:repeating-linear-gradient(45deg,rgba(13,26,22,.045) 0 6px,transparent 6px 12px),#F2EFE7;
+  border-color:rgba(13,26,22,.18);border-left-color:#7A8783;color:#4E5956}
+.ev.meet{background:#F1EBFE;border-color:#C9B2FB;border-left-color:#8B5CF6;color:#5B32B8}
+.ev.oof{background:#FBEAE4;border-color:#EFC0AE;border-left-color:#D0603F;color:#9B3F24}
+.ev.lunch{background:#FCF3DA;border-color:#EBD08A;border-left-color:#C98A18;color:#7A5507}
+.ev.dns{background:repeating-linear-gradient(45deg,rgba(13,26,22,.07) 0 7px,rgba(13,26,22,.02) 7px 14px);
+  border-color:rgba(13,26,22,.22);border-left-color:#5D6B67;color:#4E5956}
+.ev.blk .n{text-decoration:none}
+.attn{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.attn label{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:9px;
+  border:1px solid rgba(13,26,22,.14);background:rgba(255,255,255,.6);font-size:11.8px;cursor:pointer;transition:all .26s var(--e)}
+.attn label:hover{background:#fff}
+.attn input{position:absolute;opacity:0}
+.attn .bx{width:16px;height:16px;border-radius:5px;border:1.6px solid var(--line-2);display:grid;place-items:center;flex:none;transition:all .24s var(--e)}
+.attn .bx svg{width:9px;height:9px;stroke:#fff;fill:none;stroke-width:3.2;opacity:0;transform:scale(.5);transition:all .24s var(--e)}
+.attn input:checked+.bx{background:#8B5CF6;border-color:#8B5CF6}
+.attn input:checked+.bx svg{opacity:1;transform:none}
+.attn input:checked~span{font-weight:600;color:#5B32B8}
+#otherOnly,#meetOnly{display:none}
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+.srchwrap{position:relative}
+.results{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;max-height:264px;overflow:auto;
+  background:#fff;border:1px solid var(--line-2);border-radius:13px;
+  box-shadow:0 24px 48px -20px rgba(13,26,22,.4);opacity:0;visibility:hidden;transform:translateY(-6px);
+  transition:all .26s var(--e)}
+.results.on{opacity:1;visibility:visible;transform:none}
+.results::-webkit-scrollbar{width:7px}
+.results::-webkit-scrollbar-thumb{background:#D5DCD9;border-radius:4px}
+.rhead2{padding:9px 13px;border-bottom:1px solid var(--line);font-family:var(--mono);
+  font-size:9.2px;letter-spacing:.1em;color:var(--dim);background:var(--paper);position:sticky;top:0}
+.ritem{display:flex;align-items:center;gap:11px;width:100%;padding:10px 13px;border:none;background:none;
+  cursor:pointer;text-align:left;border-bottom:1px solid var(--line);transition:background .2s ease}
+.ritem:last-child{border-bottom:none}
+.ritem:hover,.ritem.hi{background:var(--green-s)}
+.ritem .ra{width:31px;height:31px;flex:none;border-radius:10px;display:grid;place-items:center;
+  background:var(--paper-2);font-family:var(--mono);font-size:10.4px;font-weight:700;color:var(--muted)}
+.ritem:hover .ra,.ritem.hi .ra{background:#fff;color:var(--green-d)}
+.ritem .rb{min-width:0;flex:1}
+.ritem .rb b{display:block;font-size:12.8px;font-weight:600;letter-spacing:-.016em;line-height:1.3}
+.ritem .rb small{display:block;font-family:var(--mono);font-size:9.6px;color:var(--dim);margin-top:2px}
+.ritem .rt{font-family:var(--mono);font-size:9.4px;color:var(--dim);text-align:right;flex:none}
+.ritem .rt em{display:block;font-style:normal;color:var(--coral);font-weight:600;margin-top:2px}
+.rnone{padding:16px 14px;font-size:11.8px;color:var(--muted);line-height:1.55}
+.rnone b{color:var(--ink)}
+.bookedby{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:5px;
+  font-family:var(--mono);font-size:8.6px;font-weight:700;letter-spacing:.04em}
+.bookedby.m{background:var(--blue-s);color:#25489E}
+.bookedby.a{background:var(--paper-2);color:var(--muted)}
+.durrow{display:flex;gap:6px;align-items:center}
+.durrow button{padding:9px 11px;border-radius:9px;border:1px solid rgba(13,26,22,.14);
+  background:rgba(255,255,255,.7);font-family:var(--mono);font-size:10.8px;font-weight:600;
+  cursor:pointer;transition:all .26s var(--e)}
+.durrow button:hover{background:#fff}
+.durrow button.on{background:var(--green-d);border-color:var(--green-d);color:#F3FBF8}
+.flashwrap{position:fixed;left:50%;top:78px;transform:translateX(-50%) translateY(-8px);
+  z-index:140;opacity:0;pointer-events:none;transition:all .34s var(--e)}
+.flashwrap.on{opacity:1;transform:translateX(-50%);pointer-events:auto}
+.flash{display:flex;align-items:flex-start;gap:11px;padding:12px 16px;border-radius:13px;
+  max-width:min(430px,calc(100vw - 28px));box-shadow:0 22px 46px -20px rgba(13,26,22,.5);
+  background:#fff;border:1px solid var(--line-2)}
+.flash svg{width:17px;height:17px;flex:none;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+.flash b{display:block;font-size:12.8px;font-weight:700;letter-spacing:-.014em}
+.flash small{display:block;font-size:11.4px;line-height:1.5;margin-top:2px;opacity:.86}
+.flash.warn{background:#FBF2DC;border-color:rgba(192,134,22,.3);color:#7A5507}
+.flash.warn svg{stroke:#C08616}
+.flash.info{background:#E9EFFE;border-color:rgba(59,111,245,.26);color:#25489E}
+.flash.info svg{stroke:#3B6FF5}
+.flash.ok{background:var(--green-s);border-color:rgba(14,157,115,.28);color:var(--green-d)}
+.flash.ok svg{stroke:var(--green-d)}
+.pastnote{display:flex;gap:9px;padding:11px 13px;border-radius:11px;background:var(--paper-2);
+  border:1px solid var(--line-2);font-size:11.6px;line-height:1.55;color:var(--muted);margin-bottom:14px}
+.pastnote svg{width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;flex:none;margin-top:1px}
+.am.readonly input,.am.readonly select,.am.readonly textarea{
+  background:var(--paper-2)!important;color:var(--muted)!important;pointer-events:none}
+.am.readonly .durrow,.am.readonly #aQuick{display:none}
+.ev.past{opacity:.72}
+.ev.past::after{content:'';position:absolute;top:5px;right:6px;width:11px;height:11px;
+  background:no-repeat center/contain url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235C6A66\' stroke-width=\'2.4\'><rect x=\'4\' y=\'10.5\' width=\'16\' height=\'10\' rx=\'2.5\'/><path d=\'M8 10.5V7.5a4 4 0 018 0v3\'/></svg>");
+  opacity:.55}
+.daypast{display:inline-flex;align-items:center;gap:6px;margin-left:9px;padding:3px 9px;
+  border-radius:6px;background:var(--paper-2);font-family:var(--mono);font-size:9px;
+  font-weight:700;letter-spacing:.06em;color:var(--dim)}
+</style>
+<link rel="stylesheet" href="_prefs.css">
+<script src="_prefs.js"></script>
+<script src="../_notify.js"></script>
+<link rel="stylesheet" href="../_session.css">
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_datepicker.js"></script>
+<script src="../_session.js"></script>
+<link rel="stylesheet" href="../_datepicker.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="aur a1"></div><div class="aur a2"></div></div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <img class="mk" src="../assets/logo-64.png" alt="ReviFlow RCM">
+      <span>ReviFlow<em>RCM</em></span>
+    </div>
+    <span class="crumb">Provider workspace / <b>Schedule</b></span>
+    <div class="hact">
+      <span class="rf-who" id="rfWho"></span>
+      <a href="provider-dashboard.html" class="hbtn back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <a href="provider-login.html" class="hbtn out">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></a>
+    </div>
+  </div>
+</header>
+
+<div class="tools">
+  <div class="tin">
+    <button class="today" id="todayBtn">Today</button>
+    <button class="nbtn" id="prev" aria-label="Previous day"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button class="nbtn" id="next" aria-label="Next day"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+    <span class="dtitle" id="dTitle">—</span>
+    <label class="dpick"><input type="date" id="date" aria-label="Pick a date"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></label>
+    <span class="sp"></span>
+    <div class="legend" id="legend">
+      <button class="lg est" data-k="est"><i></i>Established</button>
+      <button class="lg new" data-k="new"><i></i>New patient</button>
+      <button class="lg can" data-k="can"><i></i>Cancelled</button>
+      <button class="lg nos" data-k="nos"><i></i>No show</button>
+    </div>
+    <span class="stat"><b id="sTotal">0</b> appts · <b id="sCopay">$0</b> copay due</span>
+  </div>
+</div>
+
+<main class="calwrap">
+  <div class="cal">
+    <div class="scroller" id="scroller">
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+</main>
+
+<div class="flashwrap" id="flashwrap"><div class="flash" id="flash"></div></div>
+
+<div class="pop" id="pop"></div>
+
+<div class="scrim" id="ascrim"></div>
+<div class="amodal" id="amodal" role="dialog" aria-modal="true">
+  <div class="amh">
+    <span class="mi" id="amIco"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+    <div><h3 id="amTitle">New appointment</h3><p id="amSub">—</p></div>
+    <button class="amx" id="amClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="amb">
+    <div class="slotnote" id="amNote">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span id="amNoteText">—</span>
+    </div>
+    <label class="af full" style="margin-bottom:13px" id="searchWrap"><span>Search for patient</span>
+      <span class="srchwrap">
+        <span style="position:relative;display:flex;align-items:center">
+          <input type="text" id="aSearch" placeholder="Type a name or member ID — e.g. TE" autocomplete="off"
+            style="padding-right:96px">
+          <button type="button" id="aFind"
+            style="position:absolute;right:5px;padding:7px 13px;border-radius:8px;background:var(--green-d);
+                   color:#F3FBF8;font-size:11.4px;font-weight:600">Search</button>
+        </span>
+        <div class="results" id="aResults"></div>
+      </span>
+      <span id="aFound" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;
+        background:var(--green-s);border:1px solid rgba(14,157,115,.26);font-size:11.6px;color:var(--green-d);line-height:1.55"></span>
+      <span id="aMiss" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;
+        background:var(--amber-s);border:1px solid rgba(201,138,24,.28);font-size:11.6px;color:#7A5507;line-height:1.55"></span>
+    </label>
+
+    <label class="af full" style="margin-bottom:13px"><span>Block type</span>
+      <select id="aType">
+        <option value="patient">Patient appointment</option>
+        <option value="meeting">Other — Meeting</option>
+        <option value="oof">Other — Out of office</option>
+        <option value="lunch">Other — Lunch</option>
+        <option value="dns">Other — Do not schedule</option>
+      </select>
+    </label>
+
+    <div id="meetOnly">
+      <label class="af full" style="margin-bottom:13px"><span>Description <u>*</u></span>
+        <input type="text" id="aDesc" placeholder="Meeting with Dr. Reyes — denial review"></label>
+      <label class="af full" style="margin-bottom:13px"><span>Invite providers</span>
+        <div class="attn" id="aAttendees"></div>
+        <p style="font-size:10.4px;color:var(--dim);margin-top:7px">Only providers in your organisation. The block appears on their calendar too, and they are notified now.</p>
+      </label>
+    </div>
+
+    <div id="otherOnly">
+      <label class="af full" style="margin-bottom:13px"><span>Note</span>
+        <input type="text" id="aNote" placeholder="Optional — shown on the block"></label>
+    </div>
+
+    <div class="afg">
+      <label class="af"><span>Provider <u>*</u></span><select id="aProv"></select></label>
+      <label class="af"><span>Date <u>*</u></span><input type="date" id="aDate" min="1900-01-01" max="2100-12-31"></label>
+      <label class="af"><span>Start time <u>*</u></span><input type="time" id="aTime" step="300"></label>
+      <label class="af"><span>End time <u>*</u></span><input type="time" id="aEnd" step="300"></label>
+      <label class="af full"><span>Duration
+          <span style="margin-left:auto;font-family:var(--mono);font-size:8.8px;letter-spacing:.08em;
+            padding:2px 8px;border-radius:5px;background:var(--green-s);color:var(--green-d);font-weight:700">CALCULATED</span></span>
+        <span style="display:flex;gap:8px;align-items:center">
+          <input type="hidden" id="aDur" value="20">
+          <span id="aDurOut" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(13,26,22,.12);
+            background:var(--paper-2);font-family:var(--mono);font-size:12.8px;font-weight:600;color:var(--ink)">20 minutes</span>
+          <span id="aQuick" class="durrow"></span>
+        </span>
+        <p id="aDurWarn" style="display:none;font-size:10.8px;color:var(--coral);margin-top:6px;line-height:1.5"></p>
+      </label>
+    </div>
+
+    <div class="afg" id="patientFields">
+      <label class="af"><span>Patient last name <u>*</u></span><input type="text" id="aLast" placeholder="Kalyan"></label>
+      <label class="af"><span>Patient first name <u>*</u></span><input type="text" id="aFirst" placeholder="Bhavan"></label>
+      <label class="af"><span>Member ID</span><input type="text" id="aMid" placeholder="KALBHA01"></label>
+      <label class="af"><span>Visit type</span>
+        <select id="aKind"><option value="office">Office visit</option><option value="video">Telehealth</option></select></label>
+      <label class="af"><span>Patient type</span>
+        <select id="aNew"><option value="0">Established</option><option value="1">New patient</option></select></label>
+      <label class="af"><span>Copay</span><input type="text" id="aCopay" inputmode="decimal" placeholder="35"></label>
+      <label class="af"><span>Status</span>
+        <select id="aStatus"><option>Scheduled</option><option>Checked in</option><option>Cancelled</option><option>No show</option></select></label>
+      <label class="af"><span>Payer</span><input type="text" id="aPayer" placeholder="Blue Cross Blue Shield of Texas"></label>
+      <label class="af full"><span>Reason for visit</span><textarea id="aReason" placeholder="Annual physical"></textarea></label>
+    </div>
+  </div>
+  <div class="amf">
+    <button class="abtn dang" id="amDelete" style="display:none"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>Delete</button>
+    <span class="sp"></span>
+    <button class="abtn sec" id="amCancel">Cancel</button>
+    <button class="abtn pri" id="amSave"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Save appointment</button>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $=function(i){return document.getElementById(i);};
+  function seed(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+  function rng(s){return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+  /* local calendar date — toISOString() converts to UTC and can land on the wrong day */
+  var iso=function(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  };
+  var parseDay=function(str){
+    var p=String(str||'').split('-');
+    return new Date(+p[0], (+p[1]||1)-1, +p[2]||1, 12, 0, 0);
+  };
+  var pad=function(n){return n<10?'0'+n:''+n;};
+  function fmt(m){var h=Math.floor(m/60),mm=m%60,ap=h>=12?'PM':'AM';return (h%12||12)+':'+pad(mm)+' '+ap;}
+
+  var START=7*60,END=19*60,ROW=30,ROWH=62;
+  var PROV=[];            /* built from the admin's provider records */
+  var SESSION=null, ORGS=[], SCOPE_LABEL='', MINE=null, MY_ORG=null, CAN_EDIT_ALL=false, APPTS=[], CFG={}, ALL_ORG_PROV=[], ACCTS=[];
+  var PALETTE=['linear-gradient(140deg,#0E9D73,#3ECFA0)','linear-gradient(140deg,#3B6FF5,#8B9FFA)',
+               'linear-gradient(140deg,#1F93AE,#5FC0D6)','linear-gradient(140deg,#8B5CF6,#B692FA)',
+               'linear-gradient(140deg,#C98A18,#E5B658)','linear-gradient(140deg,#D0603F,#E89275)'];
+
+
+  var FIRST=['Jack','Maria','Priya','Walter','Elena','Marcus','Aisha','Tomas','Grace','Owen','Leila','Hugo','Nina','Caleb','Rosa','Ivan','Freya','Desmond','Talia','Miles','Anya','Rafael','Clara','Jonah','Iris','Felix'];
+  var LAST=['Marshall','Alvarez','Raman','Novak','Petrova','Hill','Bello','Sorensen','Whitmore','Chen','Haddad','Lindgren','Okoro','Reyes','Delgado','Baptiste','Nakamura','Ferreira','Kovacs','Adeyemi','Osei','Vargas'];
+  var R_OFF=['Annual physical','Diabetes follow-up','Hypertension check','Post-op review','Med reconciliation','Wellness visit','Lab review','Joint pain eval','Preventive screening'];
+  var R_VID=['Telehealth follow-up','Medication check-in','Results review','Behavioral session','Chronic care check-in'];
+  var PAYERS=['BCBS of Texas','UnitedHealthcare','Medicare','Aetna','Cigna','Texas Medicaid','Humana'];
+  var CPT_O=['99213','99214','99396','99215'],CPT_V=['99442','99443','99213-95'];
+  var CANC=['Patient request','Provider unavailable','Rescheduled','Weather'];
+
+  function canEdit(rid){
+    if(CAN_EDIT_ALL)return true;
+    return !!(MINE && String(rid)===String(MINE.id));
+  }
+
+  async function build(ds){
+    if(!PROV.length)return [];
+    APPTS=await RFStore.appts(ds, PROV.map(function(p){return p.rid;}));
+    return PROV.map(function(p){
+      var list=APPTS.filter(function(a){return String(a.provider_id)===String(p.rid);})
+        .map(function(a){
+          var bt=a.block_type||'patient';
+          if(bt!=='patient'){
+            return {
+              _id:a.id, start:a.start, dur:a.dur||20, block:bt,
+              kind:'blk '+bt, video:false, isNew:false,
+              first:'', last:a.description||({meeting:'Meeting',oof:'Out of office',
+                     lunch:'Lunch',dns:'Do not schedule'}[bt]),
+              guest:!!a.linked_to, organiser_id:a.organiser_id||null,
+              reason:a.note||'', attendees:a.attendees||[],
+              copay:0, collected:false, status:'Blocked', payer:'', memberId:'',
+              age:'', sex:'', dob:'', pid:'', mrn:'', cpt:'', elig:true, auth:false, bal:0,
+              reasonCanc:'', phone:'',
+              bookedMode:a.booked_mode||'A', bookedBy:a.booked_by||'', bookedAt:a.booked_at||'',
+            patient_ref:a.patient_ref||null
+            };
+          }
+          return {
+            _id:a.id, start:a.start, dur:a.dur||20, block:'patient',
+            kind:a.status==='No show'?'nos':a.status==='Cancelled'?'can':(a.is_new?'new':'est'),
+            video:a.kind==='video', isNew:!!a.is_new,
+            first:a.patient_first||'', last:a.patient_last||'',
+            pid:a.member_id||'', mrn:a.mrn||'',
+            age:a.age||'', sex:a.sex||'', dob:a.dob||'',
+            copay:+a.copay||0, collected:!!a.collected,
+            payer:a.payer||'', memberId:a.member_id||'',
+            reason:a.reason||'', cpt:a.cpt||'', elig:a.elig!==false,
+            auth:!!a.auth, bal:+a.balance||0,
+            reasonCanc:a.cancel_reason||'', phone:a.phone||'',
+            ptid:a.patient_ref||null,
+            status:a.status||'Scheduled',
+            bookedMode:a.booked_mode||'A', bookedBy:a.booked_by||'', bookedAt:a.booked_at||''
+          };
+        });
+      return {p:p, list:list};
+    });
+  }
+
+  var today=new Date(),cur=new Date(today),off={est:0,new:0,can:0,nos:0},DATA=[];
+
+  async function render(){
+    markPastDay();
+    var ds=iso(cur);
+    $('date').value=ds;
+    var diff=Math.round((parseDay(ds)-parseDay(iso(today)))/864e5);
+    $('dTitle').innerHTML=cur.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})+
+      ' <em>'+cur.getFullYear()+'</em>';
+
+    DATA=await build(ds);
+    var rows=(END-START)/ROW,g=$('grid');
+    g.style.gridTemplateColumns='62px repeat('+PROV.length+',minmax(150px,1fr))';
+
+    var html='<div class="colhead tz"><small>ALL DAY</small><b style="font-size:10px;color:var(--dim)">CT</b></div>';
+    var total=0,copayDue=0;
+    DATA.forEach(function(row){
+      var vis=row.list.filter(function(a){return !off[a.kind];});
+      total+=vis.filter(function(a){return a.kind!=='can'&&a.kind!=='nos';}).length;
+      vis.forEach(function(a){if(a.copay>0&&!a.collected&&a.kind!=='can')copayDue+=a.copay;});
+      var editable=canEdit(row.p.rid);
+      html+='<div class="colhead'+(editable?'':' locked')+'">'+
+        '<span class="chav" style="background:'+row.p.c+'">'+row.p.i+'</span>'+
+        '<b>'+row.p.n+'</b><small>'+row.p.s+' · '+row.p.sp+'</small>'+
+        '<span class="cnt">'+vis.length+' booked</span>'+
+        (editable?'':'<span class="lockchip">VIEW ONLY</span>')+'</div>';
+    });
+
+    // time column
+    html+='<div class="tzcol">';
+    for(var i=0;i<rows;i++){
+      var m=START+i*ROW,isHr=(m%60===0);
+      html+='<div class="tcell'+(isHr?' hr':'')+'"><span>'+(isHr?fmt(m):'')+'</span></div>';
+    }
+    html+='</div>';
+
+    var wknd=(cur.getDay()===0||cur.getDay()===6);
+    DATA.forEach(function(row,ci){
+      var ed=canEdit(row.p.rid);
+      html+='<div class="pcol'+(wknd?' wknd':'')+(ed?'':' locked')+'" data-rid="'+row.p.rid+'">';
+      for(var i=0;i<rows;i++){
+        var mins=START+i*ROW;
+        html+='<div class="cell'+(mins%60===0?' hr':'')+'"'+
+          (ed?' data-slot="'+mins+'" data-col="'+row.p.rid+'" title="Add an appointment"':'')+'></div>';
+      }
+      row.list.forEach(function(a,ai){
+        var top=(a.start-START)/ROW*ROWH;
+        var endM=Math.min(END, a.start+a.dur);
+        var h=Math.max(16,(endM-a.start)/ROW*ROWH-3);
+        var hid=off[a.kind]?' hidden':'';
+        var cpDot=a.copay>0?(a.collected?'<span class="cp"></span>':'<span class="cp due"></span>'):'';
+        var icon=a.video
+          ?'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="M16 10l6-3v10l-6-3"/></svg>'
+          :'<svg viewBox="0 0 24 24"><path d="M4 21V9l8-5 8 5v12"/></svg>';
+        html+='<div class="ev '+a.kind+(a.guest?' guest':'')+(h<40?' short':'')+
+          (isPast(iso(cur))?' past':'')+hid+'" data-c="'+ci+'" data-a="'+ai+'" '+
+          'data-apt="'+a._id+'" data-ed="'+(ed?1:0)+'" '+
+          'style="top:'+top+'px;height:'+h+'px;animation-delay:'+(ci*.04+ai*.02)+'s">'+cpDot+
+          '<span class="t">'+icon+fmt(a.start)+(a.dur>=45?' – '+fmt(a.start+a.dur):'')+'</span>'+
+          '<span class="n">'+(a.block&&a.block!=='patient'?a.last:(a.last+', '+a.first))+'</span>'+
+          '<span class="r">'+a.reason+'</span>'+
+          (a.dur>=30?'<span class="bookedby '+(a.bookedMode==='M'?'m':'a')+'" '+
+            'style="position:absolute;bottom:5px;right:6px">'+
+            (a.bookedMode==='M'?'M · '+String(a.bookedBy||'').split(' ').pop():'A')+'</span>':'')+
+          '</div>';
+      });
+      html+='</div>';
+    });
+
+    if(!PROV.length){
+      g.style.gridTemplateColumns='minmax(0,1fr)';
+      g.innerHTML='<div style="padding:70px 24px;text-align:center;color:var(--dim)">'+
+        '<svg viewBox="0 0 24 24" style="width:30px;height:30px;stroke:var(--dim);fill:none;stroke-width:1.7;margin-bottom:12px">'+
+        '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><br>'+
+        '<b style="display:block;font-family:Sora,sans-serif;font-size:15px;color:var(--ink);margin-bottom:6px">No providers on the schedule yet</b>'+
+        '<span style="font-size:12.6px">An administrator adds providers under Admin \u2192 Organizations \u2192 Providers. '+
+        'They appear here as soon as they are created.</span></div>';
+      $('sTotal').textContent='0';$('sCopay').textContent='$0';
+      return;
+    }
+    g.innerHTML=html;
+    $('sTotal').textContent=total;
+    $('sCopay').textContent='$'+copayDue.toLocaleString();
+
+    // now line
+    if(diff===0){
+      var nm=new Date().getHours()*60+new Date().getMinutes();
+      if(nm>=START&&nm<=END){
+        var y=(nm-START)/ROW*ROWH;
+        document.querySelectorAll('.pcol').forEach(function(c){
+          var l=document.createElement('div');l.className='nowline';l.style.top=y+'px';c.appendChild(l);
+        });
+        if(!render.scrolled){render.scrolled=true;
+          setTimeout(function(){$('scroller').scrollTop=Math.max(0,y-160);},120);}
+      }
+    }
+    bindEvents();
+  }
+
+  /* ── popover ── */
+  var pop=$('pop'),hideT;
+  function money(n){return '$'+n.toFixed(2);}
+  var POP_CTX=null;
+  function showPop(el){
+    var a=DATA[el.dataset.c].list[el.dataset.a],p=DATA[el.dataset.c].p;
+    POP_CTX={a:a,p:p};
+
+    if(a.block&&a.block!=='patient'){
+      var L={meeting:'Meeting',oof:'Out of office',lunch:'Lunch',dns:'Do not schedule'};
+      pop.className='pop '+(a.block==='meeting'?'new':'nos');
+      var who=(a.attendees||[]).map(function(id){
+        var x=ALL_ORG_PROV.filter(function(q){return q.id===id;})[0];
+        return x?x.full_name:null;
+      }).filter(Boolean);
+      pop.innerHTML=
+        '<div class="pophead"><div class="poptop">'+
+          '<span class="popav" style="background:'+(a.block==='meeting'
+            ?'linear-gradient(140deg,#8B5CF6,#B692FA)':'linear-gradient(140deg,#7A8783,#B0BAB7)')+';color:#fff">'+
+            (a.block==='meeting'?'MT':a.block.slice(0,2).toUpperCase())+'</span>'+
+          '<span class="popname"><b>'+(a.last||L[a.block])+'</b>'+
+            '<small>'+(L[a.block]||'Blocked').toUpperCase()+' · '+p.n+'</small></span>'+
+          '<span class="popstat '+(a.block==='meeting'?'new':'nos')+'">'+(L[a.block]||'Blocked')+'</span>'+
+        '</div><div class="poptags">'+
+          '<span class="ptag">'+fmt(a.start)+' – '+fmt(a.start+a.dur)+'</span>'+
+          '<span class="ptag">'+a.dur+' min</span>'+
+        '</div></div>'+
+        '<div class="popbody">'+
+          (a.reason?'<dl class="pgrid"><div style="grid-column:span 2"><dt>Note</dt><dd>'+a.reason+'</dd></div></dl>':'')+
+          (who.length?'<dl class="pgrid" style="margin-top:'+(a.reason?'12px':'0')+'">'+
+            '<div style="grid-column:span 2"><dt>Attending</dt><dd>'+who.join(', ')+'</dd></div></dl>':'')+
+          '<dl class="pgrid" style="margin-top:12px"><div style="grid-column:span 2"><dt>Booked by</dt><dd>'+
+            (a.bookedMode==='M'?'<span class="bookedby m">M</span> '+(a.bookedBy||'—')
+                               :'<span class="bookedby a">A</span> Automatic')+'</dd></div></dl>'+
+          (a.guest?'<div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--paper-2);'+
+            'font-size:11.4px;color:var(--muted);line-height:1.5">You were invited to this meeting. '+
+            'Only the organiser can change or cancel it.</div>':'')+
+        '</div>';
+      var rb=el.getBoundingClientRect(),W=326,H=pop.offsetHeight||240;
+      var left=rb.right+12,topY=rb.top-10;
+      if(left+W>window.innerWidth-12)left=rb.left-W-12;
+      if(left<12)left=12;
+      if(topY+H>window.innerHeight-12)topY=Math.max(12,window.innerHeight-H-12);
+      pop.style.left=left+'px';pop.style.top=topY+'px';
+      pop.classList.add('on');
+      return;
+    }
+    var kindLabel={est:'Established',new:'New patient',can:'Cancelled',nos:'No show'}[a.kind];
+    var cpCls=a.copay===0?'none':(a.collected?'paid':'due');
+    var cpTxt=a.copay===0?'No copay required':(a.collected?'Collected':'Due at check-in');
+    pop.className='pop '+a.kind;
+    pop.innerHTML=
+      '<div class="pophead">'+
+        '<div class="poptop">'+
+          '<span class="popav" style="background:'+p.c+';color:#fff">'+a.first[0]+a.last[0]+'</span>'+
+          '<span class="popname"><b>'+a.last.toUpperCase()+', '+a.first+'</b>'+
+            '<small>'+a.pid+' · '+a.mrn+'</small></span>'+
+          '<span class="popstat '+a.kind+'">'+kindLabel+'</span>'+
+        '</div>'+
+        '<div class="poptags">'+
+          '<span class="ptag '+(a.video?'vid':'off')+'">'+
+            (a.video?'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="M16 10l6-3v10l-6-3"/></svg>Video visit'
+                    :'<svg viewBox="0 0 24 24"><path d="M4 21V9l8-5 8 5v12"/></svg>Office visit')+'</span>'+
+          '<span class="ptag">'+fmt(a.start)+' – '+fmt(a.start+a.dur)+'</span>'+
+          '<span class="ptag">'+a.age+a.sex+' · '+a.dob+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="popbody">'+
+        '<dl class="pgrid">'+
+          '<div><dt>Session</dt><dd>'+a.reason+'</dd></div>'+
+          '<div><dt>Provider</dt><dd>'+p.i+' · '+p.s+'</dd></div>'+
+          '<div><dt>Payer</dt><dd>'+a.payer+'</dd></div>'+
+          '<div><dt>Member ID</dt><dd class="mono">'+a.memberId+'</dd></div>'+
+          '<div><dt>Eligibility</dt><dd class="'+(a.elig?'ok':'bad')+'">'+(a.elig?'Active · verified':'Needs recheck')+'</dd></div>'+
+          '<div><dt>Prior auth</dt><dd class="'+(a.auth?'warn':'ok')+'">'+(a.auth?'Required':'Not required')+'</dd></div>'+
+          '<div><dt>Expected CPT</dt><dd class="mono">'+a.cpt+'</dd></div>'+
+          '<div><dt>Prior balance</dt><dd class="mono'+(a.bal>0?' warn':'')+'">'+money(a.bal)+'</dd></div>'+
+          '<div><dt>Booked by</dt><dd>'+
+            (a.bookedMode==='M'
+              ? '<span class="bookedby m">M</span> '+(a.bookedBy||'—')
+              : '<span class="bookedby a">A</span> Automatic')+
+            (a.bookedAt?'<br><span style="font-family:var(--mono);font-size:9.4px;color:var(--dim)">'+
+              new Date(a.bookedAt).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})+
+              '</span>':'')+'</dd></div>'+
+          (a.kind==='can'?'<div style="grid-column:span 2"><dt>Cancellation reason</dt><dd>'+a.reasonCanc+'</dd></div>':'')+
+          (a.kind==='nos'?'<div style="grid-column:span 2"><dt>No-show</dt><dd class="bad">Marked · outreach pending</dd></div>':'')+
+        '</dl>'+
+        '<div class="copayrow '+cpCls+'">'+
+          '<span class="ci">'+(cpCls==='paid'
+            ?'<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>'
+            :cpCls==='due'?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>'
+            :'<svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>')+'</span>'+
+          '<span><small>Copay</small><b>'+(a.copay?'$'+a.copay+'.00':'—')+'</b></span>'+
+          '<span class="st">'+cpTxt+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="popacts">'+
+        '<button class="pbtn pri" data-act="checkin"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Check in</button>'+
+        '<button class="pbtn" data-act="elig"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10h18"/></svg>Eligibility</button>'+
+        '<button class="pbtn"'+(a.copay>0?'':' disabled style="opacity:.4;cursor:not-allowed"')+
+          ' data-act="collect"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Collect</button>'+
+      '</div>';
+
+    var r=el.getBoundingClientRect(),W=326,H=pop.offsetHeight||420;
+    var left=r.right+12,topY=r.top-10;
+    if(left+W>window.innerWidth-12)left=r.left-W-12;
+    if(left<12)left=12;
+    if(topY+H>window.innerHeight-12)topY=Math.max(12,window.innerHeight-H-12);
+    pop.style.left=left+'px';pop.style.top=topY+'px';
+    pop.classList.add('on');
+  }
+  function hidePop(){pop.classList.remove('on');}
+
+  function bindEvents(){
+    document.querySelectorAll('.ev').forEach(function(el){
+      el.addEventListener('mouseenter',function(){clearTimeout(hideT);showPop(el);});
+      el.addEventListener('mouseleave',function(){hideT=setTimeout(hidePop,260);});
+      el.addEventListener('click',function(e){clearTimeout(hideT);});
+      el.addEventListener('focus',function(){showPop(el);});
+      el.setAttribute('tabindex','0');
+    });
+    pop.addEventListener('mouseenter',function(){clearTimeout(hideT);});
+    pop.addEventListener('mouseleave',hidePop);
+  }
+  document.addEventListener('click',hidePop);
+  $('scroller').addEventListener('scroll',hidePop,{passive:true});
+
+
+  /* ══════════ ADD / EDIT / DELETE APPOINTMENTS ══════════ */
+  var AM={open:false,id:null};
+  var ascrim=$('ascrim'), amodal=$('amodal');
+
+  function hhmm(m){return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
+  function minsOf(v){var p=String(v||'').split(':');return (+p[0]||0)*60+(+p[1]||0);}
+
+  function amOpen(){ascrim.classList.add('on');amodal.classList.add('on');document.body.style.overflow='hidden';AM.open=true;}
+  function amClose(){ascrim.classList.remove('on');amodal.classList.remove('on');document.body.style.overflow='';AM.open=false;AM.id=null;}
+  ascrim.addEventListener('click',amClose);
+  $('amClose').addEventListener('click',amClose);
+  $('amCancel').addEventListener('click',amClose);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&AM.open)amClose();});
+
+  /* telehealth only offered when the provider has enabled it in settings */
+  function applyTelehealth(){
+    var k=$('aKind');if(!k)return;
+    var allowed=CFG.telehealth!==false&&!!CFG.telehealth;
+    var opt=k.querySelector('option[value="video"]');
+    if(!opt)return;
+    opt.disabled=!allowed;
+    opt.textContent=allowed?'Telehealth':'Telehealth — not enabled in Settings';
+    if(!allowed&&k.value==='video')k.value='office';
+  }
+
+  /* a new patient gets the longer slot automatically */
+  function applyNewPatientSlot(){
+    var n=$('aNew');if(!n)return;
+    var d=n.value==='1'?(CFG.newSlotLength||40):(CFG.slotLength||20);
+    setEndFrom(minsOf($('aTime').value),d);
+    recalcDur();
+  }
+
+  function fillProviders(sel){
+    $('aProv').innerHTML=PROV.filter(function(p){return canEdit(p.rid);})
+      .map(function(p){return '<option value="'+p.rid+'">'+p.name+(p.s?', '+p.s:'')+'</option>';}).join('');
+    if(sel)$('aProv').value=sel;
+  }
+
+  function newAppt(rid,mins){
+    AM.id=null;
+    fillProviders(rid);
+    $('amTitle').textContent='New appointment';
+    $('amSub').textContent=cur.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})+' · '+fmt(mins);
+    $('amNote').className='slotnote';
+    $('amNoteText').textContent='This slot is free. Fill in the patient and save to book it.';
+    $('aDate').value=iso(cur);
+    $('aTime').value=hhmm(mins);
+    if(lockPast(iso(cur))){
+      flash('warn','That date has passed',
+        'Appointments cannot be added to a past date. Pick today or later.');
+      return;
+    }
+    var d0=CFG.slotLength||20;
+    $('aDur').value=String(d0);
+    setEndFrom(mins,d0);
+    recalcDur();quickDur();
+    applyTelehealth();
+    ['aLast','aFirst','aMid','aCopay','aPayer','aReason','aSearch'].forEach(function(i){$(i).value='';});
+    delete $('aSearch').dataset.ptid;delete $('aSearch').dataset.dob;
+    PICKED=null;POOL=null;clearFind();
+    $('aNew').value='1';
+    $('aKind').value='office';$('aNew').value='0';$('aStatus').value='Scheduled';
+    $('aType').value='patient';$('aDesc').value='';$('aNote').value='';
+    paintAttendees([]);applyType();
+    $('amIco').innerHTML='<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+    $('amDelete').style.display='none';
+    amOpen();setTimeout(function(){$('aLast').focus();},320);
+  }
+
+  async function editAppt(id){
+    var a=await RFStore.appt(id);
+    if(!a)return;
+    if(!canEdit(a.provider_id)){
+      toastMsg('View only','You can only change your own appointments');return;
+    }
+    /* this row is a copy of somebody else's meeting */
+    if(a.linked_to){
+      var host=ALL_ORG_PROV.filter(function(x){
+        return String(x.id)===String(a.organiser_id);})[0];
+      toastMsg('Organised by '+(host?host.full_name:'another provider'),
+               'Only the organiser can change or cancel this meeting');
+      return;
+    }
+    AM.id=id;
+    fillProviders(a.provider_id);
+    $('amTitle').textContent='Edit appointment';
+    $('amSub').textContent=(a.patient_last||'')+', '+(a.patient_first||'')+' · '+fmt(a.start);
+    $('amNote').className='slotnote';
+    $('amNoteText').textContent='Change the time and the appointment moves on the calendar. Deleting frees the slot.';
+    $('aDate').value=a.date;
+    $('aTime').value=hhmm(a.start);
+    $('aDur').value=String(a.dur||20);
+    $('aEnd').value=hhmm(a.start+(a.dur||20));
+    recalcDur();quickDur();
+    applyTelehealth();
+    $('aLast').value=a.patient_last||'';$('aFirst').value=a.patient_first||'';
+    $('aMid').value=a.member_id||'';$('aCopay').value=a.copay||'';
+    $('aPayer').value=a.payer||'';$('aReason').value=a.reason||'';
+    $('aSearch').value='';clearFind();
+    $('aType').value=a.block_type||'patient';
+    $('aDesc').value=a.description||'';$('aNote').value=a.note||'';
+    paintAttendees(a.attendees||[]);applyType();
+    if((a.block_type||'patient')!=='patient')
+      $('amSub').textContent=(BLOCK_LABEL[a.block_type]||'Block')+' · '+fmt(a.start);
+    $('aKind').value=a.kind||'office';
+    $('aNew').value=a.is_new?'1':'0';
+    lockPast(a.date||iso(cur));
+    $('aStatus').value=a.status||'Scheduled';
+    $('amDelete').style.display='';
+    amOpen();
+  }
+
+  function toastMsg(t,sub){
+    var el=document.createElement('div');
+    el.style.cssText='position:fixed;left:50%;bottom:26px;transform:translate(-50%,0);z-index:95;'+
+      'padding:13px 18px;border-radius:13px;background:var(--green-d);color:#F3FBF8;font-size:12.8px;'+
+      'font-weight:600;box-shadow:0 22px 44px -20px rgba(10,92,70,.9);max-width:calc(100vw - 30px)';
+    el.innerHTML=t+(sub?'<br><span style="font-size:11px;opacity:.75;font-weight:400">'+sub+'</span>':'');
+    document.body.appendChild(el);
+    setTimeout(function(){el.style.transition='opacity .4s';el.style.opacity='0';
+      setTimeout(function(){el.remove();},420);},2600);
+  }
+
+
+
+
+  /* ── start + end drive the duration, for every block type ── */
+  function fmtDur(m){
+    if(m<60)return m+' minutes';
+    var h=Math.floor(m/60),r=m%60;
+    return h+' hour'+(h===1?'':'s')+(r?' '+r+' min':'');
+  }
+  function setEndFrom(start,dur){
+    $('aEnd').value=hhmm(Math.min(END, start+dur));
+  }
+  function recalcDur(){
+    var st=minsOf($('aTime').value), en=minsOf($('aEnd').value);
+    var warn=$('aDurWarn');
+    warn.style.display='none';
+    if(!$('aTime').value||!$('aEnd').value)return;
+
+    var d=en-st;
+    if(d<=0){
+      /* an end before the start is almost always a typo, so push it out one slot */
+      d=+($('aDur').value)||20;
+      setEndFrom(st,d);
+      warn.textContent='End time must be after the start. Reset to '+fmtDur(d)+'.';
+      warn.style.display='';
+      en=st+d;
+    }
+    $('aDur').value=String(d);
+    $('aDurOut').textContent=fmtDur(d);
+    $('aQuick').querySelectorAll('[data-q]').forEach(function(b){
+      b.classList.toggle('on',+b.dataset.q===d);});
+
+    if(st+d>END){
+      warn.textContent='This runs past the end of the schedule day ('+fmt(END)+').';
+      warn.style.display='';
+    }else{
+      warn.style.color='var(--coral)';
+    }
+  }
+  function quickDur(){
+    var cur=+($('aDur').value)||20;
+    $('aQuick').innerHTML=[15,30,45,60].map(function(m){
+      return '<button type="button" data-q="'+m+'"'+(cur===m?' class="on"':'')+'>'+m+'m</button>';
+    }).join('');
+  }
+  $('aQuick').addEventListener('click',function(e){
+    var b=e.target.closest('[data-q]');if(!b)return;
+    setEndFrom(minsOf($('aTime').value),+b.dataset.q);
+    recalcDur();quickDur();
+  });
+  $('aEnd').addEventListener('change',recalcDur);
+  $('aEnd').addEventListener('input',recalcDur);
+  $('aTime').addEventListener('change',function(){
+    /* keep the length, slide the end along with the start */
+    var d=+($('aDur').value)||20;
+    setEndFrom(minsOf(this.value),d);
+    recalcDur();
+  });
+
+  /* ── block type switching ── */
+  var BLOCK_LABEL={meeting:'Meeting',oof:'Out of office',lunch:'Lunch',dns:'Do not schedule'};
+
+  function applyType(){
+    var t=$('aType').value, patient=(t==='patient');
+    $('patientFields').style.display=patient?'':'none';
+    $('searchWrap').style.display=patient?'':'none';
+    $('meetOnly').style.display=(t==='meeting')?'block':'none';
+    $('otherOnly').style.display=(!patient&&t!=='meeting')?'block':'none';
+    if(!patient){
+      $('amIco').innerHTML= t==='meeting'
+        ? '<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.4"/><path d="M2 20c0-3.4 3-5.6 7-5.6s7 2.2 7 5.6"/><circle cx="18" cy="8" r="2.6"/><path d="M17 20c0-2.6 1.2-4.4 3.6-4.4"/></svg>'
+        : '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M9 14l6 0"/></svg>';
+      $('amNoteText').textContent = t==='meeting'
+        ? 'Everyone you invite gets this block on their calendar and a notification now.'
+        : 'This time is blocked out. Patients cannot be booked into it.';
+    }
+  }
+  $('aType').addEventListener('change',function(){
+    applyType();
+    if(!AM.id){
+      var st=minsOf($('aTime').value);
+      if(this.value==='lunch'){setEndFrom(st,60);recalcDur();}
+      if(this.value==='meeting'){setEndFrom(st,30);recalcDur();}
+    }
+  });
+
+  function paintAttendees(selected){
+    selected=selected||[];
+    var me=MINE?MINE.id:null;
+    var pool=ALL_ORG_PROV.filter(function(p){return p.id!==me;});
+    $('aAttendees').innerHTML=pool.length?pool.map(function(p){
+      return '<label><input type="checkbox" value="'+p.id+'"'+
+        (selected.indexOf(p.id)>-1?' checked':'')+'>'+
+        '<span class="bx"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>'+
+        '<span>'+p.full_name+(p.title?', '+p.title:'')+'</span></label>';
+    }).join(''):'<p style="font-size:11.6px;color:var(--dim)">No other providers in this organisation yet.</p>';
+  }
+  function readAttendees(){
+    return [].slice.call($('aAttendees').querySelectorAll('input:checked')).map(function(i){return +i.value;});
+  }
+
+
+  /* a short notice above the form, gone in a few seconds */
+  var flashT=null;
+  function flash(kind,title,detail,ms){
+    var w=$('flashwrap'), f=$('flash');
+    if(!w||!f)return;
+    var ic={
+      warn:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',
+      info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+      ok:'<path d="M5 13l4 4L19 7"/>'
+    }[kind]||'';
+    f.className='flash '+kind;
+    f.innerHTML='<svg viewBox="0 0 24 24">'+ic+'</svg>'+
+      '<span><b>'+title+'</b>'+(detail?'<small>'+detail+'</small>':'')+'</span>';
+    w.classList.add('on');
+    clearTimeout(flashT);
+    flashT=setTimeout(function(){ w.classList.remove('on'); }, ms||4200);
+  }
+
+
+  /* Reconcile what was typed against the patient roster. */
+  var standingT=null;
+  function checkStanding(){
+    clearTimeout(standingT);
+    standingT=setTimeout(runStanding,220);
+  }
+
+  async function runStanding(){
+    var first=$('aFirst').value.trim(), last=$('aLast').value.trim();
+    var isNew=$('aNew').value==='1';
+    if(!last)return;
+
+    var pool=await loadPool();
+    var L=last.toLowerCase(), F=first.toLowerCase();
+    var match=pool.filter(function(p){
+      return String(p.last||'').toLowerCase()===L &&
+             (!F || !p.first || String(p.first).toLowerCase()===F);
+    })[0];
+
+    if(isNew && match){
+      /* they said new, but a chart already exists */
+      var st={seen:false};
+      try{ st=await RFStore.patientStanding(match.id); }catch(e){}
+      if(st.seen){
+        flash('warn','Patient records already exist',
+          esc(last)+', '+esc(first)+' has been seen before. '+
+          'Switching this to an established patient visit.');
+        $('aNew').value='0';
+        applyNewPatientSlot();
+      }else{
+        flash('info','Patient records already exist',
+          'A chart exists for '+esc(last)+', '+esc(first)+
+          ' but they have never been seen, so this stays a new patient visit.');
+      }
+      /* link the appointment to the chart either way */
+      $('aSearch').dataset.ptid=match.id||'';
+      return;
+    }
+
+    if(!isNew && !match){
+      flash('warn','No records',
+        'No chart found for '+esc(last)+', '+esc(first)+
+        '. A record will be created when this appointment is saved.');
+      $('aNew').value='1';
+      applyNewPatientSlot();
+    }
+  }
+
+  ['aFirst','aLast'].forEach(function(id){
+    var el=$(id);
+    if(el)el.addEventListener('blur',checkStanding);
+  });
+
+
+  /* An appointment in the past is a record of what happened. It can be read,
+     but not re-dated, re-statused or deleted — that would rewrite history the
+     billing and the chart already depend on. */
+  function todayISO(){
+    var d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+
+           '-'+String(d.getDate()).padStart(2,'0');
+  }
+  function isPast(ds){ return String(ds||'') < todayISO(); }
+
+  function lockPast(ds){
+    var locked=isPast(ds);
+    var modal=document.querySelector('.am');
+    if(modal)modal.classList.toggle('readonly',locked);
+
+    var save=$('amSave'), del=$('amDelete');
+    if(save){ save.disabled=locked; save.style.display=locked?'none':''; }
+    if(del){ del.disabled=locked; del.style.display=locked?'none':''; }
+
+    var head=document.querySelector('.am .mbody');
+    var note=document.getElementById('pastNote');
+    if(locked){
+      if(!note&&head){
+        note=document.createElement('div');
+        note.id='pastNote';
+        note.className='pastnote';
+        note.innerHTML='<svg viewBox="0 0 24 24" stroke-linecap="round">'+
+          '<rect x="4" y="10.5" width="16" height="10" rx="2.5"/>'+
+          '<path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>'+
+          '<span><b>Past appointment · view only</b><br>'+
+          'This visit has already happened. Its details, status and time cannot be '+
+          'changed, and it cannot be deleted. Work it up in the patient chart instead.</span>';
+        head.insertBefore(note,head.firstChild);
+      }
+      if(note)note.style.display='';
+    }else if(note){
+      note.style.display='none';
+    }
+    return locked;
+  }
+
+
+  function esc(v){
+    return String(v==null?'':v).replace(/[&<>"]/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});
+  }
+
+  /* a VIEW ONLY badge on a day that has already passed */
+  function markPastDay(){
+    try{
+      var h=document.querySelector('.dhead h2')||document.querySelector('.dayttl')||
+            document.querySelector('.ptop h1');
+      if(!h)return;
+      var tag=h.querySelector('.daypast');
+      if(isPast(iso(cur))){
+        if(!tag){
+          tag=document.createElement('span');
+          tag.className='daypast';
+          tag.textContent='VIEW ONLY';
+          h.appendChild(tag);
+        }
+      }else if(tag){ tag.remove(); }
+    }catch(e){}
+  }
+
+  /* ── patient search: shows every match, you pick one ── */
+  var POOL=null, PICKED=null, HI=-1;
+
+  function midOf(first,last){
+    return ((last||'').slice(0,3)+(first||'').slice(0,3)).toUpperCase();
+  }
+  function clearFind(){
+    $('aFound').style.display='none';$('aMiss').style.display='none';
+    $('aResults').classList.remove('on');HI=-1;
+  }
+  async function setPicked(p){
+    PICKED=p;
+    if(p){
+      $('aFirst').value=p.first||'';
+      $('aLast').value=p.last||'';
+      $('aMid').value=p.memberId||p.mid||'';
+      $('aPayer').value=p.payer||'';
+      $('aCopay').value=p.copay!=null?p.copay:'';
+      $('aSearch').dataset.ptid=p.id||'';
+      if(p.dob)$('aSearch').dataset.dob=p.dob;
+
+      /* A chart can exist for someone who never attended. Only a locked
+         encounter proves they have been seen, so that is what decides. */
+      var st={seen:false,encounters:0};
+      try{ st=await RFStore.patientStanding(p.id); }catch(e){}
+      $('aNew').value=st.seen?'0':'1';
+      $('aSearch').dataset.seen=st.seen?'1':'0';
+
+      if(st.seen){
+        flash('info','Established patient',
+          'Last seen '+(st.lastSeen?fmtNice(st.lastSeen):'previously')+
+          ' · '+st.locked+' completed encounter'+(st.locked===1?'':'s')+'.');
+      }else{
+        flash('warn','Chart exists but never seen',
+          'A record exists for this patient with no completed encounter, '+
+          'so this is billed as a new patient visit.');
+      }
+    }else{
+      $('aNew').value='1';
+      delete $('aSearch').dataset.ptid;
+      delete $('aSearch').dataset.dob;
+      delete $('aSearch').dataset.seen;
+    }
+    applyNewPatientSlot();
+  }
+  function fmtNice(d){
+    if(!d)return '';
+    var p=String(d).split('-');
+    return new Date(+p[0],(+p[1]||1)-1,+p[2]||1,12).toLocaleDateString(undefined,
+      {month:'short',day:'numeric',year:'numeric'});
+  }
+
+  async function loadPool(){
+    if(POOL)return POOL;
+    var list=[];
+    try{ await RFStore.ready(); list=await RFStore.patients(); }catch(e){}
+
+    /* the store uses first_name / last_name; older rosters used first / last.
+       Normalise both so the search box works either way. */
+    POOL=list.map(function(r){
+      var ins=(r.insurances||[]);
+      var p1=ins.filter(function(x){return x.rank==='1';})[0]||ins[0]||{};
+      return {
+        id:r.id,
+        first:r.first_name||r.first||'',
+        last:r.last_name||r.last||'',
+        dob:r.dob||'',
+        mid:r.internal_id||r.mid||'',
+        memberId:p1.member_id||r.member_id||r.memberId||'',
+        payer:p1.name||r.payer||'',
+        copay:+p1.copay||+r.copay||0,
+        patBal:+r.pat_bal||+r.patBal||0,
+        insBal:+r.ins_bal||+r.insBal||0,
+        visits:+r.visits||0,
+        lastSeen:r.last_seen||r.lastSeen||''
+      };
+    });
+
+    if(!POOL.length){
+      var legacy=[];
+      try{ legacy=JSON.parse(localStorage.getItem('rf_patients')||'[]'); }catch(e){}
+      POOL=legacy;
+    }
+    return POOL;
+  }
+
+  function ageOf(dob){
+    if(!dob)return '';
+    var d=new Date(dob),n=new Date(),a=n.getFullYear()-d.getFullYear();
+    if(n.getMonth()<d.getMonth()||(n.getMonth()===d.getMonth()&&n.getDate()<d.getDate()))a--;
+    return a;
+  }
+
+  async function searchPatients(){
+    var q=$('aSearch').value.trim();
+    clearFind();
+    if(q.length<1)return;
+    var Q=q.toUpperCase();
+    var pool=await loadPool();
+
+    var hits=pool.filter(function(p){
+      var mid=(p.mid||midOf(p.first,p.last)||'').toUpperCase();
+      var mem=String(p.memberId||'').toUpperCase();
+      var last=String(p.last||'').toUpperCase();
+      var first=String(p.first||'').toUpperCase();
+      var full=(first+' '+last).trim();
+      return mid.indexOf(Q)>-1 || mem.indexOf(Q)>-1 ||
+             last.indexOf(Q)===0 || first.indexOf(Q)===0 ||
+             full.indexOf(Q)>-1 || (last+', '+first).indexOf(Q)>-1;
+    }).sort(function(a,b){
+      /* surname matches first, then first name, then everything else */
+      var la=String(a.last||'').toUpperCase().indexOf(Q)===0?0:1;
+      var lb=String(b.last||'').toUpperCase().indexOf(Q)===0?0:1;
+      if(la!==lb)return la-lb;
+      return String(a.last||'').localeCompare(String(b.last||''));
+    }).slice(0,40);
+
+    if(!hits.length){
+      $('aResults').innerHTML='<p class="rnone">No patient matches <b>'+q+'</b>.<br>'+
+        'Fill in the fields below and they will be created with this appointment.</p>';
+      $('aResults').classList.add('on');
+      setPicked(null);
+      return;
+    }
+
+    $('aResults').innerHTML='<div class="rhead2">'+hits.length+
+      ' MATCH'+(hits.length===1?'':'ES')+' — SELECT A PATIENT</div>'+
+      hits.map(function(p,i){
+        var age=ageOf(p.dob), bal=(+p.patBal||0)+(+p.insBal||0);
+        return '<button type="button" class="ritem" data-i="'+i+'">'+
+          '<span class="ra">'+((p.first||'?')[0]+(p.last||'?')[0]).toUpperCase()+'</span>'+
+          '<span class="rb"><b>'+(p.last||'')+', '+(p.first||'')+'</b>'+
+            '<small>'+(p.mid||midOf(p.first,p.last))+
+              (p.dob?' · DOB '+p.dob:'')+(age!==''?' · '+age+'y':'')+'</small></span>'+
+          '<span class="rt">'+(p.payer||'No payer')+
+            (p.copay?'<em>copay $'+p.copay+'</em>':'')+
+            (bal>0?'<em>bal $'+bal.toFixed(2)+'</em>':'')+'</span>'+
+        '</button>';
+      }).join('');
+    $('aResults')._hits=hits;
+    $('aResults').classList.add('on');
+  }
+
+  var searchT;
+  $('aSearch').addEventListener('input',function(){
+    setPicked(null);
+    clearTimeout(searchT);
+    searchT=setTimeout(searchPatients,180);
+  });
+  $('aFind').addEventListener('click',searchPatients);
+  $('aSearch').addEventListener('keydown',function(e){
+    var box=$('aResults');
+    if(!box.classList.contains('on')){
+      if(e.key==='Enter'){e.preventDefault();searchPatients();}
+      return;
+    }
+    var items=[].slice.call(box.querySelectorAll('.ritem'));
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      e.preventDefault();
+      HI+=(e.key==='ArrowDown'?1:-1);
+      if(HI<0)HI=items.length-1;
+      if(HI>=items.length)HI=0;
+      items.forEach(function(x,i){x.classList.toggle('hi',i===HI);});
+      if(items[HI])items[HI].scrollIntoView({block:'nearest'});
+    }
+    if(e.key==='Enter'){e.preventDefault();(items[HI]||items[0])&&(items[HI]||items[0]).click();}
+    if(e.key==='Escape'){clearFind();}
+  });
+
+  $('aResults').addEventListener('click',function(e){
+    var b=e.target.closest('[data-i]');if(!b)return;
+    var hit=(this._hits||[])[+b.dataset.i];
+    if(!hit)return;
+    setPicked(hit);
+    $('aSearch').value=(hit.last||'')+', '+(hit.first||'');
+    this.classList.remove('on');
+
+    var age=ageOf(hit.dob), bal=(+hit.patBal||0)+(+hit.insBal||0);
+    $('aFound').innerHTML='<b>'+(hit.last||'')+', '+(hit.first||'')+'</b>'+(age!==''?' · '+age+' y/o':'')+
+      '<br>'+(hit.payer||'No payer on file')+
+      (hit.memberId?' · '+hit.memberId:'')+
+      (hit.copay?' · copay $'+hit.copay:' · no copay')+
+      '<br><span style="font-family:var(--mono);font-size:10px">Marked as an established patient.</span>'+
+      (bal>0?'<br><span style="color:var(--coral)">Outstanding balance $'+bal.toFixed(2)+'</span>':'');
+    $('aFound').style.display='';
+  });
+
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('.srchwrap'))$('aResults').classList.remove('on');
+  });
+
+  /* typing a name by hand means a new patient unless one was picked */
+  ['aFirst','aLast'].forEach(function(id){
+    $(id).addEventListener('input',function(){
+      if(PICKED){
+        var same=($('aFirst').value.trim()===(PICKED.first||'')&&
+                  $('aLast').value.trim()===(PICKED.last||''));
+        if(!same)setPicked(null);
+      }
+    });
+  });
+
+  $('amSave').addEventListener('click',async function(){
+    var type=$('aType').value, isPatient=(type==='patient');
+    if(isPast(iso(cur))&&!AM.id){
+      toastMsg('That date has passed','Appointments can only be booked from today onwards');
+      return;
+    }
+    if(AM.id&&isPast(AM.date||iso(cur))){
+      toastMsg('Past appointments are view only','This visit has already happened');
+      return;
+    }
+    if(!$('aTime').value){toastMsg('Choose a start time');$('aTime').focus();return;}
+    if(!$('aEnd').value){toastMsg('Choose an end time');$('aEnd').focus();return;}
+    recalcDur();
+    if((+$('aDur').value)<5){toastMsg('That block is too short','End time must be after the start');$('aEnd').focus();return;}
+
+    if(isPatient){
+      var last=$('aLast').value.trim(),first=$('aFirst').value.trim();
+      if(!last||!first){toastMsg('Patient name is required','Enter both first and last name');
+        (!last?$('aLast'):$('aFirst')).focus();return;}
+    }else{
+      if(type==='meeting'&&!$('aDesc').value.trim()){
+        toastMsg('Describe the meeting','For example: Meeting with Dr. Reyes — denial review');
+        $('aDesc').focus();return;
+      }
+      var attendees=(type==='meeting')?readAttendees():[];
+      var base={
+        booked_mode:'M',
+        booked_by:(SESSION&&(SESSION.name||SESSION.username))||'Unknown',
+        booked_at:new Date().toISOString(),
+        block_type:type,
+        description:type==='meeting'?$('aDesc').value.trim():BLOCK_LABEL[type],
+        note:$('aNote').value.trim(),
+        attendees:attendees,
+        date:$('aDate').value,start:minsOf($('aTime').value),dur:+$('aDur').value,
+        status:'Blocked'
+      };
+      this.disabled=true;
+
+      /* the organiser's own block */
+      var owner=+$('aProv').value;
+      var mineRec=Object.assign({},base,{provider_id:owner});
+      if(AM.id)mineRec.id=AM.id;
+      var rootId=AM.id||null;
+      var r0=await RFStore.saveAppt(mineRec);
+      if(!r0||!r0.ok){
+        this.disabled=false;
+        $('amNote').className='slotnote warn';
+        $('amNoteText').textContent=(r0&&r0.error)||'Could not save this block.';
+        return;
+      }
+
+      /* an edit re-points the copies and drops anyone no longer invited */
+      if(rootId){
+        await RFStore.pruneMeeting(rootId, attendees);
+        await RFStore.syncMeeting(rootId, {
+          description:base.description, note:base.note, attendees:attendees,
+          date:base.date, start:base.start, dur:base.dur, block_type:base.block_type
+        });
+      }
+
+      /* a matching block on each invited provider's calendar */
+      var placed=0, clashes=[];
+      var existing=rootId?(await RFStore.appts(base.date)).filter(function(x){
+        return x.linked_to===rootId;}).map(function(x){return String(x.provider_id);}):[];
+      for(var i=0;i<attendees.length;i++){
+        var pid=attendees[i];
+        if(pid===owner)continue;
+        if(existing.indexOf(String(pid))>-1){placed++;continue;}
+        var copy=Object.assign({},base,{provider_id:pid,linked_to:r0.id,organiser_id:owner});
+        var rr=await RFStore.saveAppt(copy);
+        if(rr&&rr.ok)placed++;
+        else{
+          var who=ALL_ORG_PROV.filter(function(x){return x.id===pid;})[0];
+          clashes.push(who?who.full_name:'a provider');
+        }
+      }
+
+      /* notify them, wherever they are in the app */
+      if(attendees.length&&window.RFNotify){
+        var names=attendees.map(function(pid){
+          var prov=ALL_ORG_PROV.filter(function(x){return x.id===pid;})[0];
+          var a=ACCTS.filter(function(x){return x.provider_ref===pid;})[0]
+              ||(prov?ACCTS.filter(function(x){
+                   return x.full_name&&prov.full_name&&
+                     x.full_name.toLowerCase()===prov.full_name.toLowerCase();
+                 })[0]:null)
+              ||(prov?ACCTS.filter(function(x){
+                   return x.provider_id&&prov.code&&x.provider_id===prov.code;
+                 })[0]:null);
+          return a?a.username:null;
+        }).filter(Boolean);
+        if(!names.length){
+          console.warn('No login found for the invited providers — nobody was notified.');
+        }
+        if(names.length){
+          RFNotify.send(names,{
+            kind:'meet',
+            title:'New meeting: '+base.description,
+            body:(MINE?MINE.full_name:'A colleague')+' added you to a meeting on '+
+                 parseDay(base.date).toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'})+
+                 ' at '+fmt(base.start)+'.',
+            meta:base.dur+' MINUTES · '+(placed+1)+' ATTENDING',
+            ttl:9000
+          });
+          window.__rfNotified=names.length;
+        }
+      }
+
+      this.disabled=false;amClose();
+      cur=parseDay(base.date);
+      await render();
+      var noted=(window.__rfNotified||0);
+      toastMsg(
+        (BLOCK_LABEL[type]||'Block')+(AM.id?' updated':' added'),
+        clashes.length
+          ? 'Could not place it for '+clashes.join(', ')+' — they have a clash'
+          : (placed
+              ? placed+' provider'+(placed===1?'':'s')+' added'+
+                (noted?' · '+noted+' notified':' · no logins to notify yet')
+              : 'Time blocked out')
+      );
+      return;
+    }
+
+    var rec={
+      id:AM.id||undefined,
+      provider_id:+$('aProv').value,
+      date:$('aDate').value,
+      start:minsOf($('aTime').value),
+      dur:+$('aDur').value,
+      patient_first:first,patient_last:last,
+      member_id:$('aMid').value.trim(),
+      kind:$('aKind').value,
+      is_new:$('aNew').value==='1',
+      copay:parseFloat($('aCopay').value)||0,
+      payer:$('aPayer').value.trim(),
+      reason:$('aReason').value.trim(),
+      status:$('aStatus').value,
+      patient_ref:$('aSearch').dataset.ptid?+$('aSearch').dataset.ptid:null,
+      dob:$('aSearch').dataset.dob||undefined,
+      /* M = booked by a person, A = created automatically */
+      booked_mode:'M',
+      booked_by:(SESSION&&(SESSION.name||SESSION.username))||'Unknown',
+      booked_at:new Date().toISOString()
+    };
+    if(AM.id){
+      rec.id=AM.id;
+      var prev=await RFStore.appt(AM.id);
+      if(prev){
+        rec.booked_mode=prev.booked_mode||'M';
+        rec.booked_by=prev.booked_by||rec.booked_by;
+        rec.booked_at=prev.booked_at||rec.booked_at;
+        rec.edited_by=(SESSION&&(SESSION.name||SESSION.username))||'';
+        rec.edited_at=new Date().toISOString();
+      }
+    }else delete rec.id;
+
+    this.disabled=true;
+    var r=await RFStore.saveAppt(rec);
+    this.disabled=false;
+    if(r&&r.ok){
+      amClose();
+      cur=parseDay(rec.date);
+      await render();
+      toastMsg(AM.id?'Appointment updated':'Appointment booked',last+', '+first+' · '+fmt(rec.start));
+    }else{
+      $('amNote').className='slotnote warn';
+      $('amNoteText').textContent=(r&&r.error)||'Could not save this appointment.';
+    }
+  });
+
+  $('amDelete').addEventListener('click',async function(){
+    if(!AM.id)return;
+    if(isPast(AM.date||iso(cur))){
+      flash('warn','Past appointments cannot be deleted',
+        'This visit is part of the record. Cancel it on the day, or correct '+
+        'the encounter in the patient chart.');
+      return;
+    }
+    var a=await RFStore.appt(AM.id);
+    var isMeeting=a&&a.block_type==='meeting';
+    var others=(a&&a.attendees||[]).filter(function(p){return p!==a.provider_id;}).length;
+    var msg=isMeeting&&others
+      ? 'Delete this meeting? It is removed from '+others+' other calendar'+(others===1?'':'s')+' as well.'
+      : 'Delete this appointment? The slot becomes free again.';
+    if(!confirm(msg))return;
+
+    /* let the attendees know it is off */
+    if(isMeeting&&others&&window.RFNotify){
+      var names=(a.attendees||[]).map(function(pid){
+        var prov=ALL_ORG_PROV.filter(function(x){return x.id===pid;})[0];
+        var acc=ACCTS.filter(function(x){return x.provider_ref===pid;})[0]
+             ||(prov?ACCTS.filter(function(x){
+                  return x.full_name&&prov.full_name&&
+                    x.full_name.toLowerCase()===prov.full_name.toLowerCase();})[0]:null);
+        return acc?acc.username:null;
+      }).filter(Boolean);
+      if(names.length)RFNotify.send(names,{
+        kind:'meet',
+        title:'Meeting cancelled: '+(a.description||'Meeting'),
+        body:(MINE?MINE.full_name:'The organiser')+' cancelled the meeting on '+
+             parseDay(a.date).toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'})+
+             ' at '+fmt(a.start)+'.',
+        meta:'REMOVED FROM YOUR CALENDAR', ttl:9000
+      });
+    }
+
+    var r=await RFStore.removeAppt(AM.id);
+    if(r&&r.ok){
+      amClose();await render();
+      toastMsg('Deleted', r.removed>1
+        ? 'Removed from '+r.removed+' calendars'
+        : 'The slot is free');
+    }
+  });
+
+  /* click an empty slot to add, an appointment to edit */
+  document.addEventListener('click',function(e){
+    if(AM.open)return;
+    var ev=e.target.closest('.ev');
+    if(ev){
+      if(ev.dataset.ed==='1'&&ev.dataset.apt){hidePop();editAppt(+ev.dataset.apt);}
+      return;
+    }
+    var cell=e.target.closest('[data-slot]');
+    if(cell){hidePop();newAppt(+cell.dataset.col,+cell.dataset.slot);}
+  });
+
+
+  /* ── popover actions ── */
+  pop.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]');
+    if(!b||b.disabled||!POP_CTX)return;
+    e.stopPropagation();
+    var a=POP_CTX.a,p=POP_CTX.p,act=b.dataset.act;
+
+    if(act==='elig'){
+      /* hand the patient and the rendering provider to the eligibility form,
+         which keeps the same provider session */
+      var q=new URLSearchParams({
+        prov:  p.rid||'',
+        first: a.first||'',
+        last:  a.last||'',
+        dob:   a.dob||'',
+        member:a.memberId||a.pid||'',
+        payer: a.payer||'',
+        dos:   iso(cur),
+        cpt:   a.cpt||''
+      });
+      window.location.href='eligibility.html?'+q.toString();
+      return;
+    }
+
+    if(act==='checkin'){
+      var q2=new URLSearchParams({
+        member:a.memberId||a.pid||'',
+        last:a.last||'',first:a.first||'',
+        appt:a._id||''
+      });
+      if(a.ptid)q2.set('id','PT'+a.ptid);
+      window.open('../Patient/patient-record.html?'+q2.toString(),'_blank');
+      return;
+    }
+
+    if(act==='collect'){
+      toastMsg('Collect payment','Wired up with the payment flow next');
+      return;
+    }
+  });
+
+  /* legend filters */
+  $('legend').addEventListener('click',function(e){
+    var b=e.target.closest('.lg');if(!b)return;
+    var k=b.dataset.k;off[k]=!off[k];
+    b.classList.toggle('off',off[k]);
+    render();
+  });
+
+  $('prev').addEventListener('click',async function(){cur.setDate(cur.getDate()-1);render.scrolled=true;await render();});
+  $('next').addEventListener('click',async function(){cur.setDate(cur.getDate()+1);render.scrolled=true;await render();});
+  $('todayBtn').addEventListener('click',async function(){cur=new Date(today);render.scrolled=false;await render();});
+  $('date').addEventListener('change',async function(){if(this.value){cur=parseDay(this.value);render.scrolled=true;await render();}});
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT')return;
+    if(e.key==='ArrowLeft'){cur.setDate(cur.getDate()-1);render.scrolled=true;render();}
+    if(e.key==='ArrowRight'){cur.setDate(cur.getDate()+1);render.scrolled=true;render();}
+    if(e.key==='Escape')hidePop();
+  });
+
+  /* ══ load the real roster, scoped to who is signed in ══ */
+  (async function boot(){
+    try{
+      await RFStore.ready();
+      SESSION=RFStore.getSession();
+      if(!SESSION){location.href='provider-login.html';return;}
+
+      ORGS=await RFStore.orgs();
+      CFG=await RFStore.settings();
+      var provs=await RFStore.providers();
+
+      MINE=provs.filter(function(p){return p.id===SESSION.provider_ref;})[0]
+          ||provs.filter(function(p){return (p.full_name||'')===SESSION.name;})[0]
+          ||provs.filter(function(p){return p.code&&p.code===SESSION.pid;})[0]||null;
+
+      /* every column belongs to the signed-in account's own facility */
+      MY_ORG=(MINE&&MINE.org_id)||SESSION.org_id||null;
+      provs=MY_ORG?provs.filter(function(p){return p.org_id===MY_ORG;}):[];
+      ALL_ORG_PROV=provs.slice();
+      try{ ACCTS=await RFStore.list(); }catch(e){ ACCTS=[]; }
+
+      var org=ORGS.filter(function(o){return o.id===MY_ORG;})[0];
+
+      if(SESSION.role==='provider'){
+        provs=MINE?[MINE]:[];
+        SCOPE_LABEL=MINE?MINE.full_name:'Your schedule';
+        CAN_EDIT_ALL=false;
+      }else{
+        SCOPE_LABEL=org?org.name:'No facility linked';
+        CAN_EDIT_ALL=true;   /* supervisor, practice manager, scheduler */
+      }
+
+      PROV=provs.map(function(p,i){
+        var initials=p.initials||p.code||RFStore.initialsOf(p.full_name)||'??';
+        var clean=(p.full_name||'').trim();
+        return {
+          rid:p.id,
+          i:initials,                 /* column avatar */
+          n:clean,                    /* column heading */
+          id:initials,
+          name:clean,
+          s:p.title||'',
+          sp:p.specialty||'',
+          org:p.org_id,
+          c:PALETTE[i%PALETTE.length]
+        };
+      });
+
+      var t=document.querySelector('.dtitle');
+      if(t&&SCOPE_LABEL){
+        var tag=document.createElement('span');
+        tag.style.cssText='margin-left:10px;font-family:var(--mono);font-size:10px;'+
+          'padding:5px 10px;border-radius:99px;background:var(--green-s);color:var(--green-d);font-weight:700';
+        tag.textContent=SCOPE_LABEL.toUpperCase();
+        t.after(tag);
+      }
+      render();
+    }catch(err){
+      console.error('schedule boot failed',err);
+      render();
+    }
+  })();
+})();
+</script>
+
+
+<script>
+/* Section access: a grant, not just a role. Shows a notice rather than
+   signing anyone out. */
+(function(){
+  var SECTION='schedule';
+  document.addEventListener('DOMContentLoaded',async function(){
+    try{
+      if(typeof RFStore==='undefined'||!RFStore.can)return;
+      await RFStore.ready();
+      var lvl=await RFStore.can(SECTION);
+      if(lvl==='none'){
+        if(window.RFSession&&RFSession.denied)
+          RFSession.denied({section:'schedule'});
+        return;
+      }
+      if(lvl==='view'){
+        /* read only: the page still loads, but nothing that writes is usable */
+        document.body.classList.add('rf-viewonly');
+        var css=document.createElement('style');
+        css.textContent=
+          '.rf-viewonly [data-write],.rf-viewonly .ib.del{opacity:.4;pointer-events:none}'+
+          '.rf-viewonly .rf-ro{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);'+
+            'z-index:900;display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:11px;'+
+            'background:#0D1A16;color:#F2FBF7;font:600 12px Manrope,system-ui,sans-serif;'+
+            'box-shadow:0 18px 40px -18px rgba(13,26,22,.8)}';
+        document.head.appendChild(css);
+        var note=document.createElement('div');
+        note.className='rf-ro';
+        note.textContent='View only — contact your practice manager to make changes';
+        document.body.appendChild(note);
+        setTimeout(function(){ note.style.display='none'; },6000);
+      }
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

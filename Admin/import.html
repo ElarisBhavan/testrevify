@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Revify RCM — Data Import</title>
+<link rel="stylesheet" href="_admin.css">
+<style>
+body{background:#f6f7f5}.import-wrap{max-width:1100px;margin:40px auto;padding:0 24px}
+.card{background:#fff;border:1px solid #e3e7e3;border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:0 8px 30px rgba(0,0,0,.04)}
+h1{margin:0 0 8px}.muted{color:#68736d}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{font-weight:700;display:block;margin-bottom:7px}select,input,button{font:inherit}
+select,input[type=file]{width:100%;padding:11px;border:1px solid #cfd7d1;border-radius:9px;background:#fff}
+button{border:0;border-radius:9px;padding:11px 16px;background:#006A4E;color:white;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.preview{overflow:auto;max-height:420px;border:1px solid #e2e7e3;border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:9px;border-bottom:1px solid #edf0ee;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#f4f6f4}
+.notice{padding:12px;border-radius:9px;background:#eef7f3;margin-top:14px}.err{background:#fff1f0;color:#9d2d22}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="import-wrap">
+  <div class="card">
+    <h1>Data Import Center</h1>
+    <p class="muted">Import Excel or CSV data into the shared PostgreSQL database. The browser parses the file; PostgreSQL becomes the permanent source of truth.</p>
+    <div class="grid">
+      <div>
+        <label>Data type</label>
+        <select id="kind">
+          <option value="patient">Patients</option>
+          <option value="appt">Appointments</option>
+          <option value="encounter">Encounters</option>
+          <option value="claim">Claims</option>
+          <option value="payment">Payments</option>
+          <option value="provider">Providers</option>
+          <option value="org">Organizations</option>
+          <option value="payer">Payers</option>
+          <option value="task">Tasks</option>
+          <option value="credentialing">Credentialing</option>
+          <option value="master">Master data</option>
+          <option value="history">History</option>
+        </select>
+      </div>
+      <div>
+        <label>Excel / CSV file</label>
+        <input id="file" type="file" accept=".xlsx,.xls,.csv">
+      </div>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div class="card" id="previewCard" hidden>
+    <h2>Preview</h2>
+    <p id="summary" class="muted"></p>
+    <div class="preview"><table id="preview"></table></div>
+    <br>
+    <button id="importBtn">Import to PostgreSQL</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="../_store.js"></script>
+<script src="../_session.js"></script>
+<script>
+(async()=>{
+  await RFStore.ready();
+  const me=RFSession&&RFSession.get?RFSession.get():null;
+  if(!me){ location.href='admin-login.html'; return; }
+  if(!['admin','supervisor'].includes(me.role)){ document.body.innerHTML='<div class="import-wrap"><div class="card"><h1>Access denied</h1><p>You do not have permission to import data.</p></div></div>'; return; }
+
+  const fileEl=document.getElementById('file'), kindEl=document.getElementById('kind');
+  const previewCard=document.getElementById('previewCard'), preview=document.getElementById('preview');
+  const summary=document.getElementById('summary'), status=document.getElementById('status'), btn=document.getElementById('importBtn');
+  let rows=[];
+
+  const snake=s=>String(s||'').trim().toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+  const aliases={
+    'patient_id':'internal_id','patientid':'internal_id','internal_id':'internal_id',
+    'first_name':'first_name','firstname':'first_name','first':'first_name',
+    'last_name':'last_name','lastname':'last_name','last':'last_name',
+    'date_of_birth':'dob','dob':'dob','birth_date':'dob',
+    'member_id':'member_id','memberid':'member_id','payer_id':'payer_id',
+    'insurance':'payer','insurance_name':'payer','provider':'provider_name',
+    'provider_id':'provider_id','npi':'npi','claim_number':'claim_no','claim_no':'claim_no',
+    'date_of_service':'dos','service_date':'dos','appointment_date':'date',
+    'appointment_time':'start','duration':'dur','status':'status',
+    'phone_number':'phone','phone':'phone','email_address':'email','email':'email',
+    'amount_paid':'amount','payment_amount':'amount','payment_date':'at'
+  };
+  const mapKey=h=>aliases[snake(h)]||snake(h);
+
+  function showPreview(){
+    preview.innerHTML='';
+    if(!rows.length){previewCard.hidden=true;return;}
+    const headers=Object.keys(rows[0]);
+    const thead=document.createElement('tr');
+    headers.slice(0,12).forEach(h=>{const th=document.createElement('th');th.textContent=h;thead.appendChild(th)});
+    preview.appendChild(thead);
+    rows.slice(0,8).forEach(r=>{
+      const tr=document.createElement('tr');
+      headers.slice(0,12).forEach(h=>{const td=document.createElement('td');td.textContent=r[h]??'';tr.appendChild(td)});
+      preview.appendChild(tr);
+    });
+    summary.textContent=`${rows.length.toLocaleString()} rows detected. Showing the first 8 rows.`;
+    previewCard.hidden=false;
+  }
+
+  fileEl.addEventListener('change',async()=>{
+    const f=fileEl.files[0]; if(!f)return;
+    try{
+      const buf=await f.arrayBuffer();
+      const wb=XLSX.read(buf,{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const raw=XLSX.utils.sheet_to_json(ws,{defval:'',raw:false});
+      rows=raw.map(r=>{
+        const out={};
+        Object.keys(r).forEach(k=>{
+          const nk=mapKey(k);
+          out[nk]=r[k];
+        });
+        return out;
+      });
+      status.innerHTML='<div class="notice">File read successfully. Review the preview before importing.</div>';
+      showPreview();
+    }catch(e){status.innerHTML='<div class="notice err">Could not read this file: '+String(e.message||e)+'</div>'}
+  });
+
+  btn.addEventListener('click',async()=>{
+    if(!rows.length)return;
+    btn.disabled=true; status.innerHTML='<div class="notice">Importing into PostgreSQL…</div>';
+    try{
+      const r=await fetch('/api/import',{method:'POST',credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({kind:kindEl.value,sourceName:fileEl.files[0].name,rows})});
+      const j=await r.json();
+      if(!r.ok) throw new Error(j.message||j.error||('HTTP '+r.status));
+      status.innerHTML='<div class="notice"><strong>Import complete.</strong> '+j.inserted+' inserted, '+j.updated+' updated, '+j.failed+' failed.</div>'+
+        (j.errors&&j.errors.length?'<div class="notice err">'+j.errors.map(x=>'Row '+x.row+': '+x.error).join('<br>')+'</div>':'');
+    }catch(e){
+      status.innerHTML='<div class="notice err">Import failed: '+String(e.message||e)+'</div>';
+    }finally{btn.disabled=false}
+  });
+})();
+</script>
+</body>
+</html>

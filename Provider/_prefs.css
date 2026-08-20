@@ -1,0 +1,7 @@
+/* larger-text + reduced-motion + density, driven by RFPrefs */
+html[data-rf-reduce] *,html[data-rf-reduce] *::before,html[data-rf-reduce] *::after{
+  animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+body.rf-large{font-size:1.06rem}
+body.rf-large .tbl,body.rf-large .row,body.rf-large .trow{font-size:1.04em}
+html[data-rf-density="compact"] .row,html[data-rf-density="compact"] .trow,html[data-rf-density="compact"] .tbl td{padding-top:8px;padding-bottom:8px}
+html[data-rf-density="spacious"] .row,html[data-rf-density="spacious"] .trow,html[data-rf-density="spacious"] .tbl td{padding-top:19px;padding-bottom:19px}

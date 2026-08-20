@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clients and contacts — ReviFlow</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../Provider/_prefs.css">
+<script src="../Provider/_prefs.js"></script>
+<style>
+:root{
+  --paper:#FAF8F3;--paper-2:#F2EFE7;--ink:#0D1A16;--muted:#5D6B67;--dim:#93A19D;
+  --line:rgba(13,26,22,.08);--line-2:rgba(13,26,22,.14);
+  --green:#0E9D73;--green-d:#0A5C46;--green-s:#E2F4EC;
+  --blue:#3B6FF5;--blue-s:#E8EFFE;
+  --amber:#C98A18;--amber-s:#FCF3DA;
+  --coral:#D0603F;--coral-s:#FBEAE4;
+  --teal:#1F93AE;--teal-s:#E3F2F6;
+  --violet:#8B5CF6;--violet-s:#F1EBFE;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --e:cubic-bezier(.22,1,.36,1);--card:rgba(255,255,255,.76);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+input,select,textarea{font:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px;border-radius:9px}
+
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aur{position:absolute;border-radius:50%;filter:blur(92px);mix-blend-mode:multiply;opacity:.44}
+.a1{width:54vw;height:54vw;min-width:480px;min-height:480px;top:-26%;left:-12%;background:radial-gradient(circle,rgba(14,157,115,.4),transparent 66%);animation:f1 30s ease-in-out infinite}
+.a2{width:42vw;height:42vw;min-width:380px;min-height:380px;top:-18%;right:-9%;background:radial-gradient(circle,rgba(59,111,245,.3),transparent 66%);animation:f2 36s ease-in-out infinite}
+.a3{width:36vw;height:36vw;min-width:340px;min-height:340px;bottom:-24%;left:30%;background:radial-gradient(circle,rgba(139,92,246,.2),transparent 66%);animation:f3 42s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,6vh) scale(1.1)}}
+@keyframes f2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-7vw,5vh) scale(1.12)}}
+@keyframes f3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(7vw,-6vh) scale(1.08)}}
+.mesh{position:absolute;inset:-2px;background-image:linear-gradient(rgba(13,26,22,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(13,26,22,.04) 1px,transparent 1px);background-size:46px 46px;animation:meshD 36s linear infinite;-webkit-mask-image:radial-gradient(120% 70% at 50% 0%,#000,transparent 74%);mask-image:radial-gradient(120% 70% at 50% 0%,#000,transparent 74%)}
+@keyframes meshD{to{background-position:46px 46px}}
+
+.hdr{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);background:rgba(250,248,243,.82);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%)}
+.hin{max-width:1400px;margin:0 auto;padding:11px clamp(14px,2.4vw,30px);display:flex;align-items:center;gap:11px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mk{width:29px;height:29px;border-radius:9px;display:grid;place-items:center}
+.brand .mk svg{width:16px;height:16px}
+.brand span{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.036em}
+.brand em{font-style:normal;color:var(--green);font-weight:400;font-size:.9em;margin-left:3px}
+.crumb{margin-left:12px;padding-left:12px;border-left:1px solid var(--line-2);font-size:12.4px;color:var(--muted)}
+.crumb a{color:var(--blue);font-weight:500}
+.crumb a:hover{text-decoration:underline}
+.crumb b{color:var(--ink);font-weight:600}
+.hact{margin-left:auto;display:flex;gap:8px;align-items:center}
+.hbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:99px;border:1px solid var(--line-2);background:rgba(255,255,255,.7);font-size:12.4px;font-weight:600;transition:all .3s var(--e)}
+.hbtn svg{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--e)}
+.hbtn:hover{border-color:var(--green);background:#fff}
+.hbtn.back:hover{transform:translateX(-2px)}.hbtn.back:hover svg{transform:translateX(-3px)}
+.hbtn.out:hover{border-color:var(--coral);background:var(--coral-s);color:#9B3F24}
+.hbtn.out:hover svg{stroke:var(--coral);transform:translateX(3px)}
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;padding:10px 17px;border-radius:11px;font-size:12.8px;font-weight:600;transition:all .34s var(--e);white-space:nowrap}
+.btn svg{width:15px;height:15px;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.btn.pri{background:linear-gradient(120deg,var(--green-d),var(--green));color:#F3FBF8;box-shadow:0 10px 24px -14px rgba(10,92,70,.95)}
+.btn.pri svg{stroke:#F3FBF8}
+.btn.pri::after{content:'';position:absolute;top:0;left:-120%;width:52%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent);transition:left .8s var(--e)}
+.btn.pri:hover{transform:translateY(-2px)}.btn.pri:hover::after{left:150%}
+.btn.sec{border:1px solid var(--line-2);background:rgba(255,255,255,.72)}
+.btn.sec svg{stroke:var(--green)}
+.btn.sec:hover{border-color:var(--green);background:#fff;transform:translateY(-2px)}
+
+.wrap{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:clamp(16px,2.2vw,26px) clamp(14px,2.4vw,30px) clamp(48px,5vw,76px)}
+.ptop{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:clamp(14px,2vw,22px);opacity:0;transform:translateY(16px);animation:up .8s var(--e) .06s forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.ptop>div:first-child{flex:1;min-width:250px}
+.ptop h1{font-family:'Sora',sans-serif;font-size:clamp(23px,3vw,33px);line-height:1.06;font-weight:600;letter-spacing:-.042em}
+.ptop p{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.04em}
+.ptop .cta{margin-left:auto;flex:none;padding-top:3px;display:flex;gap:9px;flex-wrap:wrap}
+
+/* toolbar */
+.tools{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:clamp(12px,1.6vw,18px);
+  opacity:0;transform:translateY(16px);animation:up .8s var(--e) .12s forwards}
+.search{position:relative;flex:1;min-width:210px;max-width:330px;display:flex;align-items:center}
+.search input{width:100%;padding:10px 13px 10px 36px;border-radius:11px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);font-size:13px;transition:all .28s var(--e)}
+.search input:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(14,157,115,.13)}
+.search svg{position:absolute;left:12px;width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none}
+.sel{padding:10px 32px 10px 13px;border-radius:11px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);font-size:12.6px;font-weight:500;
+  appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235D6B67' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;transition:all .28s var(--e)}
+.sel:hover{border-color:#AFBAB6}
+.sel:focus{outline:none;border-color:var(--green);background-color:#fff}
+.tools .sp{flex:1}
+.cnt{font-family:var(--mono);font-size:10.6px;color:var(--muted);padding:9px 13px;border-radius:99px;background:rgba(255,255,255,.72);border:1px solid var(--line-2)}
+
+/* list card */
+.card{position:relative;background:var(--card);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+  border:1px solid rgba(255,255,255,.75);border-radius:18px;overflow:hidden;
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 40px -34px rgba(13,26,22,.5);
+  opacity:0;transform:translateY(20px);animation:up .78s var(--e) .18s forwards}
+.tblwrap{overflow-x:auto;overflow-y:visible}
+.tbl{width:100%;border-collapse:collapse;font-size:12.8px}
+.tbl th{text-align:left;padding:11px 17px;font-size:9.6px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);font-weight:700;border-bottom:1px solid var(--line-2);white-space:nowrap;background:rgba(250,248,243,.6)}
+.tbl td{padding:14px 17px;border-bottom:1px solid var(--line);vertical-align:top;transition:background .25s ease}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr{opacity:0;transform:translateX(-8px);animation:sl .5s var(--e) forwards}
+@keyframes sl{to{opacity:1;transform:none}}
+.tbl tbody tr:hover td{background:rgba(255,255,255,.94)}
+.pname{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:5px}
+.plink{color:var(--blue);font-weight:700;font-size:13.4px;letter-spacing:-.018em;transition:all .25s var(--e)}
+.plink:hover{text-decoration:underline;color:#25489E}
+.tag{padding:3px 8px;border-radius:6px;font-size:9.6px;font-weight:700;letter-spacing:.03em;white-space:nowrap}
+.tag.minor{background:var(--violet-s);color:var(--violet)}
+.tag.adult{background:var(--paper-2);color:var(--muted)}
+.stwrap{position:relative}
+.stbtn{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:7px;font-size:10.2px;font-weight:700;transition:all .28s var(--e)}
+.stbtn.active{background:var(--green-s);color:var(--green-d)}
+.stbtn.inactive{background:var(--paper-2);color:var(--dim)}
+.stbtn svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.6;transition:transform .3s var(--e)}
+.stbtn:hover{filter:brightness(.96)}
+.stmenu{position:absolute;top:calc(100% + 6px);left:0;z-index:20;min-width:118px;padding:5px;border-radius:11px;background:#fff;
+  border:1px solid var(--line-2);box-shadow:0 20px 40px -18px rgba(13,26,22,.4);opacity:0;visibility:hidden;transform:translateY(-5px);
+  transition:all .28s var(--e)}
+.stwrap.open .stmenu{opacity:1;visibility:visible;transform:none}
+.stwrap.open .stbtn svg{transform:rotate(180deg)}
+.stmenu button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;transition:background .25s ease}
+.stmenu button:hover{background:var(--paper-2)}
+.stmenu button i{width:7px;height:7px;border-radius:50%}
+.sub{font-size:11.4px;color:var(--muted);line-height:1.5}
+.sub.warn{color:var(--coral);font-weight:600}
+.mono{font-family:var(--mono);font-size:11.4px}
+.cell-h{font-weight:600;font-size:12.4px;margin-bottom:4px;letter-spacing:-.014em}
+.ctc{display:flex;align-items:center;gap:7px;font-size:11.4px;color:var(--muted);margin-top:3px}
+.ctc svg{width:12px;height:12px;stroke:var(--green);fill:none;stroke-width:2;flex:none}
+.ctc .ch{font-family:var(--mono);font-size:9.4px;color:var(--dim)}
+.clin{color:var(--blue);font-size:11.6px;font-weight:500}
+.mng{position:relative}
+.dots{width:30px;height:26px;border-radius:7px;border:1px solid var(--line-2);background:rgba(255,255,255,.8);display:grid;place-items:center;transition:all .28s var(--e)}
+.dots svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2.4;stroke-linecap:round}
+.dots:hover{border-color:var(--green);background:var(--green-s)}
+.dots svg circle{fill:var(--muted);stroke:none}
+.mmenu{position:fixed;z-index:2147483000;min-width:216px;padding:5px;border-radius:12px;background:#fff;
+  border:1px solid var(--line-2);box-shadow:0 24px 48px -18px rgba(13,26,22,.42);opacity:0;visibility:hidden;transform:translateY(-6px);
+  transition:opacity .26s var(--e),transform .26s var(--e),visibility .26s}
+.mmenu .sep{height:1px;margin:4px 6px;background:var(--line)}
+.mng.open .mmenu,.mmenu.shown{opacity:1;visibility:visible;transform:none}
+.mmenu button{display:block;width:100%;padding:9px 11px;border-radius:8px;font-size:12.4px;transition:background .25s ease}
+.mmenu button:hover{background:var(--paper-2)}
+.mmenu button.dang{color:var(--coral)}
+.empty{padding:44px 20px;text-align:center;color:var(--dim);font-size:13px}
+.empty svg{width:30px;height:30px;stroke:var(--dim);fill:none;stroke-width:1.7;margin-bottom:10px}
+
+/* ══ MODAL ══ */
+.scrim{position:fixed;inset:0;z-index:90;background:rgba(13,26,22,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  opacity:0;visibility:hidden;transition:opacity .35s var(--e),visibility .35s}
+.scrim.on{opacity:1;visibility:visible}
+.modal{position:fixed;z-index:91;left:50%;top:50%;width:min(680px,calc(100vw - 26px));max-height:calc(100vh - 50px);overflow:auto;
+  transform:translate(-50%,-46%) scale(.96);opacity:0;visibility:hidden;
+  background:rgba(255,255,255,.55);backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);
+  border:1px solid rgba(255,255,255,.62);border-radius:20px;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 40px 90px -30px rgba(13,26,22,.55);
+  transition:opacity .4s var(--e),transform .4s var(--e),visibility .4s}
+.modal.on{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+.mhead{display:flex;align-items:center;gap:12px;padding:17px 20px;border-bottom:1px solid rgba(13,26,22,.1);position:sticky;top:0;
+  background:rgba(255,255,255,.5);backdrop-filter:blur(20px);z-index:3}
+.mhead .mi{width:34px;height:34px;flex:none;border-radius:11px;background:rgba(14,157,115,.16);display:grid;place-items:center}
+.mhead .mi svg{width:17px;height:17px;stroke:var(--green-d);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mhead h3{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.032em}
+.mhead p{font-size:11.8px;color:var(--muted);margin-top:2px}
+.mclose{margin-left:auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--muted);transition:all .3s var(--e)}
+.mclose svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round}
+.mclose:hover{background:rgba(255,255,255,.75);color:var(--ink);transform:rotate(90deg)}
+.mbody{padding:19px 20px}
+.steps{display:flex;gap:5px;margin-bottom:18px}
+.stp{flex:1;padding:9px 8px;border-radius:10px;background:rgba(255,255,255,.55);border:1px solid rgba(13,26,22,.1);text-align:center;transition:all .34s var(--e)}
+.stp b{display:block;font-family:var(--mono);font-size:9.4px;color:var(--dim);margin-bottom:3px}
+.stp span{font-size:11.4px;font-weight:600;color:var(--muted)}
+.stp.on{background:var(--green-d);border-color:var(--green-d)}
+.stp.on b,.stp.on span{color:#F3FBF8}
+.stp.done{background:var(--green-s);border-color:rgba(14,157,115,.34)}
+.stp.done b,.stp.done span{color:var(--green-d)}
+.fs{display:none}.fs.on{display:block;animation:fadeIn .4s var(--e)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.f{display:block}.f.full{grid-column:span 2}
+.f>span{display:flex;align-items:center;gap:6px;font-size:11.2px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.f>span u{color:var(--coral);text-decoration:none}
+.f input,.f select,.f textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(13,26,22,.16);
+  background:rgba(255,255,255,.74);font-size:13px;color:var(--ink);transition:all .28s var(--e)}
+.f textarea{min-height:70px;resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(14,157,115,.14)}
+.f input.bad,.f select.bad{border-color:var(--coral);box-shadow:0 0 0 3px rgba(208,96,63,.12)}
+.f select{appearance:none;cursor:pointer;padding-right:32px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235D6B67' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+.hint{margin-top:14px;padding:12px 14px;border-radius:11px;background:rgba(59,111,245,.09);border:1px solid rgba(59,111,245,.2);
+  font-size:11.6px;line-height:1.6;color:#25489E;display:flex;gap:10px}
+.hint svg{width:15px;height:15px;stroke:var(--blue);fill:none;stroke-width:2;flex:none;margin-top:1px}
+.subhead{display:flex;align-items:center;gap:9px;margin:18px 0 12px;font-size:10.4px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.subhead::after{content:'';flex:1;height:1px;background:rgba(13,26,22,.12)}
+.subhead:first-child{margin-top:0}
+.toggle2{display:flex;gap:6px;margin-bottom:14px}
+.toggle2 button{flex:1;padding:9px;border-radius:9px;border:1px solid rgba(13,26,22,.14);background:rgba(255,255,255,.6);
+  font-size:12px;font-weight:600;color:var(--muted);text-align:center;transition:all .3s var(--e)}
+.toggle2 button.on{background:var(--green-d);border-color:var(--green-d);color:#F3FBF8}
+.mfoot{display:flex;gap:9px;padding:15px 20px;border-top:1px solid rgba(13,26,22,.1);background:rgba(255,255,255,.34);position:sticky;bottom:0}
+.mfoot .sp{flex:1}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:95;display:flex;align-items:center;gap:12px;
+  padding:14px 19px;border-radius:13px;background:var(--green-d);color:#F3FBF8;
+  box-shadow:0 22px 44px -20px rgba(10,92,70,.9);opacity:0;pointer-events:none;transition:all .45s var(--e);max-width:calc(100vw - 30px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.bad{background:#8E3620}
+.toast svg{width:17px;height:17px;stroke:#7BE8C0;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.toast.bad svg{stroke:#FFC4B4}
+.toast b{display:block;font-size:13px;font-weight:600}
+.toast small{display:block;font-size:11px;color:rgba(243,251,248,.74);margin-top:2px}
+
+@media (max-width:1050px){.crumb{display:none}}
+@media (max-width:760px){
+  .fgrid{grid-template-columns:minmax(0,1fr)}.f.full{grid-column:span 1}
+  .ptop .cta{width:100%;margin-left:0}.ptop .cta .btn{flex:1;justify-content:center}
+  .tbl{min-width:760px}
+  .tools .sp{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.card,.ptop,.tools{opacity:1;transform:none}}
+
+
+/* --rf-logo-styled */
+img.mk{width:30px;height:30px;flex:none;border-radius:9px;object-fit:contain;
+  background:transparent;box-shadow:none;padding:0;display:block}
+img.brandmark{width:26px;height:26px;flex:none;object-fit:contain;display:block}
+.crest img{width:100%;height:100%;object-fit:contain;display:block}
+.crest{background:none!important;box-shadow:none!important;padding:4px}
+.inv-h .lg img,.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.inv-h .lg,.lg{background:transparent!important;padding:2px}
+
+/* rf-logomark-styled */
+img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
+  background:transparent!important;border:none!important;box-shadow:none!important}
+.imphint{display:flex;gap:10px;padding:12px 14px;border-radius:11px;background:var(--blue-s,#E9EFFE);
+  border:1px solid rgba(59,111,245,.2);font-size:11.6px;line-height:1.6;color:#25489E}
+.imphint svg{width:15px;height:15px;stroke:#3B6FF5;fill:none;stroke-width:2;flex:none;margin-top:1px}
+.impdrop{padding:26px 18px;border-radius:14px;border:2px dashed rgba(13,26,22,.17);background:var(--paper-2);
+  text-align:center;cursor:pointer;transition:all .3s var(--e)}
+.impdrop:hover,.impdrop.over{border-color:var(--green);background:var(--green-s)}
+.impdrop.has{border-style:solid;border-color:var(--green);background:var(--green-s)}
+.impdrop .di{width:38px;height:38px;margin:0 auto 10px;border-radius:12px;background:var(--green-s);
+  display:grid;place-items:center;transition:transform .38s var(--e)}
+.impdrop:hover .di{transform:translateY(-3px) scale(1.06)}
+.impdrop .di svg{width:19px;height:19px;stroke:var(--green-d);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.impdrop b{display:block;font-size:13px;font-weight:600;margin-bottom:3px;word-break:break-all}
+.impdrop small{font-size:11px;color:var(--muted)}
+.impsub{margin:16px 0 9px;font-size:9.4px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+.imptw{overflow-x:auto;border:1px solid var(--line-2);border-radius:11px}
+.imptbl{width:100%;border-collapse:collapse;font-size:11.2px}
+.imptbl th{text-align:left;padding:8px 10px;font-size:8.6px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dim);background:var(--paper-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+.imptbl td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.imptbl tr:last-child td{border-bottom:none}
+.impnote{font-family:var(--mono);font-size:9.6px;color:var(--dim);margin-top:8px}
+.imperr{margin-top:12px;padding:11px 13px;border-radius:11px;background:var(--coral-s,#FBEAE4);
+  border:1px solid rgba(206,95,62,.28);font-size:11.6px;line-height:1.55;color:#9B3F24}
+</style>
+<link rel="stylesheet" href="../_session.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="../_guard.js"></script>
+<script src="../_store.js"></script>
+<script src="../_datepicker.js"></script>
+<script src="../_import.js"></script>
+<script src="../_session.js"></script>
+<script src="../_notify.js"></script>
+<link rel="stylesheet" href="../_datepicker.css">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="mesh"></div><div class="aur a1"></div><div class="aur a2"></div><div class="aur a3"></div></div>
+
+<header class="hdr">
+  <div class="hin">
+    <div class="brand">
+      <img class="mk" src="../assets/logo-64.png" alt="ReviFlow RCM">
+      <span>R&nbsp;e&nbsp;v&nbsp;i&nbsp;F&nbsp;l&nbsp;o&nbsp;w</span>
+    </div>
+    <span class="crumb">Provider workspace / <b>Clients and contacts</b></span>
+    <div class="hact">
+      <span class="rf-who" id="rfWho"></span>
+      <a href="../Provider/provider-dashboard.html" class="hbtn back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
+      <a href="../Provider/provider-login.html" class="hbtn out">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="ptop">
+    <div>
+      <h1>Clients and contacts</h1>
+      <p id="total">TOTAL CLIENTS: 0</p>
+    </div>
+    <div class="cta">
+      <button class="btn sec" id="importBtn"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg>Import</button>
+      <button class="btn pri" id="newBtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New record</button>
+    </div>
+  </div>
+
+  <div class="tools">
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Search name or member ID…" aria-label="Search clients">
+    </label>
+    <select class="sel" id="fStatus"><option value="all">All statuses</option><option value="active">Active only</option><option value="inactive">Inactive only</option></select>
+    <select class="sel" id="fClin"><option value="all">All clinicians</option></select>
+    <span class="sp"></span>
+    <select class="sel" id="sort"><option value="last">Sort: last name</option><option value="first">Sort: first name</option><option value="seen">Sort: last seen</option><option value="bal">Sort: balance</option></select>
+    <span class="cnt" id="showing">—</span>
+  </div>
+
+  <div class="card">
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:26%">Name</th>
+          <th style="width:16%">Member ID</th>
+          <th style="width:18%">Relationship</th>
+          <th style="width:17%">Last seen</th>
+          <th style="width:13%">Balance</th>
+          <th style="width:10%">Manage</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><br>
+      No clients match this search.
+    </div>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<!-- NEW RECORD -->
+<div class="modal" id="mNew" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7 1 0 2 .15 2.9.44"/><path d="M18 14v7M14.5 17.5h7"/></svg></span>
+    <div><h3>New patient record</h3><p>Patient, insurance, payment and contact details.</p></div>
+    <button class="mclose" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+
+  <div class="mbody">
+    <div class="steps" id="steps">
+      <div class="stp on" data-s="1"><b>01</b><span>Patient</span></div>
+      <div class="stp" data-s="2"><b>02</b><span>Insurance</span></div>
+      <div class="stp" data-s="3"><b>03</b><span>Payment</span></div>
+      <div class="stp" data-s="4"><b>04</b><span>Contacts</span></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="fs on" data-s="1">
+      <div class="fgrid">
+        <label class="f"><span>First name <u>*</u></span><input type="text" id="n_first" placeholder="Colton"></label>
+        <label class="f"><span>Last name <u>*</u></span><input type="text" id="n_last" placeholder="Acosta"></label>
+        <label class="f"><span>Date of birth <u>*</u></span><input type="date" id="n_dob" min="1900-01-01" max="2100-12-31"></label>
+        <label class="f"><span>Sex</span><select id="n_sex"><option>Male</option><option>Female</option><option>Other</option><option>Unknown</option></select></label>
+        <label class="f"><span>Rendering clinician <u>*</u></span>
+          <select id="n_clin">
+            <option value="">Select clinician</option>
+            <option>Dr. Dana Whitfield</option><option>Dr. Alan Reyes</option>
+            <option>Dr. Ngozi Okafor</option><option>Sara Lindqvist, NP</option>
+            <option>Marcus Bello, PA</option><option>Dr. Elena Petrova</option>
+          </select></label>
+        <label class="f"><span>Member ID <span style="margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--dim)">AUTO</span></span>
+          <input type="text" id="n_mid" placeholder="Generated from name" readonly></label>
+        <label class="f full"><span>Address</span><input type="text" id="n_addr" placeholder="1101 Alderwood Dr, Justin, TX 76247-1581"></label>
+      </div>
+      <div class="hint">
+        <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+        <span>The member ID is built from the first three letters of the first and last name plus a sequence — this is what staff use to pull the record.</span>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="fs" data-s="2">
+      <div class="subhead">Primary insurance</div>
+      <div class="fgrid">
+        <label class="f"><span>Payer <u>*</u></span>
+          <select id="n_pay1">
+            <option value="">Select payer</option>
+            <option>Blue Cross Blue Shield of Texas (84980)</option>
+            <option>UnitedHealthcare (87726)</option><option>Medicare (CMS)</option>
+            <option>Aetna (60054)</option><option>Cigna (62308)</option>
+            <option>UMR Wausau (39026)</option><option>Texas Medicaid (MCDTX)</option>
+            <option>Humana (SX155)</option><option>Self pay</option>
+          </select></label>
+        <label class="f"><span>Member ID on card <u>*</u></span><input type="text" id="n_mem1" placeholder="R61503620"></label>
+        <label class="f"><span>Group ID</span><input type="text" id="n_grp1" placeholder="65006500"></label>
+        <label class="f"><span>Copay / coinsurance</span><input type="text" id="n_cop1" placeholder="$35"></label>
+        <label class="f"><span>Subscriber name</span><input type="text" id="n_sub1" placeholder="Leave blank if self"></label>
+        <label class="f"><span>Relationship</span><select id="n_rel1"><option>Self</option><option>Child</option><option>Spouse</option><option>Other</option></select></label>
+      </div>
+
+      <div class="subhead">Secondary insurance <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--dim)">— optional</span></div>
+      <div class="fgrid">
+        <label class="f"><span>Payer</span>
+          <select id="n_pay2">
+            <option value="">None</option>
+            <option>Blue Cross Blue Shield of Texas (84980)</option>
+            <option>UnitedHealthcare (87726)</option><option>Medicare (CMS)</option>
+            <option>Aetna (60054)</option><option>Cigna (62308)</option>
+            <option>Texas Medicaid (MCDTX)</option>
+          </select></label>
+        <label class="f"><span>Member ID on card</span><input type="text" id="n_mem2" placeholder="Leave blank if none"></label>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="fs" data-s="3">
+      <div class="toggle2" id="ccToggle">
+        <button class="on" data-cc="yes">Store a card</button>
+        <button data-cc="no">Skip for now</button>
+      </div>
+      <div id="ccFields">
+        <div class="fgrid">
+          <label class="f full"><span>Cardholder name</span><input type="text" id="n_ccname" placeholder="Bailey D Acosta"></label>
+          <label class="f full"><span>Card number</span><input type="text" id="n_ccnum" inputmode="numeric" maxlength="19" placeholder="4242 4242 4242 4242"></label>
+          <label class="f"><span>Expiry</span><input type="text" id="n_ccexp" maxlength="5" placeholder="MM/YY"></label>
+          <label class="f"><span>Billing ZIP</span><input type="text" id="n_cczip" maxlength="10" placeholder="76247"></label>
+        </div>
+        <div class="hint">
+          <svg viewBox="0 0 24 24" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+          <span>Card details are tokenised by the payment processor. Only the last four digits and expiry are ever stored in ReviFlow.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="fs" data-s="4">
+      <div class="subhead">Primary contact</div>
+      <div class="fgrid">
+        <label class="f"><span>Name</span><input type="text" id="n_c1n" placeholder="Bailey Acosta"></label>
+        <label class="f"><span>Relationship</span><select id="n_c1r"><option>Parent</option><option>Self</option><option>Spouse</option><option>Guardian</option><option>Other</option></select></label>
+        <label class="f"><span>Mobile</span><input type="tel" id="n_c1p" placeholder="(817) 705-5527"></label>
+        <label class="f"><span>Email</span><input type="email" id="n_c1e" placeholder="baileyacosta@gmail.com"></label>
+      </div>
+      <div class="subhead">Secondary contact <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--dim)">— optional</span></div>
+      <div class="fgrid">
+        <label class="f"><span>Name</span><input type="text" id="n_c2n" placeholder="Isaac Acosta"></label>
+        <label class="f"><span>Mobile</span><input type="tel" id="n_c2p" placeholder="(817) 739-3811"></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <span class="sp"></span>
+    <button class="btn sec" id="mBack" hidden><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</button>
+    <button class="btn pri" id="mNext">Continue<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button>
+    <button class="btn pri" id="mSave" hidden><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Create record</button>
+  </div>
+</div>
+
+<div class="modal" id="mImp" role="dialog" aria-modal="true">
+  <div class="mhead">
+    <span class="mi"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg></span>
+    <div><h3>Import patients</h3><p>Excel or CSV — one patient per row.</p></div>
+    <button class="mx" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="mbody">
+    <div class="imphint">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>The template covers patient details, subscriber, primary and secondary insurance,
+        card and parent or guardian contacts. Column order does not matter, and anything
+        left blank can be filled in later on the chart.</span>
+    </div>
+    <button class="btn sec" id="impTpl" style="width:100%;justify-content:center;margin:13px 0">
+      <svg viewBox="0 0 24 24"><path d="M12 3v13M7 12l5 5 5-5"/><path d="M4 20h16"/></svg>Download the template</button>
+
+    <div class="impdrop" id="impDrop">
+      <div class="di"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg></div>
+      <b id="impName">Drop a file here or click to browse</b>
+      <small>.xlsx, .xls or .csv</small>
+      <input type="file" id="impFile" hidden accept=".xlsx,.xls,.csv">
+    </div>
+
+    <div id="impPrev" style="display:none">
+      <div class="impsub">Preview</div>
+      <div class="imptw"><table class="imptbl" id="impTbl"></table></div>
+      <p class="impnote" id="impNote"></p>
+    </div>
+    <p class="imperr" id="impErr" style="display:none"></p>
+  </div>
+  <div class="mfoot">
+    <button class="btn sec" data-close>Cancel</button>
+    <span class="sp"></span>
+    <button class="btn pri" id="impRun" disabled><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Import</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span><b id="tTitle">Saved</b><small id="tSub">—</small></span></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var KEY='rf_patients';
+
+  var CLIN=['Dr. Dana Whitfield','Dr. Alan Reyes','Dr. Ngozi Okafor','Sara Lindqvist, NP','Marcus Bello, PA','Dr. Elena Petrova'];
+  var PAYERS=['Blue Cross Blue Shield of Texas (84980)','UnitedHealthcare (87726)','Medicare (CMS)','Aetna (60054)',
+    'Cigna (62308)','UMR Wausau (39026)','Texas Medicaid (MCDTX)','Humana (SX155)'];
+  var FIRST=['Colton','Nathan','Teyler','Maria','Priya','Walter','Elena','Marcus','Aisha','Tomas','Grace','Owen','Leila','Hugo','Nina','Caleb','Rosa','Ivan','Freya','Desmond','Talia','Miles','Anya','Rafael','Clara','Jonah','Iris','Felix','Jack','Sofia'];
+  var LAST=['Acosta','Alcantara','Allsup','Marshall','Alvarez','Raman','Novak','Petrova','Hill','Bello','Sorensen','Whitmore','Chen','Haddad','Lindgren','Okoro','Reyes','Delgado','Baptiste','Nakamura','Ferreira','Kovacs','Adeyemi','Osei','Vargas'];
+
+  function seed(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+  function rng(s){return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+  function pad(n){return n<10?'0'+n:''+n;}
+  function mid(f,l,n){return (f.slice(0,3)+l.slice(0,3)).toUpperCase()+pad(n%100);}
+  function money(n){return (n<0?'-$':'$')+Math.abs(n).toFixed(2);}
+  function fmtD(d){return d?new Date(d+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'—';}
+  function age(dob){if(!dob)return 0;var d=new Date(dob),n=new Date(),a=n.getFullYear()-d.getFullYear();
+    if(n.getMonth()<d.getMonth()||(n.getMonth()===d.getMonth()&&n.getDate()<d.getDate()))a--;return a;}
+
+  /* seed a realistic roster once */
+  function build(){
+    var r=rng(seed('reviflow-patients-v1')),out=[];
+    for(var i=0;i<38;i++){
+      var f=FIRST[Math.floor(r()*FIRST.length)],l=LAST[Math.floor(r()*LAST.length)];
+      var yr=1938+Math.floor(r()*76),mo=1+Math.floor(r()*12),dy=1+Math.floor(r()*28);
+      var dob=yr+'-'+pad(mo)+'-'+pad(dy);
+      var lastSeen=new Date();lastSeen.setDate(lastSeen.getDate()-Math.floor(r()*120));
+      var next=r()<.55?(function(){var d=new Date();d.setDate(d.getDate()+1+Math.floor(r()*40));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})():'';
+      var patBal=r()<.42?Math.round(r()*340*100)/100:0;
+      var insBal=r()<.34?Math.round(r()*920*100)/100:0;
+      out.push({
+        id:'PT'+(1000+i),
+        first:f,last:l,dob:dob,sex:r()<.52?'Female':'Male',
+        mid:mid(f,l,i+3),
+        status:r()<.82?'active':'inactive',
+        clinician:CLIN[Math.floor(r()*CLIN.length)],
+        payer:PAYERS[Math.floor(r()*PAYERS.length)],
+        memberId:'R'+(10000000+Math.floor(r()*89999999)),
+        groupId:''+(10000000+Math.floor(r()*89999999)),
+        copay:[0,15,20,25,30,35,40][Math.floor(r()*7)],
+        addr:(100+Math.floor(r()*8900))+' '+['Alderwood Dr','Lost Wagon St','W 5th St','Barton Springs Rd','Chisholm Trail'][Math.floor(r()*5)]+', Justin, TX 76247',
+        phone:'('+(200+Math.floor(r()*700))+') '+(200+Math.floor(r()*700))+'-'+(1000+Math.floor(r()*8999)),
+        email:(f+'.'+l).toLowerCase()+'@gmail.com',
+        contactMissing:r()<.12,
+        lastSeen:lastSeen.getFullYear()+'-'+String(lastSeen.getMonth()+1).padStart(2,'0')+'-'+String(lastSeen.getDate()).padStart(2,'0'),
+        nextAppt:next,
+        patBal:patBal,insBal:insBal,
+        card:r()<.7?{last4:''+(1000+Math.floor(r()*8999)),exp:pad(1+Math.floor(r()*12))+'/'+(27+Math.floor(r()*4)),brand:r()<.6?'Visa':'Mastercard'}:null,
+        visits:2+Math.floor(r()*14)
+      });
+    }
+    return out;
+  }
+  function load(){
+    /* no seeding — the roster comes from the shared store on boot */
+    var raw=null;try{raw=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+    return (raw&&raw.length)?raw:[];
+  }
+  function save(list){try{localStorage.setItem(KEY,JSON.stringify(list));}catch(e){}}
+
+  /* ── the shared store is the source of truth ──
+     The dashboard used its own localStorage roster with its own field names,
+     so records created here were invisible to the chart and the scheduler.
+     Everything now reads and writes through RFStore, and the two field
+     shapes are mapped in both directions. */
+  function toStore(p){
+    return {
+      id: (typeof p.ref==='number') ? p.ref : undefined,
+      internal_id: p.mid || '',
+      first_name: p.first || '', last_name: p.last || '',
+      middle_name: p.middle || '',
+      dob: p.dob || '', sex: p.sex || '',
+      phone: p.phone || '', email: p.email || '', address: p.addr || '',
+      relationship: p.relationship || 'Self',
+      member_id: p.memberId || '', payer: p.payer || '',
+      preferred_location: p.location || '',
+      clinician: p.clinician || '',
+      status: p.status || 'active',
+      insurances: (function(){
+        var out=[];
+        if(p.payer) out.push({ rank:'1', name:p.payer, member_id:p.memberId||'',
+          group_no:p.groupId||'', copay:+p.copay||0, coinsurance:0,
+          payer_id:'', plan_no:'', effective:'', term:'', coverage:'',
+          auth_no:'', referral_no:'', phone:'', address:'' });
+        if(p.payer2) out.push({ rank:'2', name:p.payer2, member_id:p.memberId2||'',
+          group_no:'', copay:0, coinsurance:0 });
+        return out;
+      })(),
+      contacts: p.contacts || [],
+      card: p.card || null,
+      /* figures the dashboard shows but the chart derives */
+      last_seen: p.lastSeen || '', next_appt: p.nextAppt || '',
+      pat_bal: +p.patBal || 0, ins_bal: +p.insBal || 0, visits: +p.visits || 0
+    };
+  }
+
+  function fromStore(r){
+    var ins = (r.insurances||[]);
+    var p1 = ins.filter(function(x){return x.rank==='1';})[0] || ins[0] || {};
+    var p2 = ins.filter(function(x){return x.rank==='2';})[0] || {};
+    return {
+      ref: r.id,
+      id: r.internal_id || ('PT'+r.id),
+      first: r.first_name || '', last: r.last_name || '',
+      dob: r.dob || '', sex: r.sex || '',
+      mid: r.internal_id || '',
+      status: r.status || 'active',
+      clinician: r.clinician || '',
+      payer: p1.name || r.payer || '',
+      memberId: p1.member_id || r.member_id || '',
+      groupId: p1.group_no || '',
+      copay: +p1.copay || 0,
+      payer2: p2.name || '', memberId2: p2.member_id || '',
+      addr: r.address || '', phone: r.phone || '', email: r.email || '',
+      contactMissing: !r.phone,
+      lastSeen: r.last_seen || '', nextAppt: r.next_appt || '',
+      patBal: +r.pat_bal || 0, insBal: +r.ins_bal || 0, visits: +r.visits || 0,
+      card: r.card || null, contacts: r.contacts || []
+    };
+  }
+
+  async function loadFromStore(){
+    if(typeof RFStore==='undefined') return null;
+    await RFStore.ready();
+    var rows = await RFStore.patients();
+
+    /* one-time migration of the old localStorage roster */
+    if(!rows.length){
+      var legacy=[];
+      try{ legacy=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
+      if(legacy.length){
+        for(var i=0;i<legacy.length;i++){
+          var rec=toStore(legacy[i]); delete rec.id;
+          await RFStore.savePatientRec(rec);
+        }
+        rows = await RFStore.patients();
+        try{ localStorage.setItem(KEY+'_migrated', localStorage.getItem(KEY)||'[]');
+             localStorage.removeItem(KEY); }catch(e){}
+      }
+    }
+    return rows.map(fromStore);
+  }
+
+  var DATA=load(),filt={q:'',status:'all',clin:'all',sort:'last'};
+
+  /* clinician filter options */
+  CLIN.forEach(function(c){
+    var o=document.createElement('option');o.value=c;o.textContent=c;$('fClin').appendChild(o);
+  });
+
+  function view(){
+    var q=filt.q.toLowerCase().trim();
+    var list=DATA.filter(function(p){
+      if(filt.status!=='all'&&p.status!==filt.status)return false;
+      if(filt.clin!=='all'&&p.clinician!==filt.clin)return false;
+      if(q){
+        var hay=(p.first+' '+p.last+' '+p.mid+' '+p.memberId).toLowerCase();
+        if(hay.indexOf(q)<0)return false;
+      }
+      return true;
+    });
+    list.sort(function(a,b){
+      if(filt.sort==='first')return a.first.localeCompare(b.first);
+      if(filt.sort==='seen')return (b.lastSeen||'').localeCompare(a.lastSeen||'');
+      if(filt.sort==='bal')return (b.patBal+b.insBal)-(a.patBal+a.insBal);
+      return a.last.localeCompare(b.last);
+    });
+    return list;
+  }
+
+  function render(){
+    homeMenu();
+    document.querySelectorAll('.mmenu.shown').forEach(function(m){m.classList.remove('shown');});
+    var list=view();
+    $('total').textContent='TOTAL CLIENTS: '+DATA.length;
+    $('showing').textContent=list.length+' shown';
+    $('empty').hidden=list.length>0;
+    $('rows').innerHTML=list.map(function(p,i){
+      var a=age(p.dob),minor=a<18;
+      var bal=p.patBal+p.insBal;
+      return '<tr style="animation-delay:'+Math.min(.5,i*.025)+'s">'+
+        '<td><span class="pname">'+
+            '<a class="plink" href="patient-record.html?ref='+(p.ref||'')+'&member='+encodeURIComponent(p.mid||'')+
+              '&last='+encodeURIComponent(p.last||'')+'&first='+encodeURIComponent(p.first||'')+
+              '">'+p.first+' '+p.last+'</a>'+
+            '<span class="tag '+(minor?'minor':'adult')+'">'+(minor?'Minor':'Adult')+'</span>'+
+            '<span class="stwrap" data-st="'+p.id+'">'+
+              '<button class="stbtn '+p.status+'">'+(p.status==='active'?'Active':'Inactive')+
+                '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>'+
+              '<span class="stmenu">'+
+                '<button data-set="active"><i style="background:var(--green)"></i>Active</button>'+
+                '<button data-set="inactive"><i style="background:var(--dim)"></i>Inactive</button>'+
+              '</span>'+
+            '</span>'+
+          '</span>'+
+          (p.contactMissing?'<span class="sub warn">Contact info missing</span>':
+            '<span class="ctc"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>'+p.phone+' <span class="ch">MOBILE</span></span>')+
+        '</td>'+
+        '<td><div class="cell-h mono">'+p.mid+'</div><div class="sub mono">'+p.memberId+'</div></td>'+
+        '<td><span class="clin">Clinician: '+p.clinician+'</span><div class="sub">DOB '+fmtD(p.dob)+' · '+a+' y/o</div></td>'+
+        '<td><div class="cell-h">'+fmtD(p.lastSeen)+'</div>'+
+          '<div class="sub">'+(p.nextAppt?'Next: '+fmtD(p.nextAppt):'No appointment scheduled')+'</div></td>'+
+        '<td><div class="cell-h mono" style="color:'+(bal>0?'var(--coral)':'var(--muted)')+'">'+money(bal)+'</div>'+
+          '<div class="sub mono">'+(bal>0?money(p.patBal)+' pt · '+money(p.insBal)+' ins':'Nothing outstanding')+'</div></td>'+
+        '<td><span class="mng" data-mng="'+p.id+'">'+
+          '<button class="dots" aria-label="Manage"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button>'+
+          '<span class="mmenu">'+
+            '<button data-act="view">View client</button>'+
+            '<button data-act="edit">Edit client info</button>'+
+            '<button data-act="merge">Merge with duplicate</button>'+
+            '<button data-act="couple">Add this client to a couple</button>'+
+            '<button data-act="contact">Add contact</button>'+
+            '<span class="sep"></span>'+
+            '<button data-act="delete" class="dang">Delete patient</button>'+
+          '</span></span></td>'+
+      '</tr>';
+    }).join('');
+  }
+
+
+  /* The list card uses backdrop-filter, which creates a stacking context —
+     a child cannot escape it whatever its z-index. So the open menu is moved
+     to <body> and positioned against the button it belongs to. */
+  var MENU_HOME=null;
+  function placeMenu(mng){
+    var menu=mng.querySelector('.mmenu')||mng._menu, btn=mng.querySelector('.dots');
+    if(!menu||!btn)return;
+
+    if(menu.parentNode!==document.body){
+      MENU_HOME={menu:menu, parent:menu.parentNode};
+      document.body.appendChild(menu);
+      mng._menu=menu;
+    }
+    menu.dataset.owner=mng.dataset.mng||'';
+
+    menu.style.visibility='hidden';
+    menu.style.opacity='0';
+    menu.style.display='block';
+    var h=menu.offsetHeight||260, w=menu.offsetWidth||216;
+    menu.style.display='';menu.style.visibility='';menu.style.opacity='';
+
+    var r=btn.getBoundingClientRect();
+    var top=r.bottom+6, left=r.right-w;
+    if(top+h > window.innerHeight-12) top=Math.max(12, r.top-h-6);
+    if(left < 12) left=12;
+    if(left+w > window.innerWidth-12) left=window.innerWidth-w-12;
+    menu.style.top=top+'px';
+    menu.style.left=left+'px';
+  }
+
+  /* put it back so the row keeps working when the menu closes */
+  function homeMenu(){
+    if(MENU_HOME && MENU_HOME.menu.parentNode===document.body){
+      MENU_HOME.parent.appendChild(MENU_HOME.menu);
+    }
+    MENU_HOME=null;
+  }
+  function closeMenus(){
+    document.querySelectorAll('.mng.open').forEach(function(x){x.classList.remove('open');});
+    homeMenu();
+  }
+
+  window.addEventListener('scroll',closeMenus,{passive:true});
+  window.addEventListener('resize',closeMenus);
+
+  /* interactions */
+  $('q').addEventListener('input',function(){filt.q=this.value;render();});
+  $('fStatus').addEventListener('change',function(){filt.status=this.value;render();});
+  $('fClin').addEventListener('change',function(){filt.clin=this.value;render();});
+  $('sort').addEventListener('change',function(){filt.sort=this.value;render();});
+
+  document.addEventListener('click',function(e){
+    var st=e.target.closest('.stbtn'),mn=e.target.closest('.dots'),
+        setb=e.target.closest('.stmenu button'),act=e.target.closest('.mmenu button');
+
+    if(setb){
+      var id=setb.closest('.stwrap').dataset.st,v=setb.dataset.set;
+      DATA.forEach(function(p){if(p.id===id)p.status=v;});
+      save(DATA);render();
+      toast('Status updated','Client moved to '+v);
+      return;
+    }
+    if(act){
+      var host=act.closest('.mmenu');
+      var pid=(host&&host.dataset.owner)||
+              (act.closest('.mng')&&act.closest('.mng').dataset.mng);
+      var a=act.dataset.act;
+      if(!pid)return;
+      if(a==='active'||a==='inactive'){
+        var pr2=DATA.filter(function(x){return x.id===pid;})[0];
+        if(pr2&&pr2.ref){
+          pr2.status=a;
+          RFStore.patient(pr2.ref).then(function(rec){
+            if(!rec)return;
+            rec.status=a; RFStore.savePatientRec(rec);
+          });
+          render();
+          toast('Marked '+a,pr2.first+' '+pr2.last);
+        }
+        return;
+      }
+      if(a==='delete'){
+        var pd=DATA.filter(function(x){return x.id===pid;})[0];
+        if(!pd)return;
+        if(!confirm('Delete '+pd.first+' '+pd.last+' permanently?\n\n'+
+          'Their chart, encounters and any claims stay in the system but the patient '+
+          'record is removed. This cannot be undone.'))return;
+        closeMenus();
+        document.querySelectorAll('.mmenu.shown').forEach(function(m){m.classList.remove('shown');});
+        (async function(){
+          if(pd.ref) await RFStore.removePatient(pd.ref);
+          DATA=DATA.filter(function(x){return x.id!==pid;});
+          render();
+          toast('Patient deleted',pd.first+' '+pd.last);
+        })();
+        return;
+      }
+      if(a==='view'){
+        var pr=DATA.filter(function(x){return x.id===pid;})[0]||{};
+        location.href='patient-record.html?ref='+(pr.ref||'')+
+          '&member='+encodeURIComponent(pr.mid||'')+
+          '&last='+encodeURIComponent(pr.last||'')+
+          '&first='+encodeURIComponent(pr.first||'');
+        return;
+      }
+      toast(act.textContent,'Available once the record is open');
+      closeMenus();
+      document.querySelectorAll('.mmenu.shown').forEach(function(m){m.classList.remove('shown');});
+      return;
+    }
+    var openSt=st?st.closest('.stwrap'):null,openMn=mn?mn.closest('.mng'):null;
+    if(openMn && !openMn.classList.contains('open')){
+      placeMenu(openMn);
+      requestAnimationFrame(function(){
+        if(openMn._menu)openMn._menu.classList.add('shown');
+      });
+    }else if(!openMn){
+      document.querySelectorAll('.mmenu.shown').forEach(function(m){m.classList.remove('shown');});
+      homeMenu();
+    }
+    document.querySelectorAll('.stwrap.open').forEach(function(x){if(x!==openSt)x.classList.remove('open');});
+    document.querySelectorAll('.mng.open').forEach(function(x){
+      if(x!==openMn){ x.classList.remove('open'); if(x._menu)x._menu.classList.remove('shown'); }
+    });
+    if(openSt)openSt.classList.toggle('open');
+    if(openMn){
+      openMn.classList.toggle('open');
+      if(!openMn.classList.contains('open')&&openMn._menu){
+        openMn._menu.classList.remove('shown');homeMenu();
+      }
+    }
+  });
+
+  /* ── new record wizard ── */
+  var step=1,scrim=$('scrim'),toastT;
+  function toast(t,s,bad){
+    $('tTitle').textContent=t;$('tSub').textContent=s||'';
+    var el=$('toast');el.classList.toggle('bad',!!bad);el.classList.add('on');
+    clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('on');},3400);
+  }
+  function openM(){step=1;paint();scrim.classList.add('on');$('mNew').classList.add('on');document.body.style.overflow='hidden';}
+  function closeM(){scrim.classList.remove('on');
+    document.querySelectorAll('.modal').forEach(function(m){m.classList.remove('on');});
+    document.body.style.overflow='';}
+  function paint(){
+    document.querySelectorAll('.stp').forEach(function(x){
+      var n=+x.dataset.s;x.classList.toggle('on',n===step);x.classList.toggle('done',n<step);
+    });
+    document.querySelectorAll('.fs').forEach(function(x){x.classList.toggle('on',+x.dataset.s===step);});
+    $('mBack').hidden=step===1;
+    $('mNext').hidden=step===4;
+    $('mSave').hidden=step!==4;
+  }
+  $('newBtn').addEventListener('click',openM);
+  /* ── import ── */
+  var IMP=null;
+  function impReset(){
+    IMP=null;
+    $('impName').textContent='Drop a file here or click to browse';
+    $('impDrop').classList.remove('has');
+    $('impPrev').style.display='none';
+    $('impErr').style.display='none';
+    $('impRun').disabled=true;
+  }
+  $('importBtn').addEventListener('click',function(){
+    impReset();
+    scrim.classList.add('on');$('mImp').classList.add('on');document.body.style.overflow='hidden';
+  });
+  $('impTpl').addEventListener('click',function(){
+    RFImport.template('patient');
+    toast('Template downloaded','Fill it in and upload');
+  });
+  $('impDrop').addEventListener('click',function(){$('impFile').click();});
+  $('impFile').addEventListener('change',function(){if(this.files[0])impRead(this.files[0]);this.value='';});
+  ['dragenter','dragover'].forEach(function(k){
+    $('impDrop').addEventListener(k,function(e){e.preventDefault();this.classList.add('over');});});
+  ['dragleave','drop'].forEach(function(k){
+    $('impDrop').addEventListener(k,function(e){e.preventDefault();this.classList.remove('over');});});
+  $('impDrop').addEventListener('drop',function(e){
+    if(e.dataTransfer&&e.dataTransfer.files[0])impRead(e.dataTransfer.files[0]);});
+
+  async function impRead(file){
+    $('impErr').style.display='none';
+    var res;
+    try{ res=await RFImport.parse(file,'patient'); }
+    catch(err){ res={error:String(err.message||err)}; }
+    if(res.error){
+      $('impErr').textContent=res.error;$('impErr').style.display='';
+      $('impPrev').style.display='none';$('impRun').disabled=true;return;
+    }
+    IMP=res.rows;
+    $('impName').textContent=file.name;
+    $('impDrop').classList.add('has');
+    $('impTbl').innerHTML='<thead><tr><th>Row</th><th>Last</th><th>First</th><th>DOB</th>'+
+      '<th>Insurance</th><th>Member ID</th></tr></thead><tbody>'+
+      IMP.slice(0,5).map(function(r){
+        var i1=(r.insurances||[])[0]||{};
+        return '<tr><td>'+r._row+'</td><td>'+esc(r.last_name)+'</td><td>'+esc(r.first_name)+'</td>'+
+          '<td>'+esc(r.dob||'—')+'</td><td>'+esc(i1.name||'—')+'</td>'+
+          '<td>'+esc(i1.member_id||'—')+'</td></tr>';
+      }).join('')+'</tbody>';
+    $('impNote').textContent=IMP.length>5
+      ? ('Showing 5 of '+IMP.length+' rows · '+res.matched+' columns matched')
+      : (IMP.length+' row'+(IMP.length===1?'':'s')+' · '+res.matched+' columns matched');
+    $('impPrev').style.display='';
+    $('impRun').disabled=false;
+  }
+  function esc(v){return String(v==null?'':v).replace(/[&<>]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+
+  $('impRun').addEventListener('click',async function(){
+    if(!IMP)return;
+    this.disabled=true;this.textContent='Importing…';
+    var r=await RFStore.importPatients(IMP);
+    this.disabled=false;
+    this.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Import';
+    if(!r.ok){toast('Import failed',r.error||'',true);return;}
+    var rows=await loadFromStore();
+    if(rows)DATA=rows;
+    render();
+    closeImp();
+    toast(r.added+' added, '+r.updated+' updated',
+      r.failed.length?(r.failed.length+' row(s) skipped — see the console'):'Patient roster refreshed');
+    if(r.failed.length)console.warn('Import skipped rows:',r.failed);
+  });
+  function closeImp(){
+    scrim.classList.remove('on');$('mImp').classList.remove('on');document.body.style.overflow='';
+  }
+  scrim.addEventListener('click',closeM);
+  document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',closeM);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeM();
+    document.querySelectorAll('.stwrap.open,.mng.open').forEach(function(x){x.classList.remove('open');});}});
+
+  $('mBack').addEventListener('click',function(){if(step>1){step--;paint();}});
+  $('mNext').addEventListener('click',function(){
+    if(step===1){
+      var bad=null;
+      ['n_first','n_last','n_dob','n_clin'].forEach(function(id){
+        var el=$(id);el.classList.remove('bad');
+        if(!el.value.trim()){el.classList.add('bad');if(!bad)bad=el;}
+      });
+      if(bad){bad.focus();toast('Missing details','Fill the highlighted fields',true);return;}
+    }
+    if(step===2){
+      var p1=$('n_pay1'),m1=$('n_mem1'),bad2=null;
+      [p1,m1].forEach(function(el){el.classList.remove('bad');if(!el.value.trim()){el.classList.add('bad');if(!bad2)bad2=el;}});
+      if(bad2){bad2.focus();toast('Primary insurance required','Add a payer and member ID, or pick Self pay',true);return;}
+    }
+    if(step<4){step++;paint();}
+  });
+
+  /* auto member ID */
+  ['n_first','n_last'].forEach(function(id){
+    $(id).addEventListener('input',function(){
+      var f=$('n_first').value.trim(),l=$('n_last').value.trim();
+      $('n_mid').value=(f.length>=3&&l.length>=3)?mid(f,l,DATA.length+3):'';
+    });
+  });
+  $('n_ccnum').addEventListener('input',function(){
+    this.value=this.value.replace(/\D/g,'').replace(/(.{4})/g,'$1 ').trim();
+  });
+  $('n_ccexp').addEventListener('input',function(){
+    var v=this.value.replace(/\D/g,'');
+    this.value=v.length>2?v.slice(0,2)+'/'+v.slice(2,4):v;
+  });
+  $('ccToggle').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    $('ccFields').style.display=b.dataset.cc==='yes'?'':'none';
+  });
+
+  $('mSave').addEventListener('click',function(){
+    var f=$('n_first').value.trim(),l=$('n_last').value.trim(),
+        num=$('n_ccnum').value.replace(/\s/g,''),
+        useCard=$('ccToggle').querySelector('.on').dataset.cc==='yes';
+    var p={
+      id:'PT'+(2000+DATA.length),
+      first:f,last:l,dob:$('n_dob').value,sex:$('n_sex').value,
+      mid:$('n_mid').value||mid(f,l,DATA.length+3),
+      status:'active',clinician:$('n_clin').value,
+      payer:$('n_pay1').value,memberId:$('n_mem1').value,groupId:$('n_grp1').value,
+      copay:parseFloat(($('n_cop1').value||'0').replace(/[^0-9.]/g,''))||0,
+      payer2:$('n_pay2').value||'',memberId2:$('n_mem2').value||'',
+      addr:$('n_addr').value,phone:$('n_c1p').value,email:$('n_c1e').value,
+      contactMissing:!$('n_c1p').value.trim(),
+      lastSeen:'',nextAppt:'',patBal:0,insBal:0,visits:0,
+      card:(useCard&&num.length>=12)?{last4:num.slice(-4),exp:$('n_ccexp').value,brand:num[0]==='4'?'Visa':'Mastercard'}:null,
+      contacts:[
+        {n:$('n_c1n').value,r:$('n_c1r').value,p:$('n_c1p').value,e:$('n_c1e').value},
+        {n:$('n_c2n').value,r:'Other',p:$('n_c2p').value,e:''}
+      ].filter(function(c){return c.n;})
+    };
+    (async function(){
+      var rec=toStore(p); delete rec.id;
+      var r=await RFStore.savePatientRec(rec);
+      if(!r||!r.ok){toast('Could not save',(r&&r.error)||'The record was not stored',true);return;}
+      p.ref=r.id; p.mid=r.internal_id||p.mid;
+      DATA.unshift(p);
+      closeM();render();
+      toast('Record created',p.first+' '+p.last+' · '+p.mid);
+    })();
+    setTimeout(function(){
+      $('mNew').querySelectorAll('input').forEach(function(el){el.value='';});
+      $('mNew').querySelectorAll('select').forEach(function(el){el.selectedIndex=0;});
+      $('mNew').querySelectorAll('.bad').forEach(function(el){el.classList.remove('bad');});
+    },420);
+  });
+
+  (async function boot(){
+    if(typeof RFStore==='undefined'){
+      render();   /* offline fallback: whatever is in localStorage */
+      return;
+    }
+    try{
+      var rows=await loadFromStore();
+      if(rows){ DATA=rows; }
+    }catch(err){ console.error('patient load failed',err); }
+    render();
+    if(!DATA.length){
+      var tb=$('rows');
+      if(tb)tb.innerHTML='<tr><td colspan="7" style="padding:52px 20px;text-align:center;color:var(--dim);line-height:1.75">'+
+        '<b style="display:block;font-family:Sora,sans-serif;font-size:15px;color:var(--ink);margin-bottom:6px">'+
+        'No patients yet</b>Create the first record, or book an appointment in the schedule '+
+        'and the patient is added automatically.</td></tr>';
+    }
+  })();
+})();
+</script>
+
+
+<script>
+/* Section access: a grant, not just a role. Shows a notice rather than
+   signing anyone out. */
+(function(){
+  var SECTION='patients';
+  document.addEventListener('DOMContentLoaded',async function(){
+    try{
+      if(typeof RFStore==='undefined'||!RFStore.can)return;
+      await RFStore.ready();
+      var lvl=await RFStore.can(SECTION);
+      if(lvl==='none'){
+        if(window.RFSession&&RFSession.denied)
+          RFSession.denied({section:'patient records'});
+        return;
+      }
+      if(lvl==='view'){
+        /* read only: the page still loads, but nothing that writes is usable */
+        document.body.classList.add('rf-viewonly');
+        var css=document.createElement('style');
+        css.textContent=
+          '.rf-viewonly [data-write],.rf-viewonly .ib.del{opacity:.4;pointer-events:none}'+
+          '.rf-viewonly .rf-ro{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);'+
+            'z-index:900;display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:11px;'+
+            'background:#0D1A16;color:#F2FBF7;font:600 12px Manrope,system-ui,sans-serif;'+
+            'box-shadow:0 18px 40px -18px rgba(13,26,22,.8)}';
+        document.head.appendChild(css);
+        var note=document.createElement('div');
+        note.className='rf-ro';
+        note.textContent='View only — contact your practice manager to make changes';
+        document.body.appendChild(note);
+        setTimeout(function(){ note.style.display='none'; },6000);
+      }
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

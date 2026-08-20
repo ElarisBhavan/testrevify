@@ -1,0 +1,112 @@
+/* ═══════════════════════════════════════════════════════════════
+   Shared date picker.
+   Replaces the native control, which needs a click on a small icon
+   and makes changing the year slow — painful for dates of birth.
+   ═══════════════════════════════════════════════════════════════ */
+
+.rfdp-field{position:relative;display:block}
+.rfdp-field > input{width:100%;padding-right:36px!important}
+
+/* The browser draws its own calendar glyph inside a date input. Ours sits on
+   top of it, so hide the native one — otherwise the field shows two icons. */
+.rfdp-field > input::-webkit-calendar-picker-indicator{
+  opacity:0;pointer-events:none;width:0;margin:0;padding:0;display:none}
+.rfdp-field > input::-webkit-inner-spin-button,
+.rfdp-field > input::-webkit-clear-button{display:none;-webkit-appearance:none}
+/* Firefox */
+.rfdp-field > input{appearance:textfield;-moz-appearance:textfield}
+.rfdp-open{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:24px;height:24px;border:none;background:none;padding:0;cursor:pointer;
+  display:grid;place-items:center;border-radius:6px;transition:background .2s}
+.rfdp-open svg{width:15px;height:15px;stroke:#8A9A97;fill:none;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
+.rfdp-open:hover{background:rgba(14,26,23,.06)}
+.rfdp-open:hover svg{stroke:#0A5C46}
+.rfdp-field.on .rfdp-open svg{stroke:#0E9D73}
+
+.rfdp{position:fixed;z-index:2147483200;width:302px;padding:14px;border-radius:16px;
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 30px 70px -22px rgba(14,26,23,.45),0 0 0 1px rgba(14,26,23,.06);
+  opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);
+  transition:opacity .22s cubic-bezier(.22,1,.36,1),transform .26s cubic-bezier(.34,1.4,.64,1),visibility .22s;
+  font-family:'Manrope',system-ui,sans-serif}
+.rfdp.on{opacity:1;visibility:visible;transform:none}
+
+.rfdp-head{display:flex;align-items:center;gap:6px;margin-bottom:11px}
+.rfdp-nav{width:28px;height:28px;flex:none;border-radius:9px;border:1px solid rgba(14,26,23,.1);
+  background:#fff;cursor:pointer;display:grid;place-items:center;transition:all .22s}
+.rfdp-nav svg{width:13px;height:13px;stroke:#5C6A66;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.rfdp-nav:hover{border-color:#0E9D73;background:#DFF5EC}
+.rfdp-nav:hover svg{stroke:#0A5C46}
+.rfdp-sel{flex:1;display:flex;gap:5px}
+.rfdp-sel select{flex:1;min-width:0;padding:6px 7px;border-radius:8px;
+  border:1px solid rgba(14,26,23,.1);background:#fff;
+  font-family:'Manrope',system-ui,sans-serif;font-size:12.6px;font-weight:600;color:#0D1A16;
+  cursor:pointer;appearance:none;text-align:center;transition:border-color .2s}
+.rfdp-sel select:hover{border-color:#0E9D73}
+.rfdp-sel select:focus{outline:none;border-color:#0E9D73;box-shadow:0 0 0 3px rgba(14,157,115,.12)}
+.rfdp-sel select.yr{flex:0 0 86px}
+
+.rfdp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px}
+.rfdp-dow span{text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;
+  font-weight:700;letter-spacing:.06em;color:#8A9A97;padding:5px 0}
+
+.rfdp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.rfdp-day{aspect-ratio:1;border:none;background:none;border-radius:9px;cursor:pointer;
+  font-family:'Manrope',system-ui,sans-serif;font-size:12.8px;font-weight:500;color:#0D1A16;
+  display:grid;place-items:center;position:relative;
+  transition:background .18s,color .18s,transform .18s cubic-bezier(.34,1.4,.64,1)}
+.rfdp-day:hover:not(:disabled){background:#DFF5EC;color:#0A5C46;transform:scale(1.08)}
+.rfdp-day.out{color:#C4CDCA;font-weight:400}
+.rfdp-day.today{font-weight:700;color:#0A5C46}
+.rfdp-day.today::after{content:'';position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
+  width:4px;height:4px;border-radius:50%;background:#0E9D73}
+.rfdp-day.on{background:linear-gradient(140deg,#0E9D73,#0A5C46);color:#fff;font-weight:600;
+  box-shadow:0 6px 14px -6px rgba(10,92,70,.8)}
+.rfdp-day.on::after{background:#fff}
+.rfdp-day:disabled{opacity:.28;cursor:not-allowed}
+.rfdp-day.inrange{background:#DFF5EC;color:#0A5C46;border-radius:0}
+.rfdp-day.rstart{border-radius:9px 0 0 9px}
+.rfdp-day.rend{border-radius:0 9px 9px 0}
+
+.rfdp-foot{display:flex;gap:6px;margin-top:11px;padding-top:11px;border-top:1px solid rgba(14,26,23,.08)}
+.rfdp-foot button{flex:1;padding:8px 10px;border-radius:9px;border:1px solid rgba(14,26,23,.1);
+  background:#fff;font-family:'Manrope',system-ui,sans-serif;font-size:11.8px;font-weight:600;
+  color:#5C6A66;cursor:pointer;transition:all .22s}
+.rfdp-foot button:hover{border-color:#0E9D73;color:#0A5C46;background:#DFF5EC}
+
+/* ── range filter bar ── */
+.rfrange{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.rfpresets{display:flex;gap:3px;padding:3px;border-radius:11px;
+  background:rgba(14,26,23,.045);border:1px solid rgba(14,26,23,.07)}
+.rfpresets button{padding:7px 12px;border:none;background:none;border-radius:8px;
+  font-family:'Manrope',system-ui,sans-serif;font-size:11.8px;font-weight:600;color:#5C6A66;
+  cursor:pointer;white-space:nowrap;transition:all .24s cubic-bezier(.22,1,.36,1)}
+.rfpresets button:hover{background:rgba(255,255,255,.8);color:#0D1A16}
+.rfpresets button.on{background:#fff;color:#0A5C46;box-shadow:0 4px 12px -6px rgba(14,26,23,.5)}
+.rfdates{display:flex;align-items:center;gap:7px}
+.rfdates .sep{font-size:11.4px;color:#8A9A97}
+.rfdate{position:relative;width:138px}
+.rfdate input{width:100%;padding:9px 30px 9px 11px;border-radius:10px;
+  border:1px solid rgba(14,26,23,.12);background:#fff;
+  font-family:'Manrope',system-ui,sans-serif;font-size:12.4px;color:#0D1A16;cursor:pointer}
+.rfdate input:hover{border-color:rgba(14,26,23,.24)}
+.rfdate input:focus{outline:none;border-color:#0E9D73;box-shadow:0 0 0 3px rgba(14,157,115,.12)}
+.rfdate input::placeholder{color:#A8B4B1}
+.rfclear{padding:8px 12px;border-radius:9px;border:1px solid rgba(14,26,23,.1);background:#fff;
+  font-family:'Manrope',system-ui,sans-serif;font-size:11.6px;font-weight:600;color:#8A9A97;
+  cursor:pointer;transition:all .22s}
+.rfclear:hover{border-color:#CE5F3E;color:#9B3F24;background:#FBEAE4}
+
+@media (max-width:640px){
+  .rfdp{width:calc(100vw - 24px);max-width:302px}
+  .rfrange{gap:7px}
+  .rfpresets{width:100%;overflow-x:auto;scrollbar-width:none}
+  .rfpresets::-webkit-scrollbar{display:none}
+  .rfdate{width:calc(50% - 14px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .rfdp,.rfdp-day{transition:none}
+}
