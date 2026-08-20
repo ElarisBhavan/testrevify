@@ -155,7 +155,7 @@
   (async function(){
     await RFStore.ready();
     var me=RFStore.getSession();
-    if(!me||me.role!=='admin'){location.href='admin-login.html';return;}
+    if(!me||me.role!=='admin'){location.href='../reviflow.html';return;}
     $('meAv').textContent=me.initials||'SA';
     $('meName').textContent=me.name||me.username;
     $('meRole').textContent=(me.role||'').toUpperCase()+' · '+(me.title||'');

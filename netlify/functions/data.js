@@ -16,8 +16,7 @@ const KINDS = {
   master:        { write:['admin'] },
   task:          { write:['admin','supervisor','scheduler','provider','employee'] },
   credentialing: { write:['admin','supervisor'] },
-  history:       { write:['admin','supervisor','scheduler','provider','employee'] },
-  payment:       { write:['admin','supervisor','employee','provider'] }
+  history:       { write:['admin','supervisor','scheduler','provider','employee'] }
 };
 
 /* PHI, and therefore logged in full. The rest is reference data. */
@@ -63,12 +62,6 @@ function columns(kind, r){
     c.search = [r.title, r.assignee].filter(Boolean).map(low).join(' ');
   }else if(kind === 'credentialing'){
     c.provider_id = r.provider_id != null ? Number(r.provider_id) : null;
-  }else if(kind === 'history'){
-    c.on_date = String(r.at || r.date || '').slice(0,10) || null;
-    c.search = [r.what, r.detail, r.by].filter(Boolean).map(low).join(' ');
-  }else if(kind === 'payment'){
-    c.on_date = String(r.at || r.date || '').slice(0,10) || null;
-    c.search = [r.patient_name, r.claim_no, r.payer, r.kind, r.reference].filter(Boolean).map(low).join(' ');
   }
   return c;
 }
@@ -91,9 +84,8 @@ exports.handler = async (event) => {
   if(event.httpMethod === 'OPTIONS')
     return { statusCode:204, headers:L.SECURITY_HEADERS || {}, body:'' };
 
-  const gate = await L.requireSession(event);
-  if(gate.error) return gate.error;
-  const me = gate.session;
+  const me = await L.session(event);
+  if(!me) return L.J(401, { error:'Not signed in' });
 
   const url = new URL(event.rawUrl || ('https://x' + (event.path||'') +
     '?' + (event.rawQuery || '')));
@@ -125,20 +117,7 @@ exports.handler = async (event) => {
       const f = body.filter || {};
       let rows;
 
-      /* Server-side task visibility. Never rely on the browser to hide another user's work. */
-      if(kind === 'task' && !['admin','supervisor'].includes(me.role)){
-        rows = await sql`select data from app_records
-          where kind='task' and deleted_at is null
-            and (lower(coalesce(data->>'assignee',''))=${low(me.username)}
-              or lower(coalesce(data->>'created_by',''))=${low(me.username)}
-              or EXISTS (
-                   SELECT 1 FROM jsonb_array_elements_text(
-                     CASE WHEN jsonb_typeof(data->'cc')='array' THEN data->'cc' ELSE '[]'::jsonb END
-                   ) cc(value)
-                   WHERE lower(cc.value)=${low(me.username)}
-                 ))
-          order by id desc limit 2000`;
-      } else if(f.patient_ref != null){
+      if(f.patient_ref != null){
         rows = await sql`select data from app_records
           where kind=${kind} and patient_ref=${Number(f.patient_ref)}
             and deleted_at is null order by id`;

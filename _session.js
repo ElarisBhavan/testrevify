@@ -117,19 +117,18 @@
     return 'Provider/provider-dashboard.html';
   }
 
+  /* Everyone signs in at reviflow.html now, whatever their role — the old
+     provider-login and admin-login pages were per-role and are no longer where
+     anybody starts. Only the number of folders to climb changes. */
   function loginUrl(reason){
     var p = location.pathname;
-    var base = /\/Admin\//i.test(p) ? ''
-             : /\/Patient\/|\/Employee\//i.test(p) ? '../Provider/'
-             : /\/Provider\//i.test(p) ? ''
-             : 'Provider/';
-    var admin = /\/Admin\//i.test(p);
-    return base + (admin ? 'admin-login.html' : 'provider-login.html') +
-           (reason ? '?' + reason + '=1' : '');
+    /* one level down inside Admin, Provider, Patient or Employee; otherwise root */
+    var up = /\/(Admin|Provider|Patient|Employee)\//i.test(p) ? '../' : '';
+    return up + 'reviflow.html' + (reason ? '?' + reason + '=1' : '');
   }
 
   function isPublic(){
-    return /provider-login|admin-login|reset-password|reviflow|^\/?index|resources|insights/i
+    return /reviflow|provider-login|admin-login|reset-password|^\/?index|resources|insights/i
       .test(location.pathname.split('/').pop() || 'index.html');
   }
 

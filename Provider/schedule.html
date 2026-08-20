@@ -407,7 +407,7 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     <div class="hact">
       <span class="rf-who" id="rfWho"></span>
       <a href="provider-dashboard.html" class="hbtn back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>Back</a>
-      <a href="provider-login.html" class="hbtn out">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></a>
+      <a href="../reviflow.html" class="hbtn out">Log out<svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg></a>
     </div>
   </div>
 </header>
@@ -1705,7 +1705,7 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     try{
       await RFStore.ready();
       SESSION=RFStore.getSession();
-      if(!SESSION){location.href='provider-login.html';return;}
+      if(!SESSION){location.href='../reviflow.html';return;}
 
       ORGS=await RFStore.orgs();
       CFG=await RFStore.settings();

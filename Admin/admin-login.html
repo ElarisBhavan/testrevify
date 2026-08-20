@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="../_guard.js"></script>
 <script src="../_store.js"></script>
+<script src="../_live.js"></script>
 <script src="../_session.js"></script>
 <style>
 :root{
@@ -338,7 +339,7 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     catch(e){ $(qrEl).innerHTML='<p style="font-size:11.4px;color:var(--muted);padding:20px">Enter the key below into your app.</p>'; }
   }
   function land(acct){
-    window.location.href = acct.role==='admin' ? 'admin-dashboard.html' : '../Provider/provider-dashboard.html';
+    window.location.href = landingFor(acct);
   }
 
   /* ── step 1: credentials ── */
@@ -456,12 +457,34 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
   /* Someone is already signed in. Offer to continue, or to sign in as someone
      else — rather than silently redirecting, which looks like the wrong
      credentials were accepted. */
+
+  /* ── where each role belongs ──
+     The same map the unified sign-in page uses. Verification finishes here, so
+     without it a biller or a patient would land on a provider dashboard. */
+  var HOME={
+    admin:'admin-dashboard.html',
+    supervisor:'../Provider/provider-dashboard.html',
+    provider:'../Provider/provider-dashboard.html',
+    scheduler:'../Provider/provider-dashboard.html',
+    employee:'../Provider/provider-dashboard.html',
+    billing:'../Provider/claims.html',
+    frontoffice:'../Provider/schedule.html',
+    patient:'../Patient/patient-dashboard.html'
+  };
+  function landingFor(a){
+    if(!a)return '../Provider/provider-dashboard.html';
+    var r=String(a.role||'').toLowerCase().replace(/[\s_-]/g,'');
+    if(HOME[r])return HOME[r];
+    if(a.provider_id||a.provider_ref)return HOME.provider;
+    return '../Provider/provider-dashboard.html';
+  }
+
   function showSignedIn(sess){
     var host=document.querySelector('.card')||document.body;
     var who=sess.name||sess.username;
     var role=({admin:'Administrator',supervisor:'Practice manager',provider:'Provider',
                scheduler:'Scheduler',employee:'Employee'})[sess.role]||sess.role;
-    var home=sess.role==='admin'?'admin-dashboard.html':'../Provider/provider-dashboard.html';
+    var home=landingFor(sess);
 
     var box=document.createElement('div');
     box.className='rf-already';

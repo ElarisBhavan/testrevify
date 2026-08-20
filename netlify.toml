@@ -98,12 +98,6 @@
   force = true
 
 [[redirects]]
-  from = "/api/import"
-  to   = "/.netlify/functions/import"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/api/bootstrap"
   to   = "/.netlify/functions/bootstrap"
   status = 200

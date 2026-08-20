@@ -226,7 +226,7 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     <span><b id="whoName">—</b><small id="whoRole">—</small></span>
   </div>
 
-  <a href="provider-login.html" class="logout">
+  <a href="../reviflow.html" class="logout">
     Log out
     <svg viewBox="0 0 24 24"><path d="M15 12H4M11 6l6 6-6 6"/><path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5"/></svg>
   </a>
@@ -494,7 +494,7 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
   (async function(){
     await RFStore.ready();
     var s=RFStore.getSession();
-    if(!s){window.location.href='provider-login.html';return;}
+    if(!s){window.location.href='../reviflow.html';return;}
 
     var full=s.name||[s.first,s.last].filter(Boolean).join(' ')||s.username;
     var ROLE={provider:'Provider',supervisor:'Supervisor / Practice Manager',

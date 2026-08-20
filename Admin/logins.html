@@ -476,8 +476,8 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     sel.value=ROLES[t][0][0];
     sel.dispatchEvent(new Event('change'));
     $('forHint').textContent = t==='provider'
-      ? 'Signs in at Provider → provider-login.html and lands on the clinical workspace.'
-      : 'Signs in at Provider → provider-login.html and lands on the workspace for their role.';
+      ? 'Signs in at the main address and lands on the clinical workspace.'
+      : 'Signs in at the main address and lands on the workspace for their role.';
   });
   $('fOrg').addEventListener('change',function(){
     var oid=this.value?+this.value:null;
@@ -650,7 +650,8 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
     $('cTitle').textContent=title||'Login created';
     $('cUser').textContent=user;
     $('cPw').textContent=pass||'(unchanged)';
-    $('cUrl').textContent=location.origin+location.pathname.replace(/Admin\/logins\.html$/,'Provider/provider-login.html');
+    /* the address to hand a new member of staff */
+    $('cUrl').textContent=location.origin+location.pathname.replace(/Admin\/logins\.html$/,'reviflow.html');
     $('mfaBlock').hidden=!mfa;
     if(mfa){
       $('cSecret').textContent=mfa.secret;

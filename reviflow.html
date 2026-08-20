@@ -363,6 +363,50 @@ a{color:inherit;text-decoration:none}
     return FALLBACK;
   }
 
+
+  /* ── why they are back here ──
+     A sign-out for inactivity or an expired session lands here with a reason
+     in the address. Saying so is the difference between "it logged me out" and
+     "it is broken". */
+  (function(){
+    var q = new URLSearchParams(location.search);
+    var why = q.get('idle') ? 'idle'
+            : q.get('expired') ? 'expired'
+            : q.get('timeout') ? 'idle'
+            : q.get('denied') ? 'denied'
+            : q.get('signedout') ? 'signedout' : null;
+    if(!why) return;
+
+    var COPY = {
+      idle:      ['Signed out for inactivity',
+                  'Your session ended after a period without activity. Sign in again to continue.'],
+      expired:   ['Your session expired',
+                  'Sessions end after twelve hours. Sign in again to pick up where you left off.'],
+      denied:    ['That page is not yours',
+                  'Your account does not have access to it. Sign in as somebody who does, or ask an administrator.'],
+      signedout: ['Signed out', 'You have been signed out of this account.']
+    };
+    var c = COPY[why];
+
+    var box = document.createElement('div');
+    box.style.cssText = 'display:flex;gap:11px;padding:14px 16px;border-radius:14px;'+
+      'margin-bottom:22px;background:var(--amber-s);border:1px solid rgba(192,134,22,.24);'+
+      'animation:rise .6s var(--e) both';
+    box.innerHTML =
+      '<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--amber);fill:none;'+
+      'stroke-width:2;stroke-linecap:round;flex:none;margin-top:1px">'+
+      '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>'+
+      '<span style="font-size:12.8px;line-height:1.55;color:#7A5507">'+
+      '<b style="display:block;font-family:\'Sora\',sans-serif;font-size:13.4px;margin-bottom:2px">'+
+      c[0]+'</b>'+c[1]+'</span>';
+
+    var panel = document.querySelector('.panel');
+    panel.insertBefore(box, panel.querySelector('form'));
+
+    /* leave the address clean, so a reload does not repeat the message */
+    try{ history.replaceState(null, '', location.pathname); }catch(e){}
+  })();
+
   /* ── the words, one at a time ── */
   (function(){
     var q=$('quote'); if(!q) return;
@@ -459,8 +503,24 @@ a{color:inherit;text-decoration:none}
          verification screen, which returns here when it is done. */
       if(res.mustChange || res.mfaRequired){
         sessionStorage.setItem('rf_pending', JSON.stringify({
-          id:res.id, name:res.name,
+          challenge:res.challenge, id:res.id, name:res.name,
           mode: res.mustChange ? 'change' : 'mfa',
+          from: 'reviflow'
+        }));
+        window.location.href='Admin/admin-login.html?switch=1';
+        return;
+      }
+
+      /* MFA enrollment is a successful password authentication.
+         Send the signed challenge and enrollment data to the shared
+         verification page instead of showing a bad-credentials message. */
+      if(res.mfaEnrol){
+        sessionStorage.setItem('rf_pending', JSON.stringify({
+          challenge: res.challenge,
+          secret: res.secret,
+          otpauth: res.otpauth,
+          name: res.name || u.value.trim(),
+          mode: 'enrol',
           from: 'reviflow'
         }));
         window.location.href='Admin/admin-login.html?switch=1';
