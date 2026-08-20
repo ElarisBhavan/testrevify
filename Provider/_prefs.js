@@ -48,7 +48,7 @@
             sessionStorage.setItem('rf_timeout','1');
           }catch(e){}
           var base=location.pathname.indexOf('/Admin/')>-1 ? '../Provider/' : '';
-          location.href=base+'provider-login.html?timeout=1';
+          location.href=base+'../reviflow.html?timeout=1';
         },ms);
       }
       var evs=['mousemove','mousedown','keydown','touchstart','scroll','click'];

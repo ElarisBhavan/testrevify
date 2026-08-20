@@ -29,7 +29,8 @@ exports.handler = async (event) => {
     /* ── list ── */
     if(action === 'list'){
       const rows = await sql`
-        SELECT id,username,email,phone,role,full_name,title,initials,provider_id,scope,
+        SELECT id,username,email,phone,role,full_name,title,initials,provider_id,
+               provider_ref,org_id,scope,
                status,mfa_enabled,must_change,last_login,created_by,created_at
         FROM accounts ORDER BY role, full_name`;
       return L.J(200, { accounts: rows });
@@ -52,12 +53,16 @@ exports.handler = async (event) => {
 
       const [row] = await sql`
         INSERT INTO accounts (username,email,phone,password_hash,role,full_name,title,initials,
-                              provider_id,scope,mfa_enabled,mfa_secret,must_change,created_by)
+                              provider_id,provider_ref,org_id,scope,mfa_enabled,mfa_secret,
+                              must_change,created_by)
         VALUES (${username.toLowerCase()},${b.email||null},${b.phone||null},${L.hashPassword(pw)},
                 ${role},${full_name},${b.title||null},${b.initials||initialsOf(full_name)},
-                ${b.provider_id||null},${b.scope||(role==='admin'?'all':role==='provider'?'self':'facility')},
+                ${b.provider_id||null},
+                ${b.provider_ref != null && b.provider_ref !== '' ? Number(b.provider_ref) : null},
+                ${b.org_id != null && b.org_id !== '' ? Number(b.org_id) : null},
+                ${b.scope||(role==='admin'?'all':role==='provider'?'self':'facility')},
                 ${!!b.mfa_enabled},${secret},${b.must_change !== false},${me.username})
-        RETURNING id,username,role,full_name`;
+        RETURNING id,username,role,full_name,provider_ref,org_id`;
 
       await L.audit(me.username,'create_account',username,{ role });
       return L.J(201, {
@@ -80,10 +85,12 @@ exports.handler = async (event) => {
           title       = COALESCE(${b.title ?? null}, title),
           initials    = COALESCE(${b.initials ?? null}, initials),
           provider_id = COALESCE(${b.provider_id ?? null}, provider_id),
+          provider_ref = COALESCE(${b.provider_ref != null && b.provider_ref !== '' ? Number(b.provider_ref) : null}, provider_ref),
+          org_id      = COALESCE(${b.org_id != null && b.org_id !== '' ? Number(b.org_id) : null}, org_id),
           scope       = COALESCE(${b.scope ?? null}, scope),
           status      = COALESCE(${b.status ?? null}, status),
           updated_at  = NOW()
-        WHERE id=${id} RETURNING id,username,role,status`;
+        WHERE id=${id} RETURNING id,username,role,status,provider_ref,org_id`;
       await L.audit(me.username,'update_account',row?.username,b);
       return L.J(200, { account: row });
     }

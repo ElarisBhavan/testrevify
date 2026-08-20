@@ -10,9 +10,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="_guard.js"></script>
+<script src="_config.js"></script>
 <script src="_store.js"></script>
-<script src="_live.js"></script>
 <script src="_session.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
   --paper:#FBFAF6;--paper-2:#F4F2EC;--ink:#0E1A17;--muted:#5C6A66;--dim:#8A9A97;
@@ -232,6 +233,15 @@ a{color:inherit;text-decoration:none}
     animation-iteration-count:1!important;transition-duration:.01ms!important}
   .quote .w{opacity:1;transform:none}
 }
+.codes{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:6px}
+.codes input{width:100%;aspect-ratio:1/1.15;text-align:center;border-radius:12px;
+  border:1px solid var(--line-2);background:rgba(255,255,255,.8);
+  font-family:var(--mono);font-size:21px;font-weight:600;padding:0;
+  transition:border-color .24s var(--e),box-shadow .24s var(--e),background .24s var(--e)}
+.codes input:focus{outline:none;background:#fff;border-color:var(--green);
+  box-shadow:0 0 0 4px rgba(14,157,115,.12)}
+.codes input.filled{border-color:var(--green);background:var(--green-s)}
+@media (max-width:400px){.codes{gap:6px}.codes input{font-size:18px}}
 </style>
 </head>
 <body>
@@ -254,6 +264,63 @@ a{color:inherit;text-decoration:none}
       <span class="kick"><i></i>Secure sign in</span>
       <h1>Welcome <em>back</em></h1>
       <p>One sign in for everyone. You will land on your own workspace.</p>
+
+
+      <!-- shown only when an account needs one of these -->
+      <div id="verify" hidden>
+        <span class="kick"><i></i><span id="vKick">Two-step verification</span></span>
+        <h1 id="vTitle">Enter your code</h1>
+        <p id="vSub">Open your authenticator app and enter the six-digit code.</p>
+
+        <div id="mfaPane" hidden>
+          <div class="codes" id="codes">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 1">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 2">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 3">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 4">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 5">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 6">
+          </div>
+          <span class="err" id="mfaErr"></span>
+          <button type="button" class="go" id="mfaGo" style="margin-top:18px">
+            <span class="lbl">Verify and sign in
+              <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>
+            <span class="spin"><i></i></span></button>
+        </div>
+
+        <div id="enrolPane" hidden>
+          <div id="enrolBox" style="padding:16px;border-radius:14px;background:#fff;
+            border:1px solid var(--line-2);text-align:center;margin-bottom:16px">
+            <div id="qr" style="display:inline-block"></div>
+            <div id="secretText" style="font-family:var(--mono);font-size:12.4px;
+              word-break:break-all;margin-top:10px;color:var(--muted)">—</div>
+          </div>
+          <p style="font-size:12.2px;color:var(--muted);line-height:1.6;margin-bottom:14px">
+            Scan this with Google Authenticator, Authy or 1Password, then enter the
+            code it shows. If you cannot scan it, type the text above into the app.</p>
+        </div>
+
+        <div id="pwPane" hidden>
+          <label class="f"><span>New password</span>
+            <span class="inw">
+              <input type="password" id="np1" autocomplete="new-password" placeholder="At least 10 characters">
+              <svg viewBox="0 0 24 24"><rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></svg>
+            </span></label>
+          <label class="f"><span>Confirm password</span>
+            <span class="inw">
+              <input type="password" id="np2" autocomplete="new-password" placeholder="Type it again">
+              <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            </span>
+            <span class="err" id="npErr"></span></label>
+          <button type="button" class="go" id="pwGo" style="margin-top:6px">
+            <span class="lbl">Set password and continue
+              <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
+            <span class="spin"><i></i></span></button>
+        </div>
+
+        <button type="button" id="vBack" style="margin-top:16px;background:none;border:none;
+          font-size:12.6px;font-weight:600;color:var(--muted);cursor:pointer">Back to sign in</button>
+      </div>
 
       <form id="form" novalidate>
         <label class="f">
@@ -475,6 +542,172 @@ a{color:inherit;text-decoration:none}
   function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
+
+  /* ── two-step codes and first-password changes ──
+     These used to live on a separate page. They belong here: a person signing
+     in should never be handed between pages to finish signing in. */
+  var PENDING = null;   /* the account id waiting to be verified */
+
+  /* ── setting up two-step for the first time ── */
+  function showEnrol(res, name){
+    $('form').hidden = true;
+    document.querySelectorAll('.panel > .kick, .panel > h1, .panel > p')
+      .forEach(function(el){ el.hidden = true; });
+    $('verify').hidden = false;
+    $('mfaPane').hidden = false;      /* the six boxes are shared */
+    $('pwPane').hidden = true;
+    $('enrolPane').hidden = false;
+    $('vKick').textContent  = 'Set up two-step';
+    $('vTitle').textContent = 'Protect this account';
+    $('vSub').textContent   = 'Welcome, ' + (name||'') +
+      '. Add this account to your authenticator app, then enter the code it shows.';
+    ENROLLING = true;
+
+    $('secretText').textContent = res.secret || '';
+    var q = $('qr');
+    q.innerHTML = '';
+    if(res.otpauth && window.QRCode){
+      try{ new QRCode(q, { text:res.otpauth, width:168, height:168,
+        colorDark:'#0D1A16', colorLight:'#ffffff' }); }
+      catch(e){ q.innerHTML=''; }
+    }
+    setTimeout(function(){ document.querySelector('#codes input').focus(); }, 140);
+  }
+  var ENROLLING = false;
+
+
+  function showVerify(mode, name){
+    PENDING = PENDING || null;
+    $('form').hidden = true;
+    var box = document.querySelector('.panel > h1');
+    document.querySelectorAll('.panel > .kick, .panel > h1, .panel > p')
+      .forEach(function(el){ el.hidden = true; });
+    $('verify').hidden = false;
+
+    ENROLLING = false;
+    if($('enrolPane')) $('enrolPane').hidden = true;
+    var mfa = mode === 'mfa';
+    $('mfaPane').hidden = !mfa;
+    $('pwPane').hidden  =  mfa;
+    $('vKick').textContent  = mfa ? 'Two-step verification' : 'First sign-in';
+    $('vTitle').textContent = mfa ? 'Enter your code' : 'Choose your password';
+    $('vSub').textContent   = mfa
+      ? 'Signed in as ' + (name||'') + '. Enter the six-digit code from your authenticator app.'
+      : 'Welcome, ' + (name||'') + '. This account is using a temporary password — set your own before continuing.';
+
+    setTimeout(function(){
+      if(mfa) document.querySelector('#codes input').focus();
+      else $('np1').focus();
+    }, 120);
+  }
+
+  function hideVerify(){
+    PENDING = null;
+    ENROLLING = false;
+    if($('enrolPane')) $('enrolPane').hidden = true;
+    $('verify').hidden = true;
+    $('form').hidden = false;
+    document.querySelectorAll('.panel > .kick, .panel > h1, .panel > p')
+      .forEach(function(el){ el.hidden = false; });
+    codeInputs().forEach(function(i){ i.value=''; i.classList.remove('filled'); });
+    $('mfaErr').classList.remove('show');
+    $('npErr').classList.remove('show');
+    $('np1').value=''; $('np2').value='';
+  }
+  $('vBack').addEventListener('click', hideVerify);
+
+  function codeInputs(){
+    return [].slice.call(document.querySelectorAll('#codes input'));
+  }
+  function code(){ return codeInputs().map(function(i){ return i.value; }).join(''); }
+
+  /* typing, deleting and pasting a six digit code */
+  (function(){
+    var ins = codeInputs();
+    ins.forEach(function(el, i){
+      el.addEventListener('input', function(){
+        this.value = this.value.replace(/\D/g,'').slice(0,1);
+        this.classList.toggle('filled', !!this.value);
+        if(this.value && ins[i+1]) ins[i+1].focus();
+        if(code().length === 6) $('mfaGo').click();
+      });
+      el.addEventListener('keydown', function(e){
+        if(e.key === 'Backspace' && !this.value && ins[i-1]){ ins[i-1].focus(); }
+        if(e.key === 'ArrowLeft' && ins[i-1]) ins[i-1].focus();
+        if(e.key === 'ArrowRight' && ins[i+1]) ins[i+1].focus();
+      });
+      el.addEventListener('paste', function(e){
+        e.preventDefault();
+        var d = (e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6).split('');
+        d.forEach(function(ch, k){
+          if(ins[k]){ ins[k].value = ch; ins[k].classList.add('filled'); }
+        });
+        if(d.length === 6) $('mfaGo').click();
+        else if(ins[d.length]) ins[d.length].focus();
+      });
+    });
+  })();
+
+  $('mfaGo').addEventListener('click', async function(){
+    if(this.classList.contains('busy')) return;
+    var c = code();
+    if(c.length !== 6){
+      $('mfaErr').textContent='Enter all six digits';
+      $('mfaErr').classList.add('show'); return;
+    }
+    $('mfaErr').classList.remove('show');
+    this.classList.add('busy');
+    try{
+      var res = await RFStore.verifyMfa(PENDING, c, ENROLLING);
+      if(res && res.ok && res.account){
+        window.location.href = landingFor(res.account);
+        return;
+      }
+      this.classList.remove('busy');
+      $('mfaErr').textContent = (res && res.message) || 'That code was not accepted.';
+      $('mfaErr').classList.add('show');
+      codeInputs().forEach(function(i){ i.value=''; i.classList.remove('filled'); });
+      codeInputs()[0].focus();
+    }catch(e){
+      this.classList.remove('busy');
+      $('mfaErr').textContent='Could not verify the code. Try again in a moment.';
+      $('mfaErr').classList.add('show');
+    }
+  });
+
+  $('pwGo').addEventListener('click', async function(){
+    if(this.classList.contains('busy')) return;
+    var a=$('np1').value, b=$('np2').value, e=$('npErr');
+    if(a.length < 10){
+      e.textContent='Use at least ten characters'; e.classList.add('show'); $('np1').focus(); return;
+    }
+    if(a !== b){
+      e.textContent='Those two do not match'; e.classList.add('show'); $('np2').focus(); return;
+    }
+    e.classList.remove('show');
+    this.classList.add('busy');
+    try{
+      var res = await RFStore.changePassword(PENDING, a);
+      if(res && res.ok){
+        /* a fresh password may still need a code before they are in */
+        if(res.mfaRequired){
+          this.classList.remove('busy');
+          showVerify('mfa', res.name);
+          return;
+        }
+        window.location.href = landingFor(res.account || res);
+        return;
+      }
+      this.classList.remove('busy');
+      e.textContent=(res && res.message) || 'That password was not accepted.';
+      e.classList.add('show');
+    }catch(err){
+      this.classList.remove('busy');
+      e.textContent='Could not set the password. Try again in a moment.';
+      e.classList.add('show');
+    }
+  });
+
   /* ── sign in ── */
   $('form').addEventListener('submit',async function(e){
     e.preventDefault();
@@ -499,31 +732,17 @@ a{color:inherit;text-decoration:none}
 
       var res=await RFStore.login(u.value.trim(), p.value);
 
-      /* A first sign in or a two-step code both finish on the shared
-         verification screen, which returns here when it is done. */
-      if(res.mustChange || res.mfaRequired){
-        sessionStorage.setItem('rf_pending', JSON.stringify({
-          challenge:res.challenge, id:res.id, name:res.name,
-          mode: res.mustChange ? 'change' : 'mfa',
-          from: 'reviflow'
-        }));
-        window.location.href='Admin/admin-login.html?switch=1';
-        return;
-      }
-
-      /* MFA enrollment is a successful password authentication.
-         Send the signed challenge and enrollment data to the shared
-         verification page instead of showing a bad-credentials message. */
-      if(res.mfaEnrol){
-        sessionStorage.setItem('rf_pending', JSON.stringify({
-          challenge: res.challenge,
-          secret: res.secret,
-          otpauth: res.otpauth,
-          name: res.name || u.value.trim(),
-          mode: 'enrol',
-          from: 'reviflow'
-        }));
-        window.location.href='Admin/admin-login.html?switch=1';
+      /* A first sign in, a two-step code, or setting one up: all finished
+         here rather than on another page. Being handed between pages to
+         finish signing in is what kept sending people back to the old
+         screens. */
+      if(res.mustChange || res.mfaRequired || res.mfaEnrol){
+        btn.classList.remove('busy'); btn.disabled=false;
+        /* the server issues a signed challenge; the browser store uses the id */
+        PENDING = res.challenge || res.id;
+        var who = res.name || u.value.trim();
+        if(res.mfaEnrol) showEnrol(res, who);
+        else showVerify(res.mustChange ? 'change' : 'mfa', who);
         return;
       }
 

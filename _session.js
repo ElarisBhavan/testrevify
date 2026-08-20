@@ -118,7 +118,7 @@
   }
 
   /* Everyone signs in at reviflow.html now, whatever their role — the old
-     provider-login and admin-login pages were per-role and are no longer where
+     old per-role login pages are gone, and reviflow.html is now where
      anybody starts. Only the number of folders to climb changes. */
   function loginUrl(reason){
     var p = location.pathname;
@@ -128,7 +128,7 @@
   }
 
   function isPublic(){
-    return /reviflow|provider-login|admin-login|reset-password|^\/?index|resources|insights/i
+    return /reviflow|reset-password|^\/?index|resources|insights/i
       .test(location.pathname.split('/').pop() || 'index.html');
   }
 

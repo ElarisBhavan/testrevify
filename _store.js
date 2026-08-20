@@ -22,11 +22,14 @@
                 browser and reaches a server.
 
      Nothing else needs editing. Every page reads this. */
-  const DRIVER = (typeof window !== 'undefined' && window.RF_DRIVER) || 'api';
+  /* Set in _config.js, which loads before this file. The fallback keeps the
+     application working if that file is ever missing. */
+  const DRIVER = (typeof window !== 'undefined' &&
+                  ((window.RF_CONFIG && window.RF_CONFIG.driver) || window.RF_DRIVER)) || 'local';
   /* ───────────────────────────────────────────────────────────── */
   /* Bumped on every release. Printed to the console and shown in the page
      footer, so which build is actually loaded is never in doubt. */
-  const BUILD = '2026.08.20-postgres-a';
+  const BUILD = '2026.08.20-local-a';
   window.RF_BUILD = BUILD;
 
   const DB = 'reviflow', STORE = 'accounts', META = 'meta', VER = 10;
@@ -716,8 +719,13 @@
     /* which providers still have no login */
     async providersWithoutLogin(){
       const accts = await all();
-      const ids = new Set(accts.map(a => a.provider_ref).filter(Boolean));
-      return (await rows(PROVIDERS)).filter(p => !ids.has(p.id));
+      /* compare as text; the link's type varies by driver */
+      const linked = new Set(
+        accts.map(a => a.provider_ref)
+             .filter(v => v !== null && v !== undefined && v !== '')
+             .map(String));
+      const provs = await this.providers();
+      return provs.filter(p => !linked.has(String(p.id)));
     },
 
     /* ═══ PATIENTS (shared by scheduling and the patient dashboard) ═══ */

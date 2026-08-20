@@ -1,55 +1,85 @@
-# Read this first
+# RevifyRCM — this package
 
-## If you still see `paintInsurance is not defined`
+## Running on this computer only
 
-That error can only happen when **`Patient/patient-record.html` is older than
-the rest of the files**. The function exists in this package — I verified it by
-executing the page.
+`_store.js` is set to **local**: every browser keeps its own copy of the data and
+nothing is sent to a server. Right for building and testing.
 
-Two things cause it:
+The console says so on every page load:
 
-**1. Not every file was replaced.** Copying a few files over an older folder
-leaves a mixture of builds. Replace the whole folder, not selected files.
+```
+ReviFlow build 2026.08.20-local-a · accounts: this browser only
+```
 
-**2. The browser served a cached page.** A normal reload often reuses the old
-HTML. Force a fresh copy:
+## Switching to Supabase later
 
-| Browser | Hard reload |
+One word, in **`_config.js`**:
+
+```js
+driver: 'local',   // change to 'api'
+```
+
+Nothing else. See CONFIG.md, and .env.example for the server settings. The console will then read
+**accounts: shared (server)**.
+
+Before flipping it you will need `DATABASE_URL` and `SESSION_SECRET` set, and
+`schema.sql` and `schema-data.sql` run against the database.
+
+## The old sign-in pages are gone
+
+`Admin/admin-login.html` and `Provider/provider-login.html` have been deleted.
+Everyone now signs in at **`reviflow.html`**, and every sign-out returns there.
+
+That is why logging out kept taking you back to the old screens: the pages were
+still in the package, and several places still pointed at them.
+
+**Everything those pages did now happens on `reviflow.html` without leaving it:**
+
+- signing in
+- the six-digit two-step code
+- setting up two-step for the first time, QR code included
+- choosing a password on a first sign-in
+
+Previously a person signing in for the first time was sent to another page to
+finish, then sent on again. That handoff is gone — the whole thing happens in
+one place.
+
+`Admin/reset-password.html` is still there. It is a separate errand, reached from
+an emailed link, and does not belong inside the sign-in flow.
+
+## Where each role lands
+
+| Role | Lands on |
 |---|---|
-| Chrome, Edge | Ctrl + Shift + R  ·  Cmd + Shift + R on a Mac |
-| Firefox | Ctrl + Shift + R |
-| Safari | Cmd + Option + E, then Cmd + R |
+| admin | `Admin/admin-dashboard.html` |
+| supervisor, provider, scheduler, employee | `Provider/provider-dashboard.html` |
+| billing | `Provider/claims.html` |
+| front office | `Provider/schedule.html` |
+| patient | `Patient/patient-dashboard.html` |
 
-## How to tell which build you are running
+Case, spaces and underscores are ignored. An unrecognised role still lands
+somewhere sensible.
 
-Every page now shows a small badge in the bottom right corner:
+## Also fixed in this package
 
-- **`build 2026.08.15-a`** in grey — correct.
-- **`stale files · …`** in red — the files do not match. Hover it for the detail,
-  and check the browser console.
+Two changes from earlier were missing from the copy you sent up, so a provider
+kept appearing twice in Admin → Logins — once as an account and again as
+"NO LOGIN". Both are back:
 
-The console also prints the build on every page load.
+- the account's link to its provider record is now saved by the server on create
+  and update, and returned when listing
+- the comparison is done as text, because the link arrives as a number or a
+  string depending on the driver
 
-## Recommended: start clean
+## Verified
 
-1. Delete your existing RevifyRCM folder entirely.
-2. Unzip this package fresh.
-3. Open a page and hard reload once.
-4. Confirm the badge reads `build 2026.08.15-a`.
+22 checks on the package itself: the old pages are gone, nothing links to them,
+every page parses, every internal link resolves, the driver is local, and all
+three verification flows are present on the sign-in page.
 
-Your data lives in the browser's database, not in these files, so replacing the
-folder does not touch your patients, encounters or claims.
+Plus the behaviour suites: 34 claim payload, 27 workflow, 25 sign-in routing, 13
+per-tab session, 12 provider linking, 12 code lookups, 7 cascade, 7 scheduling,
+6 password.
 
-## If the chart still looks empty
-
-Open the console. Every page load prints a line like:
-
-```
-ReviFlow chart · Camille McDonald (id 1) · 2 policies · 4 encounters · 1 claim
-```
-
-That tells you what is actually in the database. If the counts are right but
-the screen is empty, the fault is in rendering and the console will name the
-section. If the counts are zero, the records were never written — most likely
-during the period when the database was missing stores, which this build
-repairs automatically on first open.
+A sign-in was also run end to end with the network deliberately unavailable, to
+confirm local mode never reaches for a server.

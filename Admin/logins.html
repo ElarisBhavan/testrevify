@@ -59,6 +59,7 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
   background:transparent!important;border:none!important;box-shadow:none!important}
 </style>
 <script src="../_guard.js"></script>
+<script src="../_config.js"></script>
 <script src="../_store.js"></script>
 <script src="../_notify.js"></script>
 <script src="../_session.js"></script>
@@ -356,13 +357,25 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
 
   /* provider records that have no account yet, shown inline as pending rows */
   function pendingRows(){
-    var linked=new Set(ACCOUNTS.map(function(a){return a.provider_ref;}).filter(Boolean));
+    /* Compare as text. The link comes back as a number or a string depending
+       on the driver, so a strict match found none and every provider stayed
+       listed as having no login. */
+    var linked=new Set(ACCOUNTS
+      .map(function(a){return a.provider_ref;})
+      .filter(function(v){return v!==null&&v!==undefined&&v!=='';})
+      .map(String));
     var takenNames=new Set(ACCOUNTS.map(function(a){
       return String(a.full_name||'').toLowerCase(); }));
     var takenUsers=new Set(ACCOUNTS.map(function(a){return a.username;}));
 
     /* providers without a login */
-    var out=PROVS.filter(function(p){return !linked.has(p.id);}).map(function(p){
+    var out=PROVS.filter(function(p){
+      if(linked.has(String(p.id)))return false;
+      /* an account made before the link was stored still counts */
+      var nm=String(p.full_name||'').toLowerCase();
+      if(nm&&takenNames.has(nm))return false;
+      return true;
+    }).map(function(p){
       var req=REQS.filter(function(r){return String(r.provider_ref)===String(p.id);})[0];
       return {
         _pending:true, id:'p'+p.id, provider_id_ref:p.id,
@@ -482,11 +495,15 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
   $('fOrg').addEventListener('change',function(){
     var oid=this.value?+this.value:null;
     var pool=PROVS.filter(function(p){return !oid||p.org_id===oid;});
-    var linked=new Set(ACCOUNTS.map(function(a){return a.provider_ref;}).filter(Boolean));
+    var linked=new Set(ACCOUNTS
+      .map(function(a){return a.provider_ref;})
+      .filter(function(v){return v!==null&&v!==undefined&&v!=='';})
+      .map(String));
     $('fLink').innerHTML='<option value="">Not linked</option>'+
       pool.map(function(p){
-        return '<option value="'+p.id+'"'+(linked.has(p.id)?' disabled':'')+'>'+
-          p.full_name+(p.title?', '+p.title:'')+(linked.has(p.id)?' — already has a login':'')+'</option>';
+        var has=linked.has(String(p.id));
+        return '<option value="'+p.id+'"'+(has?' disabled':'')+'>'+
+          p.full_name+(p.title?', '+p.title:'')+(has?' — already has a login':'')+'</option>';
       }).join('');
   });
   $('fLink').addEventListener('change',function(){
