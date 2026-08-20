@@ -4,8 +4,18 @@
    Signing out anywhere signs out everywhere, immediately.
    ═══════════════════════════════════════════════════════════════ */
 (function(){
-  var KEY      = 'rf_session';      // the session itself, in localStorage so tabs share it
-  var TICK     = 'rf_session_tick'; // last activity, written by whichever tab is in use
+  /* The session lives in sessionStorage, which belongs to one tab. That is what
+     lets an administrator work in one tab and a provider in another: with a
+     single shared key the second sign-in simply overwrote the first, and a
+     sign-out took both down.
+
+     A copy is kept in localStorage purely so a newly opened tab can inherit a
+     session rather than demanding another sign-in. The tab's own copy always
+     wins once it exists. */
+  var KEY      = 'rf_session';      // per tab, in sessionStorage
+  var SEED     = 'rf_session_seed'; // the copy a new tab may inherit
+  var TICK     = 'rf_session_tick'; // last activity, per tab
+  var NOSEED   = 'rf_no_inherit';   // this tab signed out deliberately
   var CHAN     = 'rf_auth';         // BroadcastChannel name
   var ABSOLUTE = 12 * 3600 * 1000;  // hard ceiling, regardless of activity
   var DEFAULT_IDLE = 30;            // minutes, overridden by the user's settings
@@ -14,23 +24,61 @@
   try{ bc = ('BroadcastChannel' in window) ? new BroadcastChannel(CHAN) : null; }catch(e){}
 
   function read(){
-    try{ return JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(e){ return null; }
+    try{
+      var own = sessionStorage.getItem(KEY);
+      if(own) return JSON.parse(own);
+    }catch(e){}
+
+    /* A tab that signed out must never pick a session back up. Without this it
+       would inherit whichever account another tab happens to be using — an
+       administrator signing out would silently become the provider next door. */
+    try{ if(sessionStorage.getItem(NOSEED)) return null; }catch(e){}
+
+    /* Otherwise a newly opened tab carries on as the same person rather than
+       being challenged again: inherit once, then keep our own copy. */
+    try{
+      var seed = localStorage.getItem(SEED);
+      if(seed){
+        var p = JSON.parse(seed);
+        if(p){ sessionStorage.setItem(KEY, seed); return p; }
+      }
+    }catch(e){}
+    return null;
   }
+
   function write(s){
-    try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){}
+    try{ sessionStorage.removeItem(NOSEED); }catch(e){}
+    try{ sessionStorage.setItem(KEY, JSON.stringify(s)); }catch(e){}
+    /* refresh what a future tab would inherit */
+    try{ localStorage.setItem(SEED, JSON.stringify(s)); }catch(e){}
   }
+
   function wipe(){
-    try{ localStorage.removeItem(KEY); localStorage.removeItem(TICK); }catch(e){}
-    /* clear anything a page may have cached for this tab */
-    try{ sessionStorage.removeItem(KEY); }catch(e){}
+    var who = null;
+    try{ var cur = read(); who = cur && cur.username; }catch(e){}
+    try{
+      sessionStorage.removeItem(KEY);
+      sessionStorage.removeItem(TICK);
+      sessionStorage.setItem(NOSEED, '1');
+    }catch(e){}
+    /* Only clear the shared seed if it belongs to the account leaving. Another
+       tab signed in as somebody else must keep its own place. */
+    try{
+      var seed = JSON.parse(localStorage.getItem(SEED) || 'null');
+      if(!who || !seed || seed.username === who){
+        localStorage.removeItem(SEED);
+        localStorage.removeItem(TICK);
+      }
+    }catch(e){}
   }
   function lastTick(){
     var t = 0;
-    try{ t = +localStorage.getItem(TICK) || 0; }catch(e){}
+    /* per tab, so one person idling cannot expire somebody else's work */
+    try{ t = +sessionStorage.getItem(TICK) || 0; }catch(e){}
     return t;
   }
   function touch(){
-    try{ localStorage.setItem(TICK, String(Date.now())); }catch(e){}
+    try{ sessionStorage.setItem(TICK, String(Date.now())); }catch(e){}
   }
 
   function idleMinutes(){
@@ -198,9 +246,17 @@
   function handleRemote(msg){
     if(!msg) return;
     listeners.forEach(function(fn){ try{ fn(msg); }catch(e){} });
+
     if(msg.type === 'logout'){
       if(isPublic()) return;
-      /* another tab signed out — follow it, without looping the broadcast */
+
+      /* Follow another tab's sign-out only when it is the same account. An
+         administrator signing out in one tab must not close a provider's work
+         in another — they are different people as far as this is concerned. */
+      var mine = read();
+      if(!mine) return;
+      if(msg.username && String(msg.username) !== String(mine.username)) return;
+
       wipe();
       location.replace(loginUrl(msg.reason && msg.reason !== 'manual' ? msg.reason : ''));
     }
@@ -212,10 +268,8 @@
       try{ handleRemote(JSON.parse(e.newValue)); }catch(err){}
       return;
     }
-    /* the session row itself disappearing means a sign-out elsewhere */
-    if(e.key === KEY && !e.newValue && !isPublic()){
-      location.replace(loginUrl());
-    }
+    /* The shared seed disappearing no longer means anything for this tab —
+       it keeps its own session. Nothing to do here. */
   });
 
   /* activity keeps the session alive; a watchdog ends it when it should */

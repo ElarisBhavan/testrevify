@@ -317,12 +317,13 @@
   const setSession = a => {
     const p = sessionPayload(a);
     if(window.RFSession) window.RFSession.start(p);
-    else { try{ localStorage.setItem(SKEY, JSON.stringify(p)); }catch(e){} }
+    else { try{ sessionStorage.setItem(SKEY, JSON.stringify(p)); }catch(e){} }
     return p;
   };
   const getSession = () => {
     if(window.RFSession) return window.RFSession.get();
-    try{ return JSON.parse(localStorage.getItem(SKEY) || 'null'); }catch(e){ return null; }
+    /* per tab, matching _session.js when it is not loaded */
+    try{ return JSON.parse(sessionStorage.getItem(SKEY) || 'null'); }catch(e){ return null; }
   };
   const clearSession = () => {
     try{
@@ -334,7 +335,7 @@
       try{ fetch('/api/auth?action=logout', { method:'POST', credentials:'same-origin' }); }catch(e){}
     }
     if(window.RFSession) return window.RFSession.end('manual');
-    try{ localStorage.removeItem(SKEY); }catch(e){}
+    try{ sessionStorage.removeItem(SKEY); }catch(e){}
   };
 
   /* ── remote driver: the same interface, served by Netlify Functions ── */
