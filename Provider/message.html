@@ -399,7 +399,11 @@ img.logo-mark{width:34px;height:34px;object-fit:contain;display:block;
   var MKEY='rf_messages';
 
   var ME={name:'Dr. Dana Whitfield',initials:'DW',role:'provider',id:'me'};
-  try{var r=localStorage.getItem('rf_session');if(r){var s=JSON.parse(r);
+  /* ask the session module, so this reads the tab's own account */
+  try{var r=(window.RFSession&&RFSession.get())
+        ? JSON.stringify(RFSession.get())
+        : sessionStorage.getItem('rf_session');
+    if(r){var s=JSON.parse(r);
     ME={name:s.name||ME.name,initials:s.initials||ME.initials,role:s.role||'provider',id:'me'};}}catch(e){}
 
   /* ── directory: providers, supervisors, schedulers only ── */
